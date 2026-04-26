@@ -1,6 +1,9 @@
 node_modules/
 dist/
 *.log
+package-lock.json
+ARCHITECTURE.md
+README.md
 
 # Local environment secrets
 .env
