@@ -1,7 +1,8 @@
 import { formatMoney } from './utils.js';
 import { CARD_ORDER, CARD_LABELS, CATEGORY_LABELS } from '../domain/constants.js';
 import { getExpenseCard } from '../selectors/summarySelectors.js';
-import type { MonthView, MonthViewFixedExpense, BillCard } from '../domain/types.js';
+import type { MonthView, MonthViewFixedExpense } from '../domain/types.js';
+import type { BillCard } from '../domain/constants.js';
 
 export const CHART_COLORS = [
   '#378ADD',

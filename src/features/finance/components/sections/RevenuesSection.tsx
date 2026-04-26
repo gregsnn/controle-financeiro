@@ -41,7 +41,7 @@ export function RevenuesSection({
     closeDeleteConfirm,
   } = useCrudModalState<Revenue>();
   const canSubmit = useMemo(
-    () => form.name.trim() && form.amount !== '' && form.startMonth.trim(),
+    () => !!(form.name.trim() && form.amount !== '' && form.startMonth.trim()),
     [form]
   );
 

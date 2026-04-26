@@ -75,7 +75,7 @@ export function FixedExpensesSection({
   } = useCrudModalState<FixedExpense>();
 
   const canSubmit = useMemo(
-    () => form.name.trim() && form.amount !== '' && form.startMonth.trim(),
+    () => !!(form.name.trim() && form.amount !== '' && form.startMonth.trim()),
     [form]
   );
 

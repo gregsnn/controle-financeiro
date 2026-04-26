@@ -72,10 +72,10 @@ export function InstallmentsSection({
 
   const canSubmit = useMemo(
     () =>
-      form.name.trim() &&
-      form.installmentValue !== '' &&
-      form.totalInstallments !== '' &&
-      form.startMonth.trim(),
+      !!(form.name.trim() &&
+        form.installmentValue !== '' &&
+        form.totalInstallments !== '' &&
+        form.startMonth.trim()),
     [form]
   );
 

@@ -8,7 +8,8 @@ interface Connection {
 
 function readConnection(): Connection | null {
   if (typeof navigator === 'undefined') return null;
-  return navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+  const nav = navigator as unknown as Record<string, Connection | null>;
+  return nav.connection || nav.mozConnection || nav.webkitConnection || null;
 }
 
 export function shouldPrefetchChart(connection: Connection | null): boolean {

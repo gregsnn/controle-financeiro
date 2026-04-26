@@ -18,6 +18,10 @@ export const ALLOWED_BILL_CARDS = ['santander', 'nubank', 'outro'] as const;
 
 export type BillCard = (typeof ALLOWED_BILL_CARDS)[number];
 
+export const PIE_MODES = ['categories', 'cards', 'cardsStatus'] as const;
+
+export type PieMode = (typeof PIE_MODES)[number];
+
 export const ICONS: Record<string, string> = {
   boleto: '📄',
   pix: '⚡',

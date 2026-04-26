@@ -12,7 +12,7 @@ import { useMonthOverridesActions } from './hooks/useMonthOverridesActions';
 import { useCharts } from './hooks/useCharts';
 import { useI18n } from './lib/i18n';
 import { prefetchChartModule } from './lib/chartLoader';
-import { TABS } from './domain/constants';
+import { TABS, OVERRIDE_TYPES, type PieMode } from './domain/constants';
 import { monthLabel } from './lib/utils';
 import { useFinance } from './context/FinanceContext';
 import { LoadingScreen } from './components/app-shell/LoadingScreen';
@@ -28,7 +28,7 @@ export default function FinanceApp() {
   const { isReady } = finance;
   const actions = useFinanceActions();
   const [activeTab, setActiveTab] = useState('resumo');
-  const [pieMode, setPieMode] = useState('categories');
+  const [pieMode, setPieMode] = useState<PieMode>('categories');
   const { pieChartRef, barChartRef } = useCharts(monthView, pieMode, activeTab);
   const {
     monthCardBills,
