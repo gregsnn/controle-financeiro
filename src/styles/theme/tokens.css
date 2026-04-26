@@ -33,6 +33,10 @@
   --color-alert-text: #92400e;
   --color-receita-bg: #dff7e8;
   --color-receita-text: #166534;
+  --color-card-nubank: #8a3ffc;
+  --color-card-santander: #ec1b2c;
+  --color-card-bg: #faf8f5;
+  --color-card-border: #e5e3dc;
   --border-radius-md: 8px;
   --border-radius-lg: 14px;
 }
@@ -71,4 +75,8 @@ body[data-theme='premium'] {
   --color-alert-text: #fde68a;
   --color-receita-bg: #123022;
   --color-receita-text: #a7f3d0;
+  --color-card-nubank: #8a3ffc;
+  --color-card-santander: #ec1b2c;
+  --color-card-bg: #1a1e2e;
+  --color-card-border: #2d3548;
 }

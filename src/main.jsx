@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './features/finance/components/ErrorBoundary';
 import { FinanceProvider } from './features/finance';
-import { I18nProvider } from './features/finance/lib/i18n.jsx';
+import { I18nProvider } from './features/finance/lib/i18n';
 import './styles.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(

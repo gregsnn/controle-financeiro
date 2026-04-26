@@ -1,8 +1,8 @@
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  margin-bottom: 1.25rem;
+  gap: 10px;
+  margin-bottom: 1rem;
 }
 
 .metrics--triplet {
@@ -11,30 +11,32 @@
 
 .mcard {
   background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-lg);
-  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px 16px;
   min-width: 0;
 }
 
 .mcard-label {
-  font-size: 10px;
+  font-size: 9px;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  margin-bottom: 3px;
-  letter-spacing: .04em;
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .mcard-val {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
 .mcard-sub {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  margin-top: 4px;
   overflow-wrap: anywhere;
 }
 

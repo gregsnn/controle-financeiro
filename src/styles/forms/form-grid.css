@@ -37,10 +37,10 @@
 }
 
 .sort-select {
-  font-size: 12px;
-  padding: 4px 8px;
-  border: 0.5px solid var(--color-border-secondary);
-  border-radius: var(--border-radius-md);
+  font-size: 11px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
   background: var(--color-background-primary);
   color: var(--color-text-primary);
   cursor: pointer;

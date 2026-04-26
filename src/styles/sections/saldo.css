@@ -1,37 +1,41 @@
 .saldo-hero {
-  background: var(--color-background-secondary);
-  border-radius: var(--border-radius-lg);
-  padding: 0.85rem 1rem;
-  margin-bottom: 1.5rem;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   min-width: 0;
 }
 
 .saldo-label {
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 600;
   color: var(--color-text-secondary);
-  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
 .saldo-val {
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 22px;
+  font-weight: 600;
 }
 
 .saldo-detail {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--color-text-secondary);
-  line-height: 1.8;
+  line-height: 1.6;
 }
 
 .receita-pill {
   background: var(--color-receita-bg);
   color: var(--color-receita-text);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 600;
 }

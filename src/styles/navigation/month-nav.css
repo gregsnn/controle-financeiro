@@ -1,9 +1,9 @@
 .month-nav {
   display: grid;
-  gap: 8px;
-  padding: 10px;
-  border: 0.5px solid var(--color-border-tertiary);
-  border-radius: var(--border-radius-lg);
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
   background: var(--color-background-primary);
   margin-bottom: 12px;
 }
@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -20,13 +20,13 @@
   display: inline-grid;
   grid-template-columns: auto minmax(0, auto) auto;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
 .month-stepper h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
@@ -41,17 +41,40 @@
   justify-content: center;
   font-size: 12px;
   font-weight: 500;
-  padding: 5px 8px;
-  border: 0.5px solid var(--color-border-secondary);
-  border-radius: var(--border-radius-md);
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
   background: var(--color-background-primary);
   color: var(--color-text-primary);
+  cursor: pointer;
 }
 
 .month-step-btn--icon {
   width: 32px;
-  height: 30px;
+  height: 32px;
   padding: 0;
+}
+
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.theme-btn-label {
+  line-height: 1;
+}
+
+.theme-btn-icon {
+  line-height: 1;
 }
 
 .card-bill-panel {
@@ -176,11 +199,6 @@
 
 .theme-btn-icon {
   line-height: 1;
-}
-
-.theme-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
 }
 
 @media (max-width: 900px) {
