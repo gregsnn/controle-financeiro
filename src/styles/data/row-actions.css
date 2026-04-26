@@ -1,0 +1,73 @@
+.del,
+.edit {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.del { font-size: 16px; }
+.edit { font-size: 14px; }
+
+.del:hover {
+  background: var(--color-background-danger);
+  color: var(--color-semantic-danger);
+}
+
+.edit:hover {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.month-amount-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.month-amount-input {
+  width: 100px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: right;
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+
+.month-amount-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.month-amount-input.has-override {
+  border-color: var(--color-semantic-info);
+  background: var(--color-background-highlight);
+}
+
+.clear-override {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.clear-override:hover {
+  background: var(--color-background-danger);
+  color: var(--color-semantic-danger);
+}

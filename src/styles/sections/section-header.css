@@ -1,0 +1,31 @@
+.section { margin-bottom: 1.25rem; }
+
+.sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sec-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: .05em;
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.add-btn:hover { background: var(--color-background-secondary); }

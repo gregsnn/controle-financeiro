@@ -1,0 +1,52 @@
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot-ok { background: var(--color-semantic-success); }
+.dot-pend { background: var(--color-semantic-warning); }
+
+.progress-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 80px;
+}
+
+.progress-text {
+  display: none;
+}
+
+.progress-bar {
+  height: 20px;
+  background: var(--color-border-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-accent-strong);
+  transition: width 0.3s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: fit-content;
+  padding: 0 6px;
+}
+
+.progress-fill::after {
+  content: attr(data-progress);
+  font-size: 10px;
+  color: #fff;
+  font-weight: 500;
+  white-space: nowrap;
+}

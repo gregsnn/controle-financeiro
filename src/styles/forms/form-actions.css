@@ -1,0 +1,41 @@
+.factions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btn-save {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--color-text-primary);
+  color: var(--color-background-primary);
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+}
+
+.btn-cancel {
+  padding: 8px 18px;
+  font-size: 13px;
+  background: none;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.btn-del {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--color-semantic-danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+}
+
+.btn-del:hover {
+  background: #c42b2b;
+}

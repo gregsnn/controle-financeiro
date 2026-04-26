@@ -1,0 +1,208 @@
+.month-nav {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  background: var(--color-background-primary);
+  margin-bottom: 12px;
+}
+
+.month-nav-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.month-stepper {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, auto) auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.month-stepper h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.month-step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+
+.month-step-btn--icon {
+  width: 32px;
+  height: 30px;
+  padding: 0;
+}
+
+.card-bill-panel {
+  display: grid;
+  gap: 4px;
+  padding: 7px 8px;
+  width: 100%;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: color-mix(in srgb, var(--color-background-secondary) 42%, transparent);
+}
+
+.card-bill-title {
+  margin: 0;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--color-text-tertiary);
+}
+
+.card-bill-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.card-bill-field {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.card-bill-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-bill-icon {
+  width: 12px;
+  text-align: center;
+  line-height: 1;
+  font-size: 10px;
+  color: var(--color-accent-strong);
+}
+
+.card-bill-field--santander .card-bill-icon {
+  color: #d62d36;
+}
+
+.card-bill-field--nubank .card-bill-icon {
+  color: #7c3aed;
+}
+
+.card-bill-label {
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.bill-input {
+  flex: 1;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding: 4px 6px 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  min-width: 0;
+}
+
+.bill-input-shell {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.bill-input-shell:focus-within {
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border-secondary));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+
+.bill-currency {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  letter-spacing: .03em;
+}
+
+.bill-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.bill-input:focus {
+  outline: none;
+}
+
+.theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.theme-btn-label {
+  line-height: 1;
+}
+
+.theme-btn-icon {
+  line-height: 1;
+}
+
+.theme-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .month-nav-top {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .month-stepper {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .month-stepper h2 {
+    font-size: 16px;
+  }
+
+  .card-bill-group {
+    grid-template-columns: 1fr;
+  }
+
+  .theme-btn-label {
+    display: none;
+  }
+}

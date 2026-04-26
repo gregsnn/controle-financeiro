@@ -1,0 +1,35 @@
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+.modal-bg.open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-fg {
+  background: rgba(0, 0, 0, .35);
+  position: absolute;
+  inset: 0;
+}
+
+.modal-box {
+  position: relative;
+  z-index: 1;
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  width: 420px;
+  max-width: 95vw;
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}

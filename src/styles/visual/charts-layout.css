@@ -1,0 +1,116 @@
+.charts-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.chart-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 14px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.chart-frame {
+  position: relative;
+  width: 100%;
+}
+
+.chart-frame--pie {
+  height: 240px;
+  width: 100%;
+}
+
+.chart-frame--pie canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+}
+
+.chart-frame--status {
+  height: 236px;
+}
+
+.chart-frame--bar {
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 8px;
+}
+
+.chart-frame--bar canvas {
+  height: 100% !important;
+  width: 100% !important;
+  max-height: none !important;
+}
+
+.chart-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+
+.chart-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+  min-width: 0;
+}
+
+.chart-head .chart-title {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.chart-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  background: var(--color-background-secondary);
+  border-radius: 9px;
+  padding: 2px;
+  border: 0.5px solid var(--color-border-tertiary);
+  width: 100%;
+}
+
+.chart-switch-btn {
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  line-height: 1.15;
+  padding: 6px 6px;
+  border-radius: 7px;
+  cursor: pointer;
+  text-wrap: balance;
+  min-width: 0;
+}
+
+.chart-switch-btn.active {
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+}
+
+.chart-card canvas {
+  display: block;
+  max-width: 100% !important;
+}
+
+@media (max-width: 900px) {
+  .chart-frame--pie {
+    height: 184px;
+  }
+
+  .chart-frame--status {
+    height: 220px;
+  }
+}

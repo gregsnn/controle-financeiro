@@ -1,0 +1,43 @@
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 1.25rem;
+}
+
+.metrics--triplet {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mcard {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 10px 12px;
+  min-width: 0;
+}
+
+.mcard-label {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  margin-bottom: 3px;
+  letter-spacing: .04em;
+}
+
+.mcard-val {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.mcard-sub {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.bill-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}

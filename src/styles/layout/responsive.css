@@ -1,0 +1,22 @@
+@media (max-width: 900px) {
+  .metrics,
+  .charts-grid,
+  .form-grid,
+  .form-grid.tri {
+    grid-template-columns: 1fr;
+  }
+
+  .saldo-hero {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .card {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 680px;
+  }
+}
