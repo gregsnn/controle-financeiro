@@ -1,22 +1,22 @@
-import Summary from '../Summary';
-import { formatMoney } from '../../lib/utils';
-import { useSummaryMetrics } from '../../hooks/useSummaryMetrics';
-import { OVERRIDE_TYPES } from '../../domain/constants';
-import type { MonthOverride, MonthView, Settings } from '../../domain/types';
 import type { RefObject } from 'react';
+import { OVERRIDE_TYPES } from '../../domain/constants';
+import type { MonthOverride, MonthView } from '../../domain/types';
+import { useSummaryMetrics } from '../../hooks/useSummaryMetrics';
+import { formatMoney } from '../../lib/utils';
+import Summary from '../Summary';
 
 type PieMode = 'categories' | 'cards' | 'cardsStatus';
 
 interface SummaryDashboardProps {
   monthView: MonthView;
-  monthCardBills: Settings['cardBills'];
+  monthCardBills: Record<string, number>;
   monthOverrides: MonthOverride[];
   currentMonthKey: string;
   pieMode: PieMode;
   setPieMode: (mode: PieMode) => void;
   pieChartRef: RefObject<HTMLCanvasElement | null>;
   barChartRef: RefObject<HTMLCanvasElement | null>;
-  onToggleMonthPaid: (type: string, itemId: string, paid: boolean) => void;
+  onToggleMonthPaid: (type: any, itemId: string, paid: boolean) => void;
 }
 
 export function SummaryDashboard({
@@ -30,7 +30,10 @@ export function SummaryDashboard({
   barChartRef,
   onToggleMonthPaid,
 }: SummaryDashboardProps) {
-  const { pieTitle, pieAriaLabel, totalRestante, almostDone } = useSummaryMetrics(monthView, pieMode);
+  const { pieTitle, pieAriaLabel, totalRestante, almostDone } = useSummaryMetrics(
+    monthView,
+    pieMode
+  );
 
   return (
     <>
@@ -48,7 +51,11 @@ export function SummaryDashboard({
         <div className="chart-card">
           <div className="chart-head">
             <p className="chart-title">{pieTitle}</p>
-            <div className="chart-switch" role="tablist" aria-label="Modo da distribuicao de despesas">
+            <div
+              className="chart-switch"
+              role="tablist"
+              aria-label="Modo da distribuicao de despesas"
+            >
               <button
                 type="button"
                 role="tab"

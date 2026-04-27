@@ -6,11 +6,11 @@ import { formatStartMonth } from '../../lib/utils';
 import RuleSection from '../RuleSection';
 import { Input, SelectWithIcon } from '../inputs';
 import { ConfirmModal, RuleModal } from '../modals';
+import { RowActions } from './shared/RowActions';
+import type { CrudSectionCommonProps, MonthPaidSectionProps } from './shared/types';
+import { useCrudFormFlow } from './shared/useCrudFormFlow';
 import { useCrudModalState } from './shared/useCrudModalState';
 import { useMonthPaymentMap } from './shared/useMonthPaymentMap';
-import { RowActions } from './shared/RowActions';
-import { useCrudFormFlow } from './shared/useCrudFormFlow';
-import type { CrudSectionCommonProps, MonthPaidSectionProps } from './shared/types';
 
 function resolvePaymentMethod(item) {
   if (item.paymentMethod === 'cartao' && item.card) return item.card;
@@ -90,7 +90,7 @@ export function FixedExpensesSection({
     if (amount === null) return null;
     return {
       name: currentForm.name,
-      amount,
+      amount: amount ?? 0,
       dueDay: currentForm.dueDay ? Number(currentForm.dueDay) : null,
       startMonth: currentForm.startMonth,
       paymentMethod: currentForm.paymentMethod,
@@ -108,8 +108,8 @@ export function FixedExpensesSection({
     closeModal,
     resetForm,
     buildPayload,
-    onAdd,
-    onEdit,
+    onAdd: (payload) => onAdd(payload!),
+    onEdit: (id, payload) => onEdit(id, payload!),
   });
 
   const openCreateModal = () => {
@@ -153,7 +153,16 @@ export function FixedExpensesSection({
         items={items}
         emptyText="Nenhum gasto fixo cadastrado ainda."
         sortBy="value-desc"
-        columns={['Nome', 'Valor', 'Pagamento', 'Categoria', 'Vencimento', 'Desde', 'Pago', 'Ações']}
+        columns={[
+          'Nome',
+          'Valor',
+          'Pagamento',
+          'Categoria',
+          'Vencimento',
+          'Desde',
+          'Pago',
+          'Ações',
+        ]}
         renderItem={(item, money) => (
           <tr key={item.id}>
             <td>{item.name}</td>
@@ -171,7 +180,10 @@ export function FixedExpensesSection({
               />
             </td>
             <td>
-              <RowActions onEdit={() => openEditModal(item)} onDelete={() => openDeleteConfirm(item)} />
+              <RowActions
+                onEdit={() => openEditModal(item)}
+                onDelete={() => openDeleteConfirm(item)}
+              />
             </td>
           </tr>
         )}
@@ -203,7 +215,9 @@ export function FixedExpensesSection({
             label="Valor"
             type="text"
             value={form.amount}
-            onChange={(e) => setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))
+            }
             inputMode="numeric"
             autoComplete="off"
             placeholder="0,00"

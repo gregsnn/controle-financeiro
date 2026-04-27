@@ -1,12 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { loadChartModule, prefetchChartModule, __resetChartLoaderForTests } from '../lib/chartLoader';
-import { buildCategorySeries, buildCardSeries, buildCardStatusSeries } from '../lib/chartSeries';
-import { createFinanceId } from '../lib/ids';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { OVERRIDE_TYPES } from '../domain/constants';
-import { selectMonthCardBills } from '../selectors/monthOverrideSelectors';
-import { clone, monthKey, isMonthInRange } from '../lib/utils';
+import {
+  __resetChartLoaderForTests,
+  loadChartModule,
+  prefetchChartModule,
+} from '../lib/chartLoader';
+import { buildCardSeries, buildCardStatusSeries, buildCategorySeries } from '../lib/chartSeries';
+import { createFinanceId } from '../lib/ids';
 import { formatMoneyInput } from '../lib/moneyInput';
-import { emptyFinanceState } from '../lib/schema';
+import { emptyFinanceState, type MonthView } from '../lib/schema';
+import { clone, isMonthInRange, monthKey } from '../lib/utils';
+import { selectMonthCardBills } from '../selectors/monthOverrideSelectors';
 
 describe('performanceFull.ts - All modules stress test', () => {
   beforeEach(() => {
@@ -44,6 +48,7 @@ describe('performanceFull.ts - All modules stress test', () => {
           dueDay: 5,
           name: `Desp ${i}`,
           notes: '',
+          paid: false,
         })),
         installments: [],
         revenues: [],
@@ -59,7 +64,12 @@ describe('performanceFull.ts - All modules stress test', () => {
     });
 
     it('handles empty input', () => {
-      const monthView = emptyFinanceState();
+      const monthView: MonthView = {
+        fixedExpenses: [],
+        installments: [],
+        revenues: [],
+        totals: { despesasFixas: 0, receitas: 0, installments: 0 },
+      };
 
       const start = performance.now();
       for (let i = 0; i < 1000; i++) {
@@ -85,6 +95,7 @@ describe('performanceFull.ts - All modules stress test', () => {
           dueDay: 5,
           name: `Desp ${i}`,
           notes: '',
+          paid: false,
         })),
         installments: Array.from({ length: 25 }, (_, i) => ({
           id: `i${i}`,
@@ -97,6 +108,7 @@ describe('performanceFull.ts - All modules stress test', () => {
           name: `Parcela ${i}`,
           totalInstallments: 12,
           currentInstallment: 1,
+          paid: false,
         })),
         revenues: [],
         totals: { despesasFixas: 0, receitas: 0, installments: 0 },

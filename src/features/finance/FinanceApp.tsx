@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
+import { AppTabs } from './components/app-shell/AppTabs';
+import { LoadingScreen } from './components/app-shell/LoadingScreen';
+import { ExportButton } from './components/ExportButton';
 import MonthNav from './components/MonthNav';
 import {
   FixedExpensesSection,
   InstallmentsSection,
   RevenuesSection,
 } from './components/sections/index';
-import { ExportButton } from './components/ExportButton';
-import { useMonthView, useFinanceData, useFinanceSettings } from './hooks/useFinanceData';
-import { useFinanceActions } from './hooks/useFinanceActions';
-import { useMonthOverridesActions } from './hooks/useMonthOverridesActions';
-import { useCharts } from './hooks/useCharts';
-import { useI18n } from './lib/i18n';
-import { prefetchChartModule } from './lib/chartLoader';
-import { TABS, OVERRIDE_TYPES, type PieMode } from './domain/constants';
-import { monthLabel } from './lib/utils';
-import { useFinance } from './context/FinanceContext';
-import { LoadingScreen } from './components/app-shell/LoadingScreen';
-import { AppTabs } from './components/app-shell/AppTabs';
 import { SummaryDashboard } from './components/summary/SummaryDashboard';
+import { useFinance } from './context/FinanceContext';
+import { OVERRIDE_TYPES, TABS, type PieMode } from './domain/constants';
+import { useCharts } from './hooks/useCharts';
+import { useFinanceActions } from './hooks/useFinanceActions';
+import { useFinanceData, useFinanceSettings, useMonthView } from './hooks/useFinanceData';
+import { useMonthOverridesActions } from './hooks/useMonthOverridesActions';
+import { prefetchChartModule } from './lib/chartLoader';
+import { useI18n } from './lib/i18n';
+import { monthLabel } from './lib/utils';
 
 export default function FinanceApp() {
   const { t } = useI18n();
@@ -95,8 +95,14 @@ export default function FinanceApp() {
             items={fixedExpenses}
             currentMonthKey={currentKey}
             monthOverrides={monthOverrides}
-            onAdd={actions.addFixedExpense}
-            onEdit={actions.updateFixedExpense}
+            onAdd={(payload) => {
+              const { ...rest } = payload;
+              actions.addFixedExpense(rest as any);
+            }}
+            onEdit={(id, payload) => {
+              const { ...rest } = payload;
+              actions.updateFixedExpense(id, rest as any);
+            }}
             onDelete={actions.removeFixedExpense}
             onTogglePaid={(itemId, paid) =>
               toggleMonthPaid(OVERRIDE_TYPES.FIXED_EXPENSE_PAYMENT, itemId, paid)
@@ -106,7 +112,7 @@ export default function FinanceApp() {
 
         {activeTab === 'parcelas' && (
           <InstallmentsSection
-            items={monthView.installments}
+            items={monthView.installments as any}
             currentMonthKey={currentKey}
             monthOverrides={monthOverrides}
             onAdd={actions.addInstallment}

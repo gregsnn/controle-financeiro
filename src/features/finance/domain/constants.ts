@@ -10,7 +10,14 @@ export const OVERRIDE_TYPES = {
 
 export type OverrideType = (typeof OVERRIDE_TYPES)[keyof typeof OVERRIDE_TYPES];
 
-export const ALLOWED_PAYMENT_METHODS = ['boleto', 'pix', 'debito', 'santander', 'nubank', 'cartao'] as const;
+export const ALLOWED_PAYMENT_METHODS = [
+  'boleto',
+  'pix',
+  'debito',
+  'santander',
+  'nubank',
+  'cartao',
+] as const;
 
 export type PaymentMethod = (typeof ALLOWED_PAYMENT_METHODS)[number];
 

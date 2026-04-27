@@ -6,7 +6,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        manualChunks(id: string) {
           if (!id.includes('node_modules')) return;
           if (id.includes('chart.js')) return 'chart-vendor';
           if (id.includes('react')) return 'react-vendor';

@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { selectMonthCardBills, selectMonthRevenueAmounts } from '../selectors/monthOverrideSelectors';
+import {
+  selectMonthCardBills,
+  selectMonthRevenueAmounts,
+} from '../selectors/monthOverrideSelectors';
 import { OVERRIDE_TYPES } from '../domain/constants';
 import type { MonthOverride } from '../domain/types';
 
@@ -11,9 +14,27 @@ describe('monthOverrideSelectors.ts', () => {
 
     it('filters CARD_BILL_AMOUNT for correct month', () => {
       const overrides: MonthOverride[] = [
-        { id: 'o1', type: OVERRIDE_TYPES.CARD_BILL_AMOUNT, itemId: 'nubank', monthKey: '2026-04', amount: 500 },
-        { id: 'o2', type: OVERRIDE_TYPES.CARD_BILL_AMOUNT, itemId: 'santander', monthKey: '2026-03', amount: 300 },
-        { id: 'o3', type: OVERRIDE_TYPES.FIXED_EXPENSE, itemId: '1', monthKey: '2026-04', amount: 100 },
+        {
+          id: 'o1',
+          type: OVERRIDE_TYPES.CARD_BILL_AMOUNT,
+          itemId: 'nubank',
+          monthKey: '2026-04',
+          amount: 500,
+        },
+        {
+          id: 'o2',
+          type: OVERRIDE_TYPES.CARD_BILL_AMOUNT,
+          itemId: 'santander',
+          monthKey: '2026-03',
+          amount: 300,
+        },
+        {
+          id: 'o3',
+          type: OVERRIDE_TYPES.FIXED_EXPENSE,
+          itemId: '1',
+          monthKey: '2026-04',
+          amount: 100,
+        },
       ];
       const result = selectMonthCardBills(overrides, '2026-04');
       expect(result).toEqual({ nubank: 500 });
@@ -21,9 +42,27 @@ describe('monthOverrideSelectors.ts', () => {
 
     it('filters out invalid amounts', () => {
       const overrides: MonthOverride[] = [
-        { id: 'o1', type: OVERRIDE_TYPES.CARD_BILL_AMOUNT, itemId: 'nubank', monthKey: '2026-04', amount: 500 },
-        { id: 'o2', type: OVERRIDE_TYPES.CARD_BILL_AMOUNT, itemId: 'santander', monthKey: '2026-04', amount: 0 },
-        { id: 'o3', type: OVERRIDE_TYPES.CARD_BILL_AMOUNT, itemId: 'outro', monthKey: '2026-04', amount: -100 },
+        {
+          id: 'o1',
+          type: OVERRIDE_TYPES.CARD_BILL_AMOUNT,
+          itemId: 'nubank',
+          monthKey: '2026-04',
+          amount: 500,
+        },
+        {
+          id: 'o2',
+          type: OVERRIDE_TYPES.CARD_BILL_AMOUNT,
+          itemId: 'santander',
+          monthKey: '2026-04',
+          amount: 0,
+        },
+        {
+          id: 'o3',
+          type: OVERRIDE_TYPES.CARD_BILL_AMOUNT,
+          itemId: 'outro',
+          monthKey: '2026-04',
+          amount: -100,
+        },
       ];
       const result = selectMonthCardBills(overrides, '2026-04');
       expect(result).toEqual({ nubank: 500 });
@@ -42,8 +81,20 @@ describe('monthOverrideSelectors.ts', () => {
 
     it('filters REVENUE_AMOUNT for correct month', () => {
       const overrides: MonthOverride[] = [
-        { id: 'o1', type: OVERRIDE_TYPES.REVENUE_AMOUNT, itemId: 'r1', monthKey: '2026-04', amount: 5000 },
-        { id: 'o2', type: OVERRIDE_TYPES.REVENUE_AMOUNT, itemId: 'r2', monthKey: '2026-03', amount: 3000 },
+        {
+          id: 'o1',
+          type: OVERRIDE_TYPES.REVENUE_AMOUNT,
+          itemId: 'r1',
+          monthKey: '2026-04',
+          amount: 5000,
+        },
+        {
+          id: 'o2',
+          type: OVERRIDE_TYPES.REVENUE_AMOUNT,
+          itemId: 'r2',
+          monthKey: '2026-03',
+          amount: 3000,
+        },
         { id: 'o3', type: OVERRIDE_TYPES.REVENUE, itemId: 'r1', monthKey: '2026-04', amount: 100 },
       ];
       const result = selectMonthRevenueAmounts(overrides, '2026-04');
@@ -52,7 +103,13 @@ describe('monthOverrideSelectors.ts', () => {
 
     it('allows zero amount', () => {
       const overrides: MonthOverride[] = [
-        { id: 'o1', type: OVERRIDE_TYPES.REVENUE_AMOUNT, itemId: 'r1', monthKey: '2026-04', amount: 0 },
+        {
+          id: 'o1',
+          type: OVERRIDE_TYPES.REVENUE_AMOUNT,
+          itemId: 'r1',
+          monthKey: '2026-04',
+          amount: 0,
+        },
       ];
       const result = selectMonthRevenueAmounts(overrides, '2026-04');
       expect(result).toEqual({ r1: 0 });
@@ -60,7 +117,13 @@ describe('monthOverrideSelectors.ts', () => {
 
     it('filters out negative amounts', () => {
       const overrides: MonthOverride[] = [
-        { id: 'o1', type: OVERRIDE_TYPES.REVENUE_AMOUNT, itemId: 'r1', monthKey: '2026-04', amount: -100 },
+        {
+          id: 'o1',
+          type: OVERRIDE_TYPES.REVENUE_AMOUNT,
+          itemId: 'r1',
+          monthKey: '2026-04',
+          amount: -100,
+        },
       ];
       const result = selectMonthRevenueAmounts(overrides, '2026-04');
       expect(result).toEqual({});

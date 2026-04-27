@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { Input } from '../components/inputs/Input';
 
 describe('Input.tsx', () => {
@@ -22,13 +22,15 @@ describe('Input.tsx', () => {
   it('calls onChange when typed', () => {
     const handleChange = vi.fn();
     render(<Input label="Nome" value="" onChange={handleChange} />);
-    
+
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'new value' } });
     expect(handleChange).toHaveBeenCalled();
   });
 
   it('renders with different types', () => {
-    const { rerender } = render(<Input label="Number" type="number" value={0} onChange={() => {}} />);
+    const { rerender } = render(
+      <Input label="Number" type="number" value={0} onChange={() => {}} />
+    );
     expect(screen.getByRole('spinbutton')).toBeInTheDocument();
 
     rerender(<Input label="Password" type="password" value="" onChange={() => {}} />);

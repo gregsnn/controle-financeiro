@@ -1,10 +1,34 @@
-import { getMonthCardBills, getMonthRevenueAmounts } from '../domain/overrides/facade.js';
+import { OVERRIDE_TYPES } from '../domain/constants.js';
+import {
+  filterByMonthAndType,
+  getMonthRevenueAmounts,
+  toAmountRecord,
+} from '../domain/overrides/facade.js';
 import type { MonthOverride } from '../domain/types.js';
 
-export function selectMonthCardBills(monthOverrides: MonthOverride[], monthKey: string): Record<string, number> {
-  return getMonthCardBills(monthOverrides, monthKey);
+export function selectMonthCardBillAmounts(
+  monthOverrides: MonthOverride[],
+  monthKey: string
+): Record<string, number> {
+  return toAmountRecord(
+    filterByMonthAndType(monthOverrides, monthKey, OVERRIDE_TYPES.CARD_BILL_AMOUNT),
+    false
+  );
 }
 
-export function selectMonthRevenueAmounts(monthOverrides: MonthOverride[], monthKey: string): Record<string, number> {
+export function selectMonthCardBills(
+  monthOverrides: MonthOverride[],
+  monthKey: string
+): Record<string, number> {
+  return toAmountRecord(
+    filterByMonthAndType(monthOverrides, monthKey, OVERRIDE_TYPES.CARD_BILL_AMOUNT),
+    false
+  );
+}
+
+export function selectMonthRevenueAmounts(
+  monthOverrides: MonthOverride[],
+  monthKey: string
+): Record<string, number> {
   return getMonthRevenueAmounts(monthOverrides, monthKey);
 }

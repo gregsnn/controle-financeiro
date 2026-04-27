@@ -1,6 +1,9 @@
 node_modules/
 dist/
 *.log
+ARCHITECTURE.md
+CHANGELOG.md
+
 
 # Local environment secrets
 .env

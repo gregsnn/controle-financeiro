@@ -1,12 +1,21 @@
 import { OVERRIDE_TYPES } from '../domain/constants.js';
 import { isMonthInRange, monthKey } from '../lib/utils.js';
-import type { FinanceState, MonthView, MonthOverride, MonthViewFixedExpense, MonthViewInstallment } from '../domain/types.js';
+import type {
+  FinanceState,
+  MonthView,
+  MonthOverride,
+  MonthViewFixedExpense,
+  MonthViewInstallment,
+} from '../domain/types.js';
 
 interface OverrideWithHidden extends MonthOverride {
   hidden?: boolean;
 }
 
-function applyOverride<T extends object>(baseItem: T, override: OverrideWithHidden | undefined): T & { overrideId?: string; hidden?: boolean } {
+function applyOverride<T extends object>(
+  baseItem: T,
+  override: OverrideWithHidden | undefined
+): T & { overrideId?: string; hidden?: boolean } {
   if (!override) return baseItem;
 
   return {
@@ -30,7 +39,11 @@ function getOverridesMap(monthOverrides: MonthOverride[], monthKeyValue: string)
   }, {} as OverridesMap);
 }
 
-function calculateCurrentInstallment(startMonth: string, currentInstallment: number, currentMonthKey: string): number {
+function calculateCurrentInstallment(
+  startMonth: string,
+  currentInstallment: number,
+  currentMonthKey: string
+): number {
   const start = new Date(`${startMonth}-01`);
   const current = new Date(`${currentMonthKey}-01`);
   const monthsDiff =
@@ -58,11 +71,18 @@ export function buildMonthView(state: FinanceState, monthDate: Date | null = nul
   const fixedExpenses = state.fixedExpenses
     .filter((item) => item.active !== false)
     .filter((item) => isMonthInRange(currentMonthKey, item.startMonth, item.endMonth))
-    .map((item) => applyOverride(item, overridesMap[OVERRIDE_TYPES.FIXED_EXPENSE]?.get(item.id) as OverrideWithHidden | undefined))
-    .map((item): MonthViewFixedExpense => ({
-      ...item,
-      paid: overridesMap[OVERRIDE_TYPES.FIXED_EXPENSE_PAYMENT]?.get(item.id)?.paid === true,
-    }))
+    .map((item) =>
+      applyOverride(
+        item,
+        overridesMap[OVERRIDE_TYPES.FIXED_EXPENSE]?.get(item.id) as OverrideWithHidden | undefined
+      )
+    )
+    .map(
+      (item): MonthViewFixedExpense => ({
+        ...item,
+        paid: overridesMap[OVERRIDE_TYPES.FIXED_EXPENSE_PAYMENT]?.get(item.id)?.paid === true,
+      })
+    )
     .filter((item) => (item as MonthViewFixedExpense & { hidden?: boolean }).hidden !== true);
 
   const revenues = state.revenues

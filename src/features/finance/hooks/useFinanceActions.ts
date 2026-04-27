@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { createFinanceId } from '../lib/ids';
 import type { FixedExpense, Installment, Revenue } from '../domain/types';
+import { createFinanceId } from '../lib/ids';
 
 export function useFinanceActions() {
   const {
@@ -17,7 +17,7 @@ export function useFinanceActions() {
     upsertMonthOverride: _upsertMonthOverride,
     clearMonthOverride: _clearMonthOverride,
     changeMonth: _changeMonth,
-resetDatabase: _resetDatabase,
+    resetDatabase: _resetDatabase,
     setTheme: _setTheme,
     setCardBills: _setCardBills,
   } = useFinance();
@@ -32,17 +32,14 @@ resetDatabase: _resetDatabase,
           endMonth: null,
           ...data,
         }),
-      addRevenue: (data: Partial<Revenue>) => {
-          const { amount, ...rest } = data;
-          return _addRevenue({
-            id: createFinanceId('rev'),
-            active: true,
-            notes: '',
-            endMonth: null,
-            baseAmount: amount || 0,
-            ...rest,
-          });
-        },
+      addRevenue: (data: Partial<Revenue>) =>
+        _addRevenue({
+          id: createFinanceId('rev'),
+          active: true,
+          notes: '',
+          endMonth: null,
+          ...data,
+        }),
       addInstallment: (data: Partial<Installment>) =>
         _addInstallment({
           id: createFinanceId('inst'),
@@ -52,13 +49,7 @@ resetDatabase: _resetDatabase,
           ...data,
         }),
       updateFixedExpense: _updateFixedExpense,
-updateRevenue: (id: string, data: Partial<Revenue>) => {
-          const { amount, ...rest } = data;
-          return _updateRevenue(id, {
-            ...rest,
-            ...(amount !== undefined && { baseAmount: amount }),
-          });
-        },
+      updateRevenue: _updateRevenue,
       updateInstallment: _updateInstallment,
       removeFixedExpense: _removeFixedExpense,
       removeRevenue: _removeRevenue,

@@ -1,10 +1,11 @@
-import { describe, it, expect } from 'vitest';
-import { buildMonthView } from '../selectors/buildMonth';
+import { describe, expect, it } from 'vitest';
 import { OVERRIDE_TYPES } from '../domain/constants';
+import type { FixedExpense, Installment, MonthOverride, Revenue } from '../domain/types';
 import { emptyFinanceState } from '../lib/schema';
+import { buildMonthView } from '../selectors/buildMonth';
 
-function generateFixedExpenses(count: number) {
-  const items = [];
+function generateFixedExpenses(count: number): FixedExpense[] {
+  const items: FixedExpense[] = [];
   for (let i = 0; i < count; i++) {
     items.push({
       id: `f${i}`,
@@ -22,8 +23,8 @@ function generateFixedExpenses(count: number) {
   return items;
 }
 
-function generateInstallments(count: number) {
-  const items = [];
+function generateInstallments(count: number): Installment[] {
+  const items: Installment[] = [];
   for (let i = 0; i < count; i++) {
     items.push({
       id: `i${i}`,
@@ -41,8 +42,8 @@ function generateInstallments(count: number) {
   return items;
 }
 
-function generateRevenues(count: number) {
-  const items = [];
+function generateRevenues(count: number): Revenue[] {
+  const items: Revenue[] = [];
   for (let i = 0; i < count; i++) {
     items.push({
       id: `r${i}`,
@@ -58,8 +59,8 @@ function generateRevenues(count: number) {
   return items;
 }
 
-function generateOverrides(count: number) {
-  const overrides = [];
+function generateOverrides(count: number): MonthOverride[] {
+  const overrides: MonthOverride[] = [];
   for (let i = 0; i < count; i++) {
     overrides.push({
       id: `o${i}`,

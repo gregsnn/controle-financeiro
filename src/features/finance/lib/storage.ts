@@ -1,7 +1,14 @@
 import Dexie, { type Table } from 'dexie';
 import { emptyFinanceState, financeSchemaVersion } from './schema.js';
 import { monthKey } from './utils.js';
-import type { FixedExpense, Installment, Revenue, MonthOverride, Settings, Meta } from '../domain/types.js';
+import type {
+  FixedExpense,
+  Installment,
+  Revenue,
+  MonthOverride,
+  Settings,
+  Meta,
+} from '../domain/types.js';
 
 interface SettingsRow {
   key: string;
@@ -64,8 +71,14 @@ export async function loadFinanceState() {
       db.meta.toArray(),
     ]);
 
-  const settings = settingsRows.reduce((acc, row) => ({ ...acc, [row.key]: row.value }), {} as Record<string, unknown>);
-  const meta = metaRows.reduce((acc, row) => ({ ...acc, [row.key]: row.value }), {} as Record<string, unknown>);
+  const settings = settingsRows.reduce(
+    (acc, row) => ({ ...acc, [row.key]: row.value }),
+    {} as Record<string, unknown>
+  );
+  const meta = metaRows.reduce(
+    (acc, row) => ({ ...acc, [row.key]: row.value }),
+    {} as Record<string, unknown>
+  );
   const currentMonthKey = (settings.currentMonthKey as string | null) || null;
 
   const currentDate = currentMonthKey ? new Date(`${currentMonthKey}-01T00:00:00`) : new Date();
@@ -92,7 +105,10 @@ export async function saveFinanceState(state: ReturnType<typeof emptyFinanceStat
   const payload = state || emptyFinanceState();
   const currentMonthKey = monthKey(payload.currentDate || new Date());
 
-  await db.transaction('rw', [db.fixedExpenses, db.installments, db.revenues, db.monthOverrides, db.settings, db.meta], async () => {
+  await db.transaction(
+    'rw',
+    [db.fixedExpenses, db.installments, db.revenues, db.monthOverrides, db.settings, db.meta],
+    async () => {
       await db.fixedExpenses.clear();
       await db.installments.clear();
       await db.revenues.clear();

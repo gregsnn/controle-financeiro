@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
 
 const translations = {
   'pt-BR': {
@@ -139,9 +139,22 @@ const translations = {
   },
 };
 
-const I18nContext = createContext(null);
+interface I18nContextType {
+  locale: string;
+  t: (key: string) => string;
+  changeLocale: (newLocale: string) => void;
+  availableLocales: string[];
+}
 
-export function I18nProvider({ children, initialLocale = 'pt-BR' }) {
+const I18nContext = createContext<I18nContextType | null>(null);
+
+export function I18nProvider({
+  children,
+  initialLocale = 'pt-BR',
+}: {
+  children: React.ReactNode;
+  initialLocale?: string;
+}) {
   const [locale, setLocale] = useState(initialLocale);
 
   const t = useCallback(
@@ -157,7 +170,7 @@ export function I18nProvider({ children, initialLocale = 'pt-BR' }) {
     }
   }, []);
 
-  const value = { locale, t, changeLocale, availableLocales: Object.keys(translations) };
+  const value = { locale, t, changeLocale, availableLocales: Object.keys(translations) } as const;
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

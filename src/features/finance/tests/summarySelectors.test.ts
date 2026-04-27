@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { readCardBill, getExpenseCard, buildBillPaymentMap, buildSummaryData } from '../selectors/summarySelectors';
+import {
+  readCardBill,
+  getExpenseCard,
+  buildBillPaymentMap,
+  buildSummaryData,
+} from '../selectors/summarySelectors';
 import { OVERRIDE_TYPES } from '../domain/constants';
 import type { MonthOverride, MonthView } from '../domain/types';
 
@@ -49,9 +54,27 @@ describe('summarySelectors.ts', () => {
   describe('buildBillPaymentMap', () => {
     it('builds payment map for current month', () => {
       const overrides: MonthOverride[] = [
-        { id: 'o1', type: OVERRIDE_TYPES.CARD_BILL_PAYMENT, itemId: 'nubank', monthKey: '2026-04', paid: true },
-        { id: 'o2', type: OVERRIDE_TYPES.CARD_BILL_PAYMENT, itemId: 'santander', monthKey: '2026-04', paid: false },
-        { id: 'o3', type: OVERRIDE_TYPES.CARD_BILL_PAYMENT, itemId: 'nubank', monthKey: '2026-03', paid: true },
+        {
+          id: 'o1',
+          type: OVERRIDE_TYPES.CARD_BILL_PAYMENT,
+          itemId: 'nubank',
+          monthKey: '2026-04',
+          paid: true,
+        },
+        {
+          id: 'o2',
+          type: OVERRIDE_TYPES.CARD_BILL_PAYMENT,
+          itemId: 'santander',
+          monthKey: '2026-04',
+          paid: false,
+        },
+        {
+          id: 'o3',
+          type: OVERRIDE_TYPES.CARD_BILL_PAYMENT,
+          itemId: 'nubank',
+          monthKey: '2026-03',
+          paid: true,
+        },
       ];
       const result = buildBillPaymentMap(overrides, '2026-04');
       expect(result.nubank).toBe(true);
@@ -62,11 +85,46 @@ describe('summarySelectors.ts', () => {
   describe('buildSummaryData', () => {
     const baseMonthView: MonthView = {
       fixedExpenses: [
-        { id: '1', name: 'Aluguel', amount: 1500, dueDay: 5, category: 'aluguel', paymentMethod: 'boleto', active: true, startMonth: '2026-01', endMonth: null, notes: '', paid: true },
-        { id: '2', name: 'Internet', amount: 120, dueDay: 10, category: 'telefone', paymentMethod: 'nubank', active: true, startMonth: '2026-01', endMonth: null, notes: '', paid: false },
+        {
+          id: '1',
+          name: 'Aluguel',
+          amount: 1500,
+          dueDay: 5,
+          category: 'aluguel',
+          paymentMethod: 'boleto',
+          active: true,
+          startMonth: '2026-01',
+          endMonth: null,
+          notes: '',
+          paid: true,
+        },
+        {
+          id: '2',
+          name: 'Internet',
+          amount: 120,
+          dueDay: 10,
+          category: 'telefone',
+          paymentMethod: 'nubank',
+          active: true,
+          startMonth: '2026-01',
+          endMonth: null,
+          notes: '',
+          paid: false,
+        },
       ],
       installments: [],
-      revenues: [{ id: 'r1', name: 'Salario', baseAmount: 5000, active: true, startMonth: '2026-01', endMonth: null, category: 'outro', notes: '' }],
+      revenues: [
+        {
+          id: 'r1',
+          name: 'Salario',
+          baseAmount: 5000,
+          active: true,
+          startMonth: '2026-01',
+          endMonth: null,
+          category: 'outro',
+          notes: '',
+        },
+      ],
       totals: { despesasFixas: 1620, receitas: 5000, installments: 0 },
     };
 
@@ -88,7 +146,18 @@ describe('summarySelectors.ts', () => {
     it('detects negative balance', () => {
       const monthViewNegative = {
         ...baseMonthView,
-        revenues: [{ id: 'r1', name: 'Salario', baseAmount: 1000, active: true, startMonth: '2026-01', endMonth: null, category: 'outro', notes: '' }],
+        revenues: [
+          {
+            id: 'r1',
+            name: 'Salario',
+            baseAmount: 1000,
+            active: true,
+            startMonth: '2026-01',
+            endMonth: null,
+            category: 'outro',
+            notes: '',
+          },
+        ],
         totals: { ...baseMonthView.totals, receitas: 1000 },
       };
       const result = buildSummaryData(monthViewNegative, {}, [], '2026-04');
@@ -98,7 +167,7 @@ describe('summarySelectors.ts', () => {
     it('includes billCardsSummary', () => {
       const result = buildSummaryData(baseMonthView, { nubank: 200 }, [], '2026-04');
       expect(result.billCardsSummary).toHaveLength(2);
-      const nubankCard = result.billCardsSummary.find(c => c.key === 'nubank');
+      const nubankCard = result.billCardsSummary.find((c) => c.key === 'nubank');
       expect(nubankCard?.bill).toBe(200);
     });
   });

@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { formatMoney, monthKey, previousMonthKey, isMonthInRange, formatStartMonth, clone } from '../lib/utils';
+import {
+  formatMoney,
+  monthKey,
+  previousMonthKey,
+  isMonthInRange,
+  formatStartMonth,
+  clone,
+} from '../lib/utils';
 
 describe('utils.js - formatMoney', () => {
   it('formats BRL currency', () => {

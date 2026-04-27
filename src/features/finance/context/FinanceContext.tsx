@@ -8,7 +8,17 @@ import {
   type SetStateAction,
 } from 'react';
 import { createActions } from '../domain/actions';
-import type { FinanceState, MonthView, FixedExpense, Installment, Revenue, MonthOverride, Settings, Meta, OverrideType } from '../domain/types';
+import type {
+  FinanceState,
+  MonthView,
+  FixedExpense,
+  Installment,
+  Revenue,
+  MonthOverride,
+  Settings,
+  Meta,
+  OverrideType,
+} from '../domain/types';
 import {
   EMPTY_MONTH_VIEW,
   useDerivedFinanceState,
@@ -50,11 +60,7 @@ interface FinanceContextValue {
     hidden?: boolean;
     paid?: boolean;
   }) => void;
-  clearMonthOverride: (params: {
-    type: OverrideType;
-    itemId: string;
-    monthKey: string;
-  }) => void;
+  clearMonthOverride: (params: { type: OverrideType; itemId: string; monthKey: string }) => void;
 }
 
 const FinanceContext = createContext<FinanceContextValue | null>(null);
@@ -74,7 +80,11 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
 
   const actions = useMemo(() => {
     if (!state) return {} as FinanceContextValue;
-    return createActions(state, setState as Dispatch<SetStateAction<FinanceState | null>>, state.currentDate);
+    return createActions(
+      state,
+      setState as Dispatch<SetStateAction<FinanceState | null>>,
+      state.currentDate
+    );
   }, [state]);
 
   const defaultValue = useMemo<FinanceContextValue>(

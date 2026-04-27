@@ -1,10 +1,9 @@
 import { OVERRIDE_TYPES } from '../constants';
-import {
-  filterByMonthAndType,
-  toAmountRecord,
-  findOverride,
-} from './repository';
 import type { MonthOverride, OverrideType } from '../types';
+import { filterByMonthAndType, findOverride, toAmountRecord } from './repository';
+
+// Re-export for usage in selectors
+export { filterByMonthAndType, toAmountRecord };
 
 interface OverrideActions {
   upsertMonthOverride: (params: {
@@ -14,14 +13,13 @@ interface OverrideActions {
     amount?: number;
     paid?: boolean;
   }) => void;
-  clearMonthOverride: (params: {
-    type: OverrideType;
-    itemId: string;
-    monthKey: string;
-  }) => void;
+  clearMonthOverride: (params: { type: OverrideType; itemId: string; monthKey: string }) => void;
 }
 
-export function getMonthCardBills(monthOverrides: MonthOverride[], monthKey: string) {
+export function getMonthCardBills(
+  monthOverrides: MonthOverride[],
+  monthKey: string
+): Record<string, number> {
   return toAmountRecord(
     filterByMonthAndType(monthOverrides, monthKey, OVERRIDE_TYPES.CARD_BILL_AMOUNT),
     false
@@ -67,7 +65,10 @@ export function buildMonthPaymentMap(
   type: OverrideType
 ) {
   return new Map(
-    filterByMonthAndType(monthOverrides, monthKey, type).map((override) => [override.itemId, override])
+    filterByMonthAndType(monthOverrides, monthKey, type).map((override) => [
+      override.itemId,
+      override,
+    ])
   );
 }
 

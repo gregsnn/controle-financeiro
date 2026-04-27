@@ -1,18 +1,30 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { ConfirmModal } from '../components/modals/ConfirmModal';
 
 describe('ConfirmModal.tsx', () => {
   it('renders nothing when not open', () => {
     render(
-      <ConfirmModal open={false} title="Title" message="Message" onConfirm={() => {}} onCancel={() => {}} />
+      <ConfirmModal
+        open={false}
+        title="Title"
+        message="Message"
+        onConfirm={() => {}}
+        onCancel={() => {}}
+      />
     );
     expect(screen.queryByText('Title')).not.toBeInTheDocument();
   });
 
   it('renders when open', () => {
     render(
-      <ConfirmModal open={true} title="Confirmar" message="Tem certeza?" onConfirm={() => {}} onCancel={() => {}} />
+      <ConfirmModal
+        open={true}
+        title="Confirmar"
+        message="Tem certeza?"
+        onConfirm={() => {}}
+        onCancel={() => {}}
+      />
     );
     expect(screen.getByText('Tem certeza?')).toBeInTheDocument();
   });
@@ -37,7 +49,13 @@ describe('ConfirmModal.tsx', () => {
     const handleConfirm = vi.fn();
     const handleCancel = vi.fn();
     render(
-      <ConfirmModal open={true} title="Title" message="Message" onConfirm={handleConfirm} onCancel={handleCancel} />
+      <ConfirmModal
+        open={true}
+        title="Title"
+        message="Message"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     );
 
     fireEvent.click(screen.getByText('Confirmar'));
@@ -48,7 +66,13 @@ describe('ConfirmModal.tsx', () => {
     const handleConfirm = vi.fn();
     const handleCancel = vi.fn();
     render(
-      <ConfirmModal open={true} title="Title" message="Message" onConfirm={handleConfirm} onCancel={handleCancel} />
+      <ConfirmModal
+        open={true}
+        title="Title"
+        message="Message"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     );
 
     fireEvent.click(screen.getByText('Cancelar'));
@@ -57,7 +81,13 @@ describe('ConfirmModal.tsx', () => {
 
   it('uses default labels', () => {
     render(
-      <ConfirmModal open={true} title="Title" message="Message" onConfirm={() => {}} onCancel={() => {}} />
+      <ConfirmModal
+        open={true}
+        title="Title"
+        message="Message"
+        onConfirm={() => {}}
+        onCancel={() => {}}
+      />
     );
     expect(screen.getByText('Confirmar')).toBeInTheDocument();
     expect(screen.getByText('Cancelar')).toBeInTheDocument();

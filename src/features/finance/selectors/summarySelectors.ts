@@ -22,12 +22,14 @@ export function getExpenseCard(item: { paymentMethod?: string; card?: string }):
   return null;
 }
 
-export function buildBillPaymentMap(monthOverrides: MonthOverride[], currentMonthKey: string): BillPaymentMap {
+export function buildBillPaymentMap(
+  monthOverrides: MonthOverride[],
+  currentMonthKey: string
+): BillPaymentMap {
   return (monthOverrides || [])
     .filter(
       (override) =>
-        override.type === OVERRIDE_TYPES.CARD_BILL_PAYMENT &&
-        override.monthKey === currentMonthKey
+        override.type === OVERRIDE_TYPES.CARD_BILL_PAYMENT && override.monthKey === currentMonthKey
     )
     .reduce((acc, override) => {
       acc[override.itemId] = override.paid === true;
@@ -94,7 +96,8 @@ export function buildSummaryData(
   installments.forEach((item) => {
     const card = (item.card || 'outro') as BillCard;
     if (item.paid !== true) return;
-    installmentsPaidByCard[card] = (installmentsPaidByCard[card] || 0) + Number(item.installmentValue || 0);
+    installmentsPaidByCard[card] =
+      (installmentsPaidByCard[card] || 0) + Number(item.installmentValue || 0);
   });
 
   const fixedExpensesNonCardPaid = fixedExpenses
@@ -103,8 +106,8 @@ export function buildSummaryData(
 
   const cardKeys = new Set<BillCard>([
     ...BILL_CARD_KEYS,
-    ...Object.keys(fixedExpensesByCard) as BillCard[],
-    ...Object.keys(installmentsByCard) as BillCard[],
+    ...(Object.keys(fixedExpensesByCard) as BillCard[]),
+    ...(Object.keys(installmentsByCard) as BillCard[]),
   ]);
 
   let cardGrossExpenses = 0;

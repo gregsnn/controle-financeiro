@@ -1,21 +1,25 @@
 declare module '*.css';
 
-declare module '../../../lib/exportData.js' {
+declare module '../../../lib/exportData' {
   export function downloadJSON(): Promise<void>;
 }
 
-declare module '../lib/chartLoader.js' {
+declare module '../lib/chartLoader.ts' {
   export function loadChartModule(): Promise<unknown>;
   export function prefetchChartModule(options?: unknown): boolean;
   export function shouldPrefetchChart(connection?: unknown): boolean;
   export function __resetChartLoaderForTests(): void;
 }
 
-declare module '../lib/chartSeries.js' {
+declare module '../lib/chartSeries' {
   export const CHART_COLORS: string[];
   export function buildCategorySeries(monthView: unknown): { labels: string[]; values: number[] };
   export function buildCardSeries(monthView: unknown): { labels: string[]; values: number[] };
-  export function buildCardStatusSeries(monthView: unknown): { labels: string[]; paidValues: number[]; toPayValues: number[] };
+  export function buildCardStatusSeries(monthView: unknown): {
+    labels: string[];
+    paidValues: number[];
+    toPayValues: number[];
+  };
   export function buildDonutTooltipLabel(context: unknown): string;
 }
 

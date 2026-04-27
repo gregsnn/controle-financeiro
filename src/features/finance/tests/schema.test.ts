@@ -22,7 +22,7 @@ describe('schema.js', () => {
       expect(Array.isArray(emptyFinanceState().fixedExpenses)).toBe(true);
     });
 
-it('has installments array', () => {
+    it('has installments array', () => {
       expect(emptyFinanceState()).toHaveProperty('installments');
       expect(Array.isArray(emptyFinanceState().installments)).toBe(true);
     });

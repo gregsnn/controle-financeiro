@@ -28,6 +28,23 @@ export function loadChartModule(): Promise<unknown> {
   return chartModulePromise;
 }
 
+export function getChartLoader(locale: string) {
+  return {
+    formatters: {
+      currency: new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+    },
+    parseCurrency: (value: string): number => {
+      const match = value.replace(/[^0-9.-]/g, '').match(/^-?\\d+/);
+      return match ? Number(match[0]) / 100 : 0;
+    },
+  };
+}
+
 interface PrefetchOptions {
   force?: boolean;
   connection?: Connection | null;

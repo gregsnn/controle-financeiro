@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
 import type { FormEvent } from 'react';
+import { useCallback } from 'react';
 
 interface CrudModalState {
   mode: 'create' | 'edit';
@@ -34,7 +34,6 @@ export function useCrudFormFlow<TForm, TPayload>({
 
       const payload = buildPayload(form);
       if (!payload) return;
-
       if (modal.mode === 'edit' && modal.itemId) {
         await onEdit(modal.itemId, payload);
       } else {

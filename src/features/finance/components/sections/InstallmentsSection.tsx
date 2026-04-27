@@ -72,10 +72,12 @@ export function InstallmentsSection({
 
   const canSubmit = useMemo(
     () =>
-      !!(form.name.trim() &&
+      !!(
+        form.name.trim() &&
         form.installmentValue !== '' &&
         form.totalInstallments !== '' &&
-        form.startMonth.trim()),
+        form.startMonth.trim()
+      ),
     [form]
   );
 
@@ -180,7 +182,10 @@ export function InstallmentsSection({
               />
             </td>
             <td>
-              <RowActions onEdit={() => openEditModal(item)} onDelete={() => openDeleteConfirm(item)} />
+              <RowActions
+                onEdit={() => openEditModal(item)}
+                onDelete={() => openDeleteConfirm(item)}
+              />
             </td>
           </tr>
         )}

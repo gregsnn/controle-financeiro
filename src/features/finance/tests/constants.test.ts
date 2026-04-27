@@ -1,5 +1,18 @@
 import { describe, it, expect } from 'vitest';
-import { OVERRIDE_TYPES, ALLOWED_PAYMENT_METHODS, ALLOWED_BILL_CARDS, BILL_CARDS, BILL_CARD_KEYS, CARD_ORDER, CATEGORIES, CATEGORY_LABELS, CARD_LABELS, ICONS, CARD_ICONS, TABS } from '../domain/constants';
+import {
+  OVERRIDE_TYPES,
+  ALLOWED_PAYMENT_METHODS,
+  ALLOWED_BILL_CARDS,
+  BILL_CARDS,
+  BILL_CARD_KEYS,
+  CARD_ORDER,
+  CATEGORIES,
+  CATEGORY_LABELS,
+  CARD_LABELS,
+  ICONS,
+  CARD_ICONS,
+  TABS,
+} from '../domain/constants';
 
 describe('constants.ts', () => {
   describe('OVERRIDE_TYPES', () => {
@@ -98,10 +111,10 @@ describe('constants.ts', () => {
   describe('TABS', () => {
     it('has all tabs', () => {
       expect(TABS).toHaveLength(4);
-      expect(TABS.find(t => t.id === 'resumo')).toBeDefined();
-      expect(TABS.find(t => t.id === 'gastos')).toBeDefined();
-      expect(TABS.find(t => t.id === 'parcelas')).toBeDefined();
-      expect(TABS.find(t => t.id === 'receitas')).toBeDefined();
+      expect(TABS.find((t) => t.id === 'resumo')).toBeDefined();
+      expect(TABS.find((t) => t.id === 'gastos')).toBeDefined();
+      expect(TABS.find((t) => t.id === 'parcelas')).toBeDefined();
+      expect(TABS.find((t) => t.id === 'receitas')).toBeDefined();
     });
   });
 });

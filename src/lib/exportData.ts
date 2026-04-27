@@ -1,6 +1,19 @@
 const STORAGE_KEY = 'controle-financeiro-data';
 
-async function exportAllData() {
+interface ExportData {
+  version: number;
+  exportedAt: string;
+  data: {
+    fixedExpenses: unknown[];
+    installments: unknown[];
+    revenues: unknown[];
+    monthOverrides: unknown[];
+    settings: Record<string, unknown>;
+    meta: Record<string, unknown>;
+  };
+}
+
+async function exportAllData(): Promise<ExportData> {
   const data = localStorage.getItem(STORAGE_KEY);
 
   const parsed = data
@@ -21,7 +34,7 @@ async function exportAllData() {
   };
 }
 
-async function downloadJSON() {
+async function downloadJSON(): Promise<void> {
   const data = await exportAllData();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -32,8 +45,8 @@ async function downloadJSON() {
   URL.revokeObjectURL(url);
 }
 
-export { exportAllData, downloadJSON };
+export { downloadJSON, exportAllData };
 
 if (typeof window !== 'undefined') {
-  window.exportFinanceData = downloadJSON;
+  (window as any).exportFinanceData = downloadJSON;
 }

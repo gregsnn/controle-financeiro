@@ -26,7 +26,11 @@ export function previousMonthKey(key: string): string {
   return monthKey(date);
 }
 
-export function isMonthInRange(monthKeyValue: string, startMonth: string | null, endMonth: string | null): boolean {
+export function isMonthInRange(
+  monthKeyValue: string,
+  startMonth: string | null,
+  endMonth: string | null
+): boolean {
   if (startMonth && monthKeyValue < startMonth) return false;
   if (endMonth && monthKeyValue > endMonth) return false;
   return true;

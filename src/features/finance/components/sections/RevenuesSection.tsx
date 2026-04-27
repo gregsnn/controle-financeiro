@@ -5,11 +5,11 @@ import { formatStartMonth, isMonthInRange } from '../../lib/utils';
 import RuleSection from '../RuleSection';
 import { Input } from '../inputs';
 import { ConfirmModal, RuleModal } from '../modals';
+import { RowActions } from './shared/RowActions';
+import type { CrudSectionCommonProps } from './shared/types';
+import { useCrudFormFlow } from './shared/useCrudFormFlow';
 import { useCrudModalState } from './shared/useCrudModalState';
 import { useRevenueMonthAmountInput } from './shared/useRevenueMonthAmountInput';
-import { RowActions } from './shared/RowActions';
-import { useCrudFormFlow } from './shared/useCrudFormFlow';
-import type { CrudSectionCommonProps } from './shared/types';
 
 type RevenueFormState = { name: string; amount: string; startMonth: string };
 type RevenuePayload = { name: string; amount: number; startMonth: string };
@@ -80,8 +80,28 @@ export function RevenuesSection({
     closeModal,
     resetForm,
     buildPayload,
-    onAdd,
-    onEdit,
+    onAdd: (payload) => {
+      return onAdd({
+        ...payload!,
+        id: '',
+        baseAmount: payload!.amount,
+        active: true,
+        endMonth: null,
+        category: 'outro',
+        notes: '',
+      } as any);
+    },
+    onEdit: (id, payload) => {
+      return onEdit(id, {
+        ...payload!,
+        id,
+        baseAmount: payload!.amount,
+        active: true,
+        endMonth: null,
+        category: 'outro',
+        notes: '',
+      } as any);
+    },
   });
 
   const openCreateModal = () => {
@@ -156,7 +176,10 @@ export function RevenuesSection({
               </td>
               <td>{formatStartMonth(item.startMonth)}</td>
               <td>
-                <RowActions onEdit={() => openEditModal(item)} onDelete={() => openDeleteConfirm(item)} />
+                <RowActions
+                  onEdit={() => openEditModal(item)}
+                  onDelete={() => openDeleteConfirm(item)}
+                />
               </td>
             </tr>
           );

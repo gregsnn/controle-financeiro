@@ -28,12 +28,18 @@ export function findOverride(
   );
 }
 
-export function toAmountRecord(overrides: MonthOverride[], allowZero: boolean): Record<string, number> {
-  return overrides.reduce((acc, override) => {
-    const amount = Number(override.amount || 0);
-    if (!Number.isFinite(amount)) return acc;
-    if (allowZero ? amount < 0 : amount <= 0) return acc;
-    acc[override.itemId] = amount;
-    return acc;
-  }, {} as Record<string, number>);
+export function toAmountRecord(
+  overrides: MonthOverride[],
+  allowZero: boolean
+): Record<string, number> {
+  return overrides.reduce(
+    (acc, override) => {
+      const amount = Number(override.amount || 0);
+      if (!Number.isFinite(amount)) return acc;
+      if (allowZero ? amount < 0 : amount <= 0) return acc;
+      acc[override.itemId] = amount;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 }

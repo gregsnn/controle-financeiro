@@ -1,5 +1,9 @@
 import { useCallback, useMemo } from 'react';
-import { createOverrideMutations, getMonthCardBills, getMonthRevenueAmounts } from '../domain/overrides/facade.js';
+import {
+  createOverrideMutations,
+  getMonthCardBills,
+  getMonthRevenueAmounts,
+} from '../domain/overrides/facade.js';
 import type { MonthOverride, OverrideType } from '../domain/types.js';
 
 interface UseMonthOverridesActionsParams {
@@ -12,11 +16,7 @@ interface UseMonthOverridesActionsParams {
     amount?: number;
     paid?: boolean;
   }) => void;
-  clearMonthOverride: (params: {
-    type: OverrideType;
-    itemId: string;
-    monthKey: string;
-  }) => void;
+  clearMonthOverride: (params: { type: OverrideType; itemId: string; monthKey: string }) => void;
 }
 
 export function useMonthOverridesActions({

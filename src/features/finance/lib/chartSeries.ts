@@ -1,22 +1,25 @@
-import { formatMoney } from './utils.js';
-import { CARD_ORDER, CARD_LABELS, CATEGORY_LABELS } from '../domain/constants.js';
-import { getExpenseCard } from '../selectors/summarySelectors.js';
-import type { MonthView, MonthViewFixedExpense } from '../domain/types.js';
 import type { BillCard } from '../domain/constants.js';
+import { CARD_LABELS, CARD_ORDER, CATEGORY_LABELS } from '../domain/constants.js';
+import type { MonthView, MonthViewFixedExpense } from '../domain/types.js';
+import { getExpenseCard } from '../selectors/summarySelectors.js';
+import { formatMoney } from './utils.js';
 
+// Chart color palette
 export const CHART_COLORS = [
-  '#378ADD',
-  '#1D9E75',
-  '#D85A30',
-  '#7F77DD',
-  '#BA7517',
-  '#888780',
-  '#E85D75',
-  '#5DADE2',
+  '#b8860b', // Gold accent
+  '#9f1239', // Danger
+  '#5b21b6', // Purple
+  '#047857', // Success
+  '#b45309', // Warning
+  '#1e40af', // Blue
+  '#a16207', // Bronze
+  '#6b21a8', // Dark purple
+  '#0369a1', // Sky blue
+  '#7c3aed', // Violet
 ];
 
-function sortEntriesByValue(entries: [string, number][]): [string, number][] {
-  return [...entries].sort((a, b) => b[1] - a[1]);
+function sortEntriesByValue<K>(entries: Array<[K, number]>): Array<[K, number]> {
+  return entries.sort((a, b) => b[1] - a[1]);
 }
 
 export function buildCategorySeries(monthView: MonthView) {
@@ -30,6 +33,7 @@ export function buildCategorySeries(monthView: MonthView) {
   const sorted = sortEntriesByValue(Array.from(categoryMap.entries())).filter(
     ([, value]) => value > 0
   );
+
   return {
     labels: sorted.map(([key]) => CATEGORY_LABELS[key] || key.toUpperCase()),
     values: sorted.map(([, value]) => value),
@@ -54,7 +58,9 @@ export function buildCardSeries(monthView: MonthView) {
     cardMap.set(card, (cardMap.get(card) || 0) + Number(item.installmentValue || 0));
   });
 
-  const sorted = sortEntriesByValue(Array.from(cardMap.entries())).filter(([, value]) => value > 0);
+  const sorted = Array.from(cardMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .filter(([, value]) => value > 0);
   return {
     labels: sorted.map(([key]) => CARD_LABELS[key] || key.toUpperCase()),
     values: sorted.map(([, value]) => value),

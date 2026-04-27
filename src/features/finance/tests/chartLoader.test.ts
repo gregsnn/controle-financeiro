@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { shouldPrefetchChart, loadChartModule, prefetchChartModule, __resetChartLoaderForTests } from '../lib/chartLoader';
+import {
+  shouldPrefetchChart,
+  loadChartModule,
+  prefetchChartModule,
+  __resetChartLoaderForTests,
+} from '../lib/chartLoader';
 
 describe('chartLoader.ts', () => {
   beforeEach(() => {
