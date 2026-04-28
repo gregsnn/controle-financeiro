@@ -1,5 +1,5 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import { CARD_ICONS, CATEGORIES } from '../../../domain/constants';
+import { CARD_ICONS, CATEGORIES, ICONS } from '../../../domain/constants';
 import type { CardBillItem } from '../../../domain/types';
 import { applyMoneyMask } from '../../../lib/moneyInput';
 import { Input, SelectWithIcon } from '../../inputs';
@@ -47,9 +47,19 @@ function buildCardIconMap(cards: CardBillItem[]): Record<string, string> {
   });
   return map;
 }
+function buildCardOptions(cards: CardBillItem[], selectedCard: string) {
+  const options = cards.map((card) => ({ value: card.id, label: card.name }));
+
+  if (selectedCard && !options.some((option) => option.value === selectedCard)) {
+    options.unshift({ value: selectedCard, label: `${selectedCard} (removido)` });
+  }
+
+  return options;
+}
 export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps) {
   const paymentOptions = buildPaymentOptions(cards, form.paymentMethod);
   const cardIconMap = buildCardIconMap(cards);
+  const cardOptions = buildCardOptions(cards, form.card);
 
   return (
     <>
@@ -93,6 +103,8 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
             value={form.paymentMethod}
             onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, paymentMethod: e.target.value }))}
             options={paymentOptions}
+            iconMap={{ ...ICONS, ...cardIconMap }}
+            ariaLabel="Forma de pagamento"
           />
         </label>
         {form.paymentMethod === 'cartao' ? (
@@ -101,7 +113,7 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
             <SelectWithIcon
               value={form.card}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, card: e.target.value }))}
-              options={cards.map((card) => ({ value: card.id, label: card.name }))}
+              options={cardOptions}
               iconMap={cardIconMap}
               ariaLabel="Cartão"
             />

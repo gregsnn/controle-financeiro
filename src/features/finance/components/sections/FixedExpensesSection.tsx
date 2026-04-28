@@ -1,4 +1,5 @@
-import { OVERRIDE_TYPES } from '../../domain/constants';
+import { useMemo } from 'react';
+import { CARD_ICONS, OVERRIDE_TYPES } from '../../domain/constants';
 import type { CardBillItem, FixedExpense } from '../../domain/types';
 import { ConfirmModal, RuleModal } from '../modals';
 import RuleSection from '../RuleSection';
@@ -39,6 +40,14 @@ export function FixedExpensesSection({
   cardList,
 }: FixedExpensesSectionProps) {
   const cards = cardList ?? [];
+
+  const cardIconMap = useMemo(() => {
+    const map: Record<string, string> = { ...CARD_ICONS };
+    cards.forEach((card) => {
+      if (card.icon) map[card.id] = card.icon;
+    });
+    return map;
+  }, [cards]);
 
   const activeItems = useActiveFixedExpenses(items, currentMonthKey);
 
@@ -100,6 +109,7 @@ export function FixedExpensesSection({
             item={item}
             money={money}
             isPaid={monthPaymentMap.get(item.id)?.paid === true}
+            cardIconMap={cardIconMap}
             onTogglePaid={onTogglePaid}
             onEdit={() => {
               openEditForm(item);
