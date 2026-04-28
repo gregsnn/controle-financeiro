@@ -95,7 +95,7 @@ describe('MonthNav.tsx', () => {
     const head = card?.querySelector('.bill-card-ident');
     expect(head).not.toBeNull();
     expect(head?.firstElementChild).toHaveTextContent('💜');
-    expect(head?.lastElementChild).toHaveTextContent('Nubank');
+    expect(head?.lastElementChild).toHaveTextContent('Apagar');
   });
 
   it('adds a new card to the list', () => {

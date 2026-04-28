@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - main
 
 permissions:
   contents: write
@@ -19,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25.9.0'
 
       - name: Install dependencies
         run: npm install
@@ -36,5 +35,5 @@ jobs:
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Deploy: update docs folder"
+          commit_message: 'Deploy: update docs folder'
           branch: master
