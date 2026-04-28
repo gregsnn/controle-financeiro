@@ -105,7 +105,8 @@ export function createActions(_state: FinanceState, setState: SetStateFunc, curr
             item.id === id
               ? {
                   ...item,
-                  endMonth: item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
+                  endMonth:
+                    item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
                 }
               : item
           ),
@@ -149,9 +150,18 @@ export function createActions(_state: FinanceState, setState: SetStateFunc, curr
     removeInstallment: (id: string) =>
       setState((prev) => {
         if (!prev) return prev;
+        const closingMonth = previousMonthKey(monthKey(prev.currentDate));
         return {
           ...prev,
-          installments: prev.installments.filter((item) => item.id !== id),
+          installments: prev.installments.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  closedAt:
+                    item.closedAt && item.closedAt < closingMonth ? item.closedAt : closingMonth,
+                }
+              : item
+          ),
           monthOverrides: prev.monthOverrides.filter(
             (override) =>
               !(override.type === OVERRIDE_TYPES.INSTALLMENT_PAYMENT && override.itemId === id)

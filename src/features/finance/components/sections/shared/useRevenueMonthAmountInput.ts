@@ -3,7 +3,7 @@ import { applyMoneyMask, parseMoneyInput } from '../../../lib/moneyInput';
 
 interface RevenueLike {
   id: string;
-  amount: number;
+  baseAmount: number;
 }
 
 export function useRevenueMonthAmountInput(
@@ -46,7 +46,7 @@ export function useRevenueMonthAmountInput(
       const currentInputValue = tempInputValues[item.id];
       if (onMonthRevenueAmount) {
         const parsed = parseMoneyInput(currentInputValue);
-        if (parsed === null || parsed === item.amount) {
+        if (parsed === null || parsed === item.baseAmount) {
           onMonthRevenueAmount(item.id, null);
         } else {
           onMonthRevenueAmount(item.id, parsed);

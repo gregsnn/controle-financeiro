@@ -1,25 +1,23 @@
-import { useMemo, useState } from 'react';
 import type { Revenue } from '../../domain/types';
-import { applyMoneyMask, formatMoneyInput, parseMoneyInput } from '../../lib/moneyInput';
-import { formatStartMonth, isMonthInRange } from '../../lib/utils';
 import RuleSection from '../RuleSection';
-import { Input } from '../inputs';
 import { ConfirmModal, RuleModal } from '../modals';
-import { RowActions } from './shared/RowActions';
+import { RevenueForm } from './revenues/RevenueForm';
+import { RevenueRow } from './revenues/RevenueRow';
+import { buildRevenuePayload, toRevenueCreateItem, toRevenueEditItem } from './revenues/revenueFormHelpers';
+import { REVENUE_LABELS } from './revenues/revenueSectionLabels';
+import { useActiveRevenues } from './revenues/useActiveRevenues';
+import { useRevenueCrudState } from './revenues/useRevenueCrudState';
 import type { CrudSectionCommonProps } from './shared/types';
 import { useCrudFormFlow } from './shared/useCrudFormFlow';
 import { useCrudModalState } from './shared/useCrudModalState';
 import { useRevenueMonthAmountInput } from './shared/useRevenueMonthAmountInput';
 
-type RevenueFormState = { name: string; amount: string; startMonth: string };
 type RevenuePayload = { name: string; amount: number; startMonth: string };
 type RevenuesSectionProps = CrudSectionCommonProps<Revenue, RevenuePayload> & {
   currentMonthKey: string;
   monthRevenueAmounts: Record<string, number>;
   onMonthRevenueAmount?: (itemId: string, amount: number | null) => void;
 };
-
-const EMPTY_FORM: RevenueFormState = { name: '', amount: '', startMonth: '' };
 
 export function RevenuesSection({
   items,
@@ -30,7 +28,11 @@ export function RevenuesSection({
   onDelete,
   onMonthRevenueAmount,
 }: RevenuesSectionProps) {
-  const [form, setForm] = useState<RevenueFormState>(EMPTY_FORM);
+  const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } = useRevenueCrudState({
+    currentMonthKey,
+    onDelete,
+  });
+
   const {
     modal,
     confirm,
@@ -40,38 +42,10 @@ export function RevenuesSection({
     openDeleteConfirm,
     closeDeleteConfirm,
   } = useCrudModalState<Revenue>();
-  const canSubmit = useMemo(
-    () => !!(form.name.trim() && form.amount !== '' && form.startMonth.trim()),
-    [form]
-  );
 
-  const activeItems = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          item.active !== false && isMonthInRange(currentMonthKey, item.startMonth, item.endMonth)
-      ),
-    [items, currentMonthKey]
-  );
+  const activeItems = useActiveRevenues(items, currentMonthKey);
 
-  const getDisplayAmount = (item) => {
-    if (monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined) {
-      return monthRevenueAmounts[item.id];
-    }
-    return item.amount;
-  };
-
-  const buildPayload = (currentForm: RevenueFormState): RevenuePayload | null => {
-    const amount = parseMoneyInput(currentForm.amount);
-    if (amount === null) return null;
-    return {
-      name: currentForm.name,
-      amount,
-      startMonth: currentForm.startMonth,
-    };
-  };
-
-  const resetForm = () => setForm(EMPTY_FORM);
+  const buildPayload = (currentForm: any) => buildRevenuePayload(currentForm);
 
   const handleSubmit = useCrudFormFlow({
     modal,
@@ -81,42 +55,16 @@ export function RevenuesSection({
     resetForm,
     buildPayload,
     onAdd: (payload) => {
-      return onAdd({
-        ...payload!,
-        baseAmount: payload!.amount,
-        active: true,
-        endMonth: null,
-        category: 'outro',
-        notes: '',
-      } as any);
+      return onAdd(toRevenueCreateItem(payload!));
     },
     onEdit: (id, payload) => {
-      return onEdit(id, {
-        ...payload!,
-        baseAmount: payload!.amount,
-      } as any);
+      return onEdit(id, toRevenueEditItem(payload!));
     },
   });
 
   const openCreateModal = () => {
-    setForm({ name: '', amount: '', startMonth: currentMonthKey });
+    openCreateForm();
     openCreateBase();
-  };
-
-  const openEditModal = (item) => {
-    setForm({
-      name: item.name || '',
-      amount: formatMoneyInput(item.amount),
-      startMonth: item.startMonth || currentMonthKey,
-    });
-    openEditBase(item.id);
-  };
-
-  const handleDelete = async () => {
-    const item = confirm.item as Revenue | null;
-    if (!item) return;
-    await onDelete(item.id);
-    closeDeleteConfirm();
   };
 
   const {
@@ -129,98 +77,58 @@ export function RevenuesSection({
   return (
     <>
       <RuleSection
-        title="RECEITAS"
-        description="A receita se repete por mês e pode receber ajuste específico depois, se necessário."
-        addLabel="+ Nova receita"
+        title={REVENUE_LABELS.title}
+        description={REVENUE_LABELS.description}
+        addLabel={REVENUE_LABELS.addLabel}
         onAddClick={openCreateModal}
         items={activeItems}
-        emptyText="Nenhuma receita cadastrada ainda."
+        emptyText={REVENUE_LABELS.emptyText}
         sortBy="value-desc"
-        columns={['Nome', 'Valor', 'Desde', 'Ações']}
-        renderItem={(item, money) => {
-          const displayAmount = getDisplayAmount(item);
+        columns={REVENUE_LABELS.columns}
+        renderItem={(item: Revenue, money: (value: number) => string) => {
           const hasOverride = monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined;
 
           return (
-            <tr key={item.id}>
-              <td>{item.name}</td>
-              <td>
-                <div className="month-amount-cell">
-                  <input
-                    type="text"
-                    className={`month-amount-input ${hasOverride ? 'has-override' : ''}`}
-                    value={tempInputValues[item.id] || formatMoneyInput(displayAmount)}
-                    onChange={(e) => handleMonthAmountInput(item.id, e.target.value)}
-                    onBlur={() => handleMonthAmountBlur(item)}
-                    inputMode="numeric"
-                    autoComplete="off"
-                    placeholder={money(item.amount)}
-                  />
-                  {hasOverride && (
-                    <button
-                      type="button"
-                      className="clear-override"
-                      onClick={() => handleMonthAmountChange(item.id, null)}
-                      title="Restaurar valor original"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              </td>
-              <td>{formatStartMonth(item.startMonth)}</td>
-              <td>
-                <RowActions
-                  onEdit={() => openEditModal(item)}
-                  onDelete={() => openDeleteConfirm(item)}
-                />
-              </td>
-            </tr>
+            <RevenueRow
+              key={item.id}
+              item={item}
+              money={money}
+              displayAmount={hasOverride ? monthRevenueAmounts[item.id] : item.baseAmount}
+              tempValue={tempInputValues[item.id]}
+              hasOverride={hasOverride}
+              onMonthAmountInput={handleMonthAmountInput}
+              onMonthAmountBlur={handleMonthAmountBlur}
+              onMonthAmountChange={handleMonthAmountChange}
+              onEdit={() => {
+                openEditForm(item);
+                openEditBase(item.id);
+              }}
+              onDelete={() => openDeleteConfirm(item)}
+            />
           );
         }}
       />
 
       <ConfirmModal
         open={confirm.open}
-        title="Confirmar exclusão"
-        message={`Tem certeza que deseja apagar a receita "${(confirm.item as Revenue | null)?.name || ''}"?`}
-        onConfirm={handleDelete}
+        title={REVENUE_LABELS.delete.title}
+        message={REVENUE_LABELS.delete.message((confirm.item as Revenue | null)?.name || '')}
+        onConfirm={async () => {
+          const item = confirm.item as Revenue | null;
+          if (item) await onDelete(item.id);
+          closeDeleteConfirm();
+        }}
         onCancel={closeDeleteConfirm}
       />
 
       <RuleModal
         open={modal.open}
-        title={modal.mode === 'edit' ? 'Editar receita' : 'Nova receita'}
+        title={modal.mode === 'edit' ? REVENUE_LABELS.modal.edit.title : REVENUE_LABELS.modal.create.title}
         onClose={closeModal}
         onSubmit={handleSubmit}
-        submitLabel={modal.mode === 'edit' ? 'Salvar alterações' : 'Adicionar receita'}
+        submitLabel={modal.mode === 'edit' ? REVENUE_LABELS.modal.edit.submitLabel : REVENUE_LABELS.modal.create.submitLabel}
       >
-        <div className="form-grid">
-          <Input
-            label="Nome"
-            value={form.name}
-            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder="Salário, extra, bônus..."
-          />
-          <Input
-            label="Valor"
-            type="text"
-            value={form.amount}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))
-            }
-            inputMode="numeric"
-            autoComplete="off"
-            placeholder="0,00"
-          />
-        </div>
-        <Input
-          label="Mês de início"
-          type="month"
-          value={form.startMonth}
-          onChange={(e) => setForm((prev) => ({ ...prev, startMonth: e.target.value }))}
-          placeholder=""
-        />
+        <RevenueForm form={form} setForm={setForm} />
       </RuleModal>
     </>
   );

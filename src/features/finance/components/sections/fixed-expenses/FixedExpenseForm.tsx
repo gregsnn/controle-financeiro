@@ -1,0 +1,126 @@
+import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import { CARD_ICONS, CATEGORIES } from '../../../domain/constants';
+import type { CardBillItem } from '../../../domain/types';
+import { applyMoneyMask } from '../../../lib/moneyInput';
+import { Input, SelectWithIcon } from '../../inputs';
+
+export type FixedExpenseFormState = {
+  name: string;
+  amount: string;
+  dueDay: string;
+  startMonth: string;
+  paymentMethod: string;
+  card: string;
+  category: string;
+};
+
+interface FixedExpenseFormProps {
+  form: FixedExpenseFormState;
+  setForm: Dispatch<SetStateAction<FixedExpenseFormState>>;
+  cards: CardBillItem[];
+}
+
+function buildPaymentOptions(cards: CardBillItem[], selectedPaymentMethod: string) {
+  const options = [
+    { value: 'boleto', label: 'Boleto' },
+    { value: 'pix', label: 'Pix' },
+    ...cards.map((card) => ({ value: card.id, label: card.name })),
+  ];
+
+  if (selectedPaymentMethod && !options.some((option) => option.value === selectedPaymentMethod)) {
+    options.unshift({
+      value: selectedPaymentMethod,
+      label: `${selectedPaymentMethod} (removido)`,
+    });
+  }
+
+  return options;
+}
+
+function buildCardIconMap(cards: CardBillItem[]): Record<string, string> {
+  const map: Record<string, string> = { ...CARD_ICONS };
+  // Adicionar ícones dos cartões dinâmicos, se houver
+  cards.forEach((card) => {
+    if (card.icon && !map[card.id]) {
+      map[card.id] = card.icon;
+    }
+  });
+  return map;
+}
+export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps) {
+  const paymentOptions = buildPaymentOptions(cards, form.paymentMethod);
+  const cardIconMap = buildCardIconMap(cards);
+
+  return (
+    <>
+      <div className="form-grid">
+        <Input
+          label="Nome"
+          value={form.name}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+          placeholder="Internet, luz, aluguel..."
+        />
+        <Input
+          label="Valor"
+          type="text"
+          value={form.amount}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))}
+          inputMode="numeric"
+          autoComplete="off"
+          placeholder="0,00"
+        />
+      </div>
+      <div className="form-grid">
+        <Input
+          label="Dia de vencimento"
+          type="number"
+          value={form.dueDay}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, dueDay: e.target.value }))}
+          placeholder="10"
+        />
+        <Input
+          label="Mês de início"
+          type="month"
+          value={form.startMonth}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, startMonth: e.target.value }))}
+          placeholder=""
+        />
+      </div>
+      <div className="form-grid">
+        <label className="field">
+          <span>Forma de pagamento</span>
+          <SelectWithIcon
+            value={form.paymentMethod}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, paymentMethod: e.target.value }))}
+            options={paymentOptions}
+          />
+        </label>
+        {form.paymentMethod === 'cartao' ? (
+          <label className="field">
+            <span>Cartão</span>
+            <SelectWithIcon
+              value={form.card}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, card: e.target.value }))}
+              options={cards.map((card) => ({ value: card.id, label: card.name }))}
+              iconMap={cardIconMap}
+              ariaLabel="Cartão"
+            />
+          </label>
+        ) : null}
+        <label className="field">
+          <span>Categoria</span>
+          <select
+            value={form.category}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, category: e.target.value }))}
+          >
+            {Object.entries(CATEGORIES).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    </>
+  );
+}

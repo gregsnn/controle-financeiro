@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { buildFinanceStateFromBackup, decodeHashToState } from '../../lib/exportData';
 import { AppTabs } from './components/app-shell/AppTabs';
 import { LoadingScreen } from './components/app-shell/LoadingScreen';
 import { ExportButton } from './components/ExportButton';
@@ -18,8 +19,7 @@ import { useFinanceData, useFinanceSettings, useMonthView } from './hooks/useFin
 import { useMonthOverridesActions } from './hooks/useMonthOverridesActions';
 import { prefetchChartModule } from './lib/chartLoader';
 import { useI18n } from './lib/i18n';
-import { monthLabel, isMonthInRange } from './lib/utils';
-import { decodeHashToState, buildFinanceStateFromBackup } from '../../lib/exportData';
+import { isMonthInRange, monthLabel } from './lib/utils';
 
 export default function FinanceApp() {
   const { t } = useI18n();
@@ -56,7 +56,9 @@ export default function FinanceApp() {
       ...fixedExpenses
         .filter((item) => item.paymentMethod === 'cartao' && !!item.card && isMonthInRange(currentKey, item.startMonth, item.endMonth))
         .map((item) => item.card as string),
-      ...monthView.installments.filter((item) => !!item.card).map((item) => item.card as string),
+      ...monthView.installments
+        .filter((item) => !!item.card && item.currentInstallment <= item.totalInstallments)
+        .map((item) => item.card as string),
       ...Object.keys(monthCardBills || {}),
     ]);
 
@@ -67,7 +69,7 @@ export default function FinanceApp() {
       if (fixedExpenses.some((item) => item.paymentMethod === 'cartao' && item.card === cardId && isMonthInRange(currentKey, item.startMonth, item.endMonth))) {
         labels.push('gastos fixos');
       }
-      if (monthView.installments.some((item) => item.card === cardId)) {
+      if (monthView.installments.some((item) => item.card === cardId && item.currentInstallment <= item.totalInstallments)) {
         labels.push('parcelamentos');
       }
       if (Object.prototype.hasOwnProperty.call(monthCardBills, cardId)) {
