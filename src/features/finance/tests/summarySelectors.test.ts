@@ -164,11 +164,29 @@ describe('summarySelectors.ts', () => {
       expect(result.hasNegativeBalance).toBe(true);
     });
 
-    it('includes billCardsSummary', () => {
+    it('includes billCardsSummary with cards from data and bills', () => {
       const result = buildSummaryData(baseMonthView, { nubank: 200 }, [], '2026-04');
-      expect(result.billCardsSummary).toHaveLength(2);
+      expect(result.billCardsSummary.length).toBeGreaterThan(0);
       const nubankCard = result.billCardsSummary.find((c) => c.key === 'nubank');
       expect(nubankCard?.bill).toBe(200);
+    });
+
+    it('includes cards from cardBills even without data', () => {
+      const monthViewNoCards = {
+        ...baseMonthView,
+        fixedExpenses: [baseMonthView.fixedExpenses[0]], // only boleto expense
+      };
+      const result = buildSummaryData(monthViewNoCards, { santander: 300 }, [], '2026-04');
+      const santanderCard = result.billCardsSummary.find((c) => c.key === 'santander');
+      expect(santanderCard).toBeDefined();
+      expect(santanderCard?.bill).toBe(300);
+    });
+
+    it('includes cards from cardList', () => {
+      const cardList = [{ key: 'itau', label: 'Itaú' }];
+      const result = buildSummaryData(baseMonthView, {}, [], '2026-04', cardList);
+      const itauCard = result.billCardsSummary.find((c) => c.key === 'itau');
+      expect(itauCard).toBeDefined();
     });
   });
 });

@@ -3,11 +3,11 @@
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 16px 20px;
-  margin-bottom: 1rem;
+  margin-bottom: var(--layout-gap-section);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--layout-gap-section);
   min-width: 0;
 }
 

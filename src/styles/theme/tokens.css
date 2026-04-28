@@ -39,6 +39,11 @@
   --color-card-border: #e5e3dc;
   --border-radius-md: 8px;
   --border-radius-lg: 14px;
+
+  /* Vertical / layout rhythm — use consistently across shells, grids, and sections */
+  --layout-gap-sm: 8px;
+  --layout-gap: 12px;
+  --layout-gap-section: 16px;
 }
 
 body[data-theme='premium'] {

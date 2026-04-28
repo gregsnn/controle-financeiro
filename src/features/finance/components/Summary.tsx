@@ -8,17 +8,17 @@ export default function Summary({
   monthOverrides,
   currentMonthKey,
   onToggleBillPaid,
+  cardList,
 }) {
   const summaryData = useMemo(
-    () => buildSummaryData(monthView, cardBills, monthOverrides, currentMonthKey),
-    [monthView, cardBills, monthOverrides, currentMonthKey]
+    () => buildSummaryData(monthView, cardBills, monthOverrides, currentMonthKey, cardList),
+    [monthView, cardBills, monthOverrides, currentMonthKey, cardList]
   );
 
   const {
     despesasBrutas,
     despesasPagasBrutas,
     aPagar,
-    saldo,
     saldoPrevisto,
     hasNegativeBalance,
     billCardsSummary,
@@ -30,8 +30,10 @@ export default function Summary({
     <>
       <section className="saldo-hero">
         <div>
-          <p className="saldo-label">Saldo do mês</p>
-          <p className={`saldo-val ${saldo >= 0 ? 'pos' : 'neg'}`}>{formatMoney(saldo)}</p>
+          <p className="saldo-label">Saldo previsto</p>
+          <p className={`saldo-val ${saldoPrevisto >= 0 ? 'pos' : 'neg'}`}>
+            {formatMoney(saldoPrevisto)}
+          </p>
         </div>
         <div className="saldo-detail">
           <div>
@@ -55,7 +57,7 @@ export default function Summary({
         </div>
       ) : null}
 
-      <section className="metrics metrics--triplet">
+      <section className="metrics metrics--doublet">
         <div className="mcard">
           <p className="mcard-label">RECEITAS</p>
           <p className="mcard-val pos">{formatMoney(totals.receitas)}</p>
@@ -69,36 +71,32 @@ export default function Summary({
             receita
           </p>
         </div>
-        <div className="mcard">
-          <p className="mcard-label">A PAGAR</p>
-          <p className="mcard-val warn">{formatMoney(aPagar)}</p>
-          <p className="mcard-sub">Saldo previsto: {formatMoney(saldoPrevisto)}</p>
-        </div>
       </section>
 
-      <section className="metrics bill-metrics">
-        {billCardsSummary.map((item) => (
-          <div className="mcard" key={item.key}>
-            <p className="mcard-label">FATURA {item.label.toUpperCase()}</p>
-            <p className="mcard-val">{formatMoney(item.bill)}</p>
-            {item.bill > 0 ? (
-              <label
-                className="mcard-sub"
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <input
-                  type="checkbox"
-                  checked={item.paid}
-                  onChange={(e) => onToggleBillPaid?.(item.key, e.target.checked)}
-                />
-                Fatura paga no mês
-              </label>
-            ) : null}
-            <p className="mcard-sub">Abatimento: {formatMoney(item.abatimento)}</p>
-            <p className="mcard-sub">Restante para pagar: {formatMoney(item.restanteFatura)}</p>
-          </div>
-        ))}
-      </section>
+      {billCardsSummary.length > 0 ? (
+        <section className="metrics bill-metrics">
+          {billCardsSummary.map((item) => (
+            <div className="mcard" key={item.key}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <p className="mcard-label" style={{ margin: 0 }}>FATURA {item.label.toUpperCase()}</p>
+                {item.bill > 0 ? (
+                  <button
+                    type="button"
+                    className={`bill-pay-btn ${item.paid ? 'paid' : 'unpaid'}`}
+                    onClick={() => onToggleBillPaid?.(item.key, !item.paid)}
+                    style={{ marginTop: '-2px' }}
+                  >
+                    {item.paid ? '✓ Paga' : '○ Pendente'}
+                  </button>
+                ) : null}
+              </div>
+              <p className="mcard-val">{formatMoney(item.bill)}</p>
+              <p className="mcard-sub">Abatimento: {formatMoney(item.abatimento)}</p>
+              <p className="mcard-sub">Restante para pagar: {formatMoney(item.restanteFatura)}</p>
+            </div>
+          ))}
+        </section>
+      ) : null}
     </>
   );
 }

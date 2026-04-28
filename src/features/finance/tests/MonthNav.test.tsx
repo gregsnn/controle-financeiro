@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { vi } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import MonthNav from '../components/MonthNav';
+import { DEFAULT_CARD_BILLS } from '../lib/schema';
 
 describe('MonthNav.tsx', () => {
   const defaultProps = {
@@ -12,6 +12,7 @@ describe('MonthNav.tsx', () => {
     onToggleTheme: vi.fn(),
     cardBills: {},
     onSetCardBill: vi.fn(),
+    cardList: DEFAULT_CARD_BILLS,
   };
 
   it('renders month label', () => {
@@ -66,10 +67,92 @@ describe('MonthNav.tsx', () => {
   it('renders card bill inputs with values', () => {
     render(<MonthNav {...defaultProps} cardBills={{ nubank: 500 }} />);
     expect(screen.getByText('Nubank')).toBeInTheDocument();
+    expect(screen.getByText(/500,00/)).toBeInTheDocument();
   });
 
   it('renders card bill panel title', () => {
     render(<MonthNav {...defaultProps} />);
     expect(screen.getByText('Faturas do mês')).toBeInTheDocument();
+  });
+
+  it('hides "+ Novo cartão" when there are no cards', () => {
+    render(<MonthNav {...defaultProps} cardList={[]} onSetCardList={vi.fn()} />);
+    expect(screen.queryByText('+ Novo cartão')).not.toBeInTheDocument();
+    expect(screen.getByText('Nenhum cartão adicionado')).toBeInTheDocument();
+  });
+
+  it('renders the card icon before the card name', () => {
+    render(
+      <MonthNav
+        {...defaultProps}
+        cardList={[{ id: 'nubank', name: 'Nubank', icon: '💜' }]}
+      />
+    );
+
+    const card = screen.getByText('Nubank').closest('.bill-card');
+    expect(card).not.toBeNull();
+
+    const head = card?.querySelector('.bill-card-ident');
+    expect(head).not.toBeNull();
+    expect(head?.firstElementChild).toHaveTextContent('💜');
+    expect(head?.lastElementChild).toHaveTextContent('Nubank');
+  });
+
+  it('adds a new card to the list', () => {
+    const onSetCardList = vi.fn();
+    render(
+      <MonthNav
+        {...defaultProps}
+        cardList={[{ id: 'nubank', name: 'Nubank', icon: '💜' }]}
+        onSetCardList={onSetCardList}
+      />
+    );
+
+    fireEvent.click(screen.getByText('+ Novo cartão'));
+    fireEvent.change(screen.getByPlaceholderText('Nome do cartão'), {
+      target: { value: 'Cartao novo' },
+    });
+    fireEvent.click(screen.getByText('Adicionar'));
+
+    expect(onSetCardList).toHaveBeenCalledWith([
+      { id: 'nubank', name: 'Nubank', icon: '💜' },
+      { id: 'cartao-novo', name: 'Cartao novo', icon: '💳' },
+    ]);
+  });
+
+  it('asks for confirmation before deleting a card', () => {
+    const onSetCardList = vi.fn();
+    const onSetCardBill = vi.fn();
+
+    render(
+      <MonthNav
+        {...defaultProps}
+        cardList={[{ id: 'nubank', name: 'Nubank', icon: '💜' }]}
+        onSetCardList={onSetCardList}
+        onSetCardBill={onSetCardBill}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Apagar cartão Nubank' }));
+    expect(screen.getByText('Apagar cartão')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Apagar' }));
+
+    expect(onSetCardList).toHaveBeenCalledWith([]);
+    expect(onSetCardBill).toHaveBeenCalledWith('nubank', null);
+  });
+
+  it('disables delete when a card is in use', () => {
+    render(
+      <MonthNav
+        {...defaultProps}
+        cardList={[{ id: 'nubank', name: 'Nubank', icon: '💜' }]}
+        cardDeleteReasons={{ nubank: 'Usado em uma despesa fixa' }}
+      />
+    );
+
+    const deleteButton = screen.getByRole('button', { name: /Cartão Nubank em uso/ });
+    expect(deleteButton).toBeDisabled();
+    expect(within(deleteButton).getByText('Em uso')).toBeInTheDocument();
   });
 });

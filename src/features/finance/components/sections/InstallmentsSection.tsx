@@ -1,17 +1,16 @@
 import { useMemo, useState } from 'react';
+import { CARD_ICONS, OVERRIDE_TYPES } from '../../domain/constants';
+import type { CardBillItem } from '../../domain/types';
 import { applyMoneyMask, formatMoneyInput, parseMoneyInput } from '../../lib/moneyInput';
-import { OVERRIDE_TYPES } from '../../domain/constants';
 import { formatStartMonth } from '../../lib/utils';
-import { CARD_ICONS } from '../../domain/constants';
 import RuleSection from '../RuleSection';
+import { Input, SelectWithIcon } from '../inputs';
 import { ConfirmModal, RuleModal } from '../modals';
-import { Input } from '../inputs';
-import { SelectWithIcon } from '../inputs';
+import { RowActions } from './shared/RowActions';
+import type { CrudSectionCommonProps, MonthPaidSectionProps } from './shared/types';
+import { useCrudFormFlow } from './shared/useCrudFormFlow';
 import { useCrudModalState } from './shared/useCrudModalState';
 import { useMonthPaymentMap } from './shared/useMonthPaymentMap';
-import { RowActions } from './shared/RowActions';
-import { useCrudFormFlow } from './shared/useCrudFormFlow';
-import type { CrudSectionCommonProps, MonthPaidSectionProps } from './shared/types';
 
 type InstallmentItem = {
   id: string;
@@ -19,7 +18,7 @@ type InstallmentItem = {
   installmentValue: number;
   totalInstallments: number;
   startMonth: string;
-  card: 'santander' | 'nubank' | 'outro';
+  card: string;
   currentInstallment: number;
 };
 
@@ -28,7 +27,7 @@ type InstallmentFormState = {
   installmentValue: string;
   totalInstallments: string;
   startMonth: string;
-  card: 'santander' | 'nubank' | 'outro';
+  card: string;
 };
 
 type InstallmentPayload = {
@@ -36,18 +35,20 @@ type InstallmentPayload = {
   installmentValue: number;
   totalInstallments: number;
   startMonth: string;
-  card: 'santander' | 'nubank' | 'outro';
+  card: string;
 };
 
 type InstallmentsSectionProps = CrudSectionCommonProps<InstallmentItem, InstallmentPayload> &
-  MonthPaidSectionProps;
+  MonthPaidSectionProps & {
+    cardList?: CardBillItem[];
+  };
 
 const EMPTY_FORM: InstallmentFormState = {
   name: '',
   installmentValue: '',
   totalInstallments: '',
   startMonth: '',
-  card: 'santander',
+  card: '',
 };
 
 export function InstallmentsSection({
@@ -58,8 +59,10 @@ export function InstallmentsSection({
   onEdit,
   onDelete,
   onTogglePaid,
+  cardList,
 }: InstallmentsSectionProps) {
   const [form, setForm] = useState<InstallmentFormState>(EMPTY_FORM);
+  const cards = cardList ?? [];
   const {
     modal,
     confirm,
@@ -118,7 +121,7 @@ export function InstallmentsSection({
       installmentValue: '',
       totalInstallments: '',
       startMonth: '',
-      card: 'santander',
+      card: cards[0]?.id || '',
     });
     openCreateBase();
   };
@@ -244,11 +247,13 @@ export function InstallmentsSection({
             <SelectWithIcon
               value={form.card}
               onChange={(e) => setForm((prev) => ({ ...prev, card: e.target.value }))}
-              options={[
-                { value: 'santander', label: 'Santander' },
-                { value: 'nubank', label: 'Nubank' },
-                { value: 'outro', label: 'Outro' },
-              ]}
+              options={(() => {
+                const options = cards.map((card) => ({ value: card.id, label: card.name }));
+                if (form.card && !options.some((opt) => opt.value === form.card)) {
+                  options.unshift({ value: form.card, label: `${form.card} (removido)` });
+                }
+                return options;
+              })()}
             />
           </label>
         </div>

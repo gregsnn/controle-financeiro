@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { CATEGORIES, ICONS, OVERRIDE_TYPES } from '../../domain/constants';
-import type { FixedExpense } from '../../domain/types';
+import type { CardBillItem, FixedExpense } from '../../domain/types';
 import { applyMoneyMask, formatMoneyInput, parseMoneyInput } from '../../lib/moneyInput';
 import { formatStartMonth } from '../../lib/utils';
 import RuleSection from '../RuleSection';
@@ -17,10 +17,15 @@ function resolvePaymentMethod(item) {
   return item.paymentMethod || 'boleto';
 }
 
-function resolveCardFromPaymentMethod(paymentMethod, currentCard) {
-  if (paymentMethod === 'santander' || paymentMethod === 'nubank') return paymentMethod;
-  if (paymentMethod === 'cartao') return currentCard || 'outro';
+function resolveCardFromPaymentMethod(paymentMethod, currentCard, cards) {
+  const cardIds = (cards || []).map((card) => card.id);
+  if (paymentMethod === 'cartao') return currentCard || cardIds[0] || 'outro';
+  if (cardIds.includes(paymentMethod)) return paymentMethod;
   return null;
+}
+
+function isSpecialPaymentMethod(value) {
+  return value === 'boleto' || value === 'pix' || value === 'debito' || value === 'cartao';
 }
 
 type FixedExpenseFormState = {
@@ -29,6 +34,7 @@ type FixedExpenseFormState = {
   dueDay: string;
   startMonth: string;
   paymentMethod: string;
+  card: string;
   category: string;
 };
 
@@ -43,7 +49,9 @@ type FixedExpensePayload = {
 };
 
 type FixedExpensesSectionProps = CrudSectionCommonProps<FixedExpense, FixedExpensePayload> &
-  MonthPaidSectionProps;
+  MonthPaidSectionProps & {
+    cardList?: CardBillItem[];
+  };
 
 const EMPTY_FORM: FixedExpenseFormState = {
   name: '',
@@ -51,6 +59,7 @@ const EMPTY_FORM: FixedExpenseFormState = {
   dueDay: '',
   startMonth: '',
   paymentMethod: 'boleto',
+  card: '',
   category: 'outro',
 };
 
@@ -62,8 +71,18 @@ export function FixedExpensesSection({
   onEdit,
   onDelete,
   onTogglePaid,
+  cardList,
 }: FixedExpensesSectionProps) {
   const [form, setForm] = useState<FixedExpenseFormState>(EMPTY_FORM);
+  const cards = cardList ?? [];
+
+  const activeItems = useMemo(
+    () =>
+      items.filter(
+        (item) => !item.endMonth || item.endMonth >= currentMonthKey
+      ),
+    [items, currentMonthKey]
+  );
   const {
     modal,
     confirm,
@@ -88,16 +107,37 @@ export function FixedExpensesSection({
   const buildPayload = (currentForm: FixedExpenseFormState): FixedExpensePayload | null => {
     const amount = parseMoneyInput(currentForm.amount);
     if (amount === null) return null;
+    const selectedCard = cards.find((card) => card.id === currentForm.paymentMethod);
+    const legacyCard = !isSpecialPaymentMethod(currentForm.paymentMethod)
+      ? currentForm.paymentMethod
+      : null;
     return {
       name: currentForm.name,
       amount: amount ?? 0,
       dueDay: currentForm.dueDay ? Number(currentForm.dueDay) : null,
       startMonth: currentForm.startMonth,
-      paymentMethod: currentForm.paymentMethod,
-      card: resolveCardFromPaymentMethod(currentForm.paymentMethod, null),
+      paymentMethod: selectedCard || legacyCard ? 'cartao' : currentForm.paymentMethod,
+      card: selectedCard
+        ? selectedCard.id
+        : legacyCard
+          ? legacyCard
+          : resolveCardFromPaymentMethod(currentForm.paymentMethod, currentForm.card, cards),
       category: currentForm.category,
     };
   };
+
+  const paymentOptions = [
+    { value: 'boleto', label: 'Boleto' },
+    { value: 'pix', label: 'Pix' },
+    ...cards.map((card) => ({ value: card.id, label: card.name })),
+  ];
+
+  if (form.paymentMethod && !paymentOptions.some((opt) => opt.value === form.paymentMethod)) {
+    paymentOptions.unshift({
+      value: form.paymentMethod,
+      label: `${form.paymentMethod} (removido)`,
+    });
+  }
 
   const resetForm = () => setForm(EMPTY_FORM);
 
@@ -118,7 +158,8 @@ export function FixedExpensesSection({
       amount: '',
       dueDay: '',
       startMonth: currentMonthKey,
-      paymentMethod: 'boleto',
+      paymentMethod: cards[0]?.id || 'boleto',
+      card: cards[0]?.id || '',
       category: 'outro',
     });
     openCreateBase();
@@ -130,7 +171,9 @@ export function FixedExpensesSection({
       amount: formatMoneyInput(item.amount),
       dueDay: item.dueDay ? String(item.dueDay) : '',
       startMonth: item.startMonth || currentMonthKey,
-      paymentMethod: resolvePaymentMethod(item),
+      paymentMethod:
+        item.paymentMethod === 'cartao' ? item.card || 'cartao' : resolvePaymentMethod(item),
+      card: item.card || '',
       category: item.category || 'outro',
     });
     openEditBase(item.id);
@@ -150,7 +193,7 @@ export function FixedExpensesSection({
         description="Cadastre uma vez e o valor passa a valer em todos os meses ativos."
         addLabel="+ Novo gasto fixo"
         onAddClick={openCreateModal}
-        items={items}
+        items={activeItems}
         emptyText="Nenhum gasto fixo cadastrado ainda."
         sortBy="value-desc"
         columns={[
@@ -245,15 +288,24 @@ export function FixedExpensesSection({
             <SelectWithIcon
               value={form.paymentMethod}
               onChange={(e) => setForm((prev) => ({ ...prev, paymentMethod: e.target.value }))}
-              options={[
-                { value: 'boleto', label: 'Boleto' },
-                { value: 'pix', label: 'Pix' },
-                { value: 'debito', label: 'Débito' },
-                { value: 'santander', label: 'Santander' },
-                { value: 'nubank', label: 'Nubank' },
-              ]}
+              options={paymentOptions}
             />
           </label>
+          {form.paymentMethod === 'cartao' ? (
+            <label className="field">
+              <span>Cartão</span>
+              <select
+                value={form.card}
+                onChange={(e) => setForm((prev) => ({ ...prev, card: e.target.value }))}
+              >
+                {cards.map((card) => (
+                  <option key={card.id} value={card.id}>
+                    {card.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <label className="field">
             <span>Categoria</span>
             <select

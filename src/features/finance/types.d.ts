@@ -2,6 +2,9 @@ declare module '*.css';
 
 declare module '../../../lib/exportData' {
   export function downloadJSON(): Promise<void>;
+  export function exportAllData(): Promise<unknown>;
+  export function buildFinanceStateFromBackup(input: unknown): unknown;
+  export function importFinanceBackupFile(file: File): Promise<unknown>;
 }
 
 declare module '../lib/chartLoader.ts' {
@@ -38,6 +41,7 @@ declare module '../context/FinanceContext' {
     meta: unknown;
     changeMonth: (step: number) => void;
     resetDatabase: () => Promise<void>;
+    importFinanceState: (state: unknown) => void;
     setTheme: (theme: string) => void;
     addFixedExpense: (data: unknown) => void;
     addRevenue: (data: unknown) => void;

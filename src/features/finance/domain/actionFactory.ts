@@ -1,9 +1,9 @@
+import type { Dispatch, SetStateAction } from 'react';
 import { createFinanceId } from '../lib/ids';
 import { resetFinanceDatabase } from '../lib/storage';
 import { monthKey, previousMonthKey } from '../lib/utils';
 import { OVERRIDE_TYPES } from './constants';
 import type { FinanceState, FixedExpense, Installment, OverrideType, Revenue } from './types';
-import type { Dispatch, SetStateAction } from 'react';
 
 type SetStateFunc = Dispatch<SetStateAction<FinanceState | null>>;
 
@@ -20,6 +20,9 @@ export function createActions(_state: FinanceState, setState: SetStateFunc, curr
     resetDatabase: async () => {
       await resetFinanceDatabase();
       setState(null);
+    },
+    importFinanceState: (nextState: FinanceState) => {
+      setState(() => nextState);
     },
     setTheme: (theme: 'default' | 'premium') =>
       setState((prev) => {
@@ -102,8 +105,7 @@ export function createActions(_state: FinanceState, setState: SetStateFunc, curr
             item.id === id
               ? {
                   ...item,
-                  endMonth:
-                    item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
+                  endMonth: item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
                 }
               : item
           ),

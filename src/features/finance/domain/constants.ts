@@ -14,9 +14,9 @@ export const ALLOWED_PAYMENT_METHODS = [
   'boleto',
   'pix',
   'debito',
+  'cartao',
   'santander',
   'nubank',
-  'cartao',
 ] as const;
 
 export type PaymentMethod = (typeof ALLOWED_PAYMENT_METHODS)[number];
@@ -46,14 +46,12 @@ export const CARD_ICONS: Record<BillCard, string> = {
 };
 
 export const CATEGORIES: Record<string, string> = {
-  debito: '💳 DÉBITO',
-  credito: '💳 CRÉDITO',
   casa: '🏠 CASA',
   telefone: '📱 TELEFONE',
   aluguel: '🏠 ALUGUEL',
-  cartao: '💳 CARTÃO',
   streaming: '🎬 STREAMING',
   seguro: '🔒 SEGURO',
+  investimento: '📈 INVESTIMENTO',
   outro: '📦 OUTRO',
 };
 
@@ -77,11 +75,13 @@ export const TABS: Tab[] = [
 export interface BillCardConfig {
   key: BillCard;
   label: string;
+  icon?: string;
+  color?: string;
 }
 
 export const BILL_CARDS: BillCardConfig[] = [
-  { key: 'santander', label: 'Santander' },
-  { key: 'nubank', label: 'Nubank' },
+  { key: 'santander', label: 'Santander', icon: '🔴', color: '#EC0000' },
+  { key: 'nubank', label: 'Nubank', icon: '💙', color: '#820AD1' },
 ];
 
 export const BILL_CARD_KEYS = BILL_CARDS.map((card) => card.key);

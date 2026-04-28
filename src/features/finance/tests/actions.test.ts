@@ -114,6 +114,18 @@ describe('actions.ts', () => {
       const result = normalizeFixedExpense({ name: 'Test', paymentMethod: 'cartao' });
       expect((result as any).card).toBe('outro');
     });
+
+    it('preserves custom card ids with cartao', () => {
+      const result = normalizeFixedExpense({ name: 'Test', paymentMethod: 'cartao', card: 'itau' });
+      expect(result.paymentMethod).toBe('cartao');
+      expect((result as any).card).toBe('itau');
+    });
+
+    it('handles cartao with outro card', () => {
+      const result = normalizeFixedExpense({ name: 'Test', paymentMethod: 'cartao', card: 'outro' });
+      expect(result.paymentMethod).toBe('cartao');
+      expect((result as any).card).toBe('outro');
+    });
   });
 
   describe('normalizeInstallment', () => {
@@ -123,10 +135,15 @@ describe('actions.ts', () => {
       expect(normalizeInstallment({ card: 'outro' }).card).toBe('outro');
     });
 
-    it('defaults invalid card to outro', () => {
-      expect(normalizeInstallment({ card: 'invalid' }).card).toBe('outro');
+    it('preserves custom card ids (user-added cards)', () => {
+      expect(normalizeInstallment({ card: 'itau' }).card).toBe('itau');
+      expect(normalizeInstallment({ card: 'meu-banco' }).card).toBe('meu-banco');
+    });
+
+    it('defaults empty or missing card to outro', () => {
       expect(normalizeInstallment({ card: '' }).card).toBe('outro');
       expect(normalizeInstallment({}).card).toBe('outro');
+      expect(normalizeInstallment({ card: '   ' }).card).toBe('outro');
     });
   });
 
@@ -224,6 +241,61 @@ describe('actions.ts', () => {
       expect(state.revenues[0].endMonth).toBe('2026-07');
       expect(state.monthOverrides).toHaveLength(2);
       expect(state.monthOverrides.some((override: any) => override.itemId === 'r1')).toBe(true);
+    });
+
+    it('does not override earlier endMonth when removing fixed expense', () => {
+      let state = createTestState();
+      state.fixedExpenses[0].endMonth = '2026-05'; // Already has earlier endMonth
+      const actions = createActions(
+        state as any,
+        (updater: any) => {
+          state = typeof updater === 'function' ? updater(state) : updater;
+        },
+        state.currentDate
+      );
+
+      actions.removeFixedExpense('f1');
+
+      expect(state.fixedExpenses[0].endMonth).toBe('2026-05'); // Should keep earlier date
+    });
+
+    it('only removes one item by id even with same name', () => {
+      let state = {
+        ...createTestState(),
+        revenues: [
+          { id: 'r1', name: 'Salario', baseAmount: 5000, active: true, startMonth: '2026-01', endMonth: null, category: 'outro', notes: '' },
+          { id: 'r2', name: 'Salario', baseAmount: 3000, active: true, startMonth: '2026-01', endMonth: null, category: 'outro', notes: '' },
+        ],
+      };
+      const actions = createActions(
+        state as any,
+        (updater: any) => {
+          state = typeof updater === 'function' ? updater(state) : updater;
+        },
+        state.currentDate
+      );
+
+      actions.removeRevenue('r1');
+
+      expect(state.revenues).toHaveLength(2); // Should still have 2 items
+      expect(state.revenues[0].endMonth).toBe('2026-07'); // r1 should have endMonth
+      expect(state.revenues[1].endMonth).toBeNull(); // r2 should not be affected
+    });
+
+    it('handles removing non-existent fixed expense', () => {
+      let state = createTestState();
+      const actions = createActions(
+        state as any,
+        (updater: any) => {
+          state = typeof updater === 'function' ? updater(state) : updater;
+        },
+        state.currentDate
+      );
+
+      actions.removeFixedExpense('non-existent');
+
+      // State should remain unchanged for non-existent items
+      expect(state.fixedExpenses).toHaveLength(1);
     });
   });
 });

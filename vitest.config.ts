@@ -3,10 +3,13 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+  },
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/features/finance/tests/setupTests.ts'],
+    setupFiles: ['./src/features/finance/tests/setupTests.ts', './vitest.setup.ts'],
     include: ['src/features/finance/tests/**/*.test.{js,ts,tsx}'],
     coverage: {
       provider: 'v8',

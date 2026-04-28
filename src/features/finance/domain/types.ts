@@ -5,6 +5,7 @@ export interface FixedExpense {
   dueDay: number;
   category: string;
   paymentMethod: string;
+  card?: string | null;
   active: boolean;
   startMonth: string;
   endMonth: string | null;
@@ -99,4 +100,5 @@ export interface CardBillItem {
   id: string;
   name: string;
   icon?: string;
+  color?: string;
 }

@@ -83,7 +83,6 @@ export function RevenuesSection({
     onAdd: (payload) => {
       return onAdd({
         ...payload!,
-        id: '',
         baseAmount: payload!.amount,
         active: true,
         endMonth: null,
@@ -94,12 +93,7 @@ export function RevenuesSection({
     onEdit: (id, payload) => {
       return onEdit(id, {
         ...payload!,
-        id,
         baseAmount: payload!.amount,
-        active: true,
-        endMonth: null,
-        category: 'outro',
-        notes: '',
       } as any);
     },
   });

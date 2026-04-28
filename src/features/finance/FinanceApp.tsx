@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AppTabs } from './components/app-shell/AppTabs';
 import { LoadingScreen } from './components/app-shell/LoadingScreen';
 import { ExportButton } from './components/ExportButton';
+import { ImportButton } from './components/ImportButton';
 import MonthNav from './components/MonthNav';
 import {
   FixedExpensesSection,
@@ -17,7 +18,8 @@ import { useFinanceData, useFinanceSettings, useMonthView } from './hooks/useFin
 import { useMonthOverridesActions } from './hooks/useMonthOverridesActions';
 import { prefetchChartModule } from './lib/chartLoader';
 import { useI18n } from './lib/i18n';
-import { monthLabel } from './lib/utils';
+import { monthLabel, isMonthInRange } from './lib/utils';
+import { decodeHashToState, buildFinanceStateFromBackup } from '../../lib/exportData';
 
 export default function FinanceApp() {
   const { t } = useI18n();
@@ -42,9 +44,96 @@ export default function FinanceApp() {
     ...actions,
   });
 
+  const handleSetCardList = (nextCardList: typeof settings.cardBills) => {
+    actions.setCardBills(nextCardList);
+  };
+
+  const existingCardIds = new Set((settings.cardBills || []).map((card) => card.id));
+  const cardDeleteReasons = (() => {
+    const reasons: Record<string, string> = {};
+
+    const allUsedCardIds = new Set<string>([
+      ...fixedExpenses
+        .filter((item) => item.paymentMethod === 'cartao' && !!item.card && isMonthInRange(currentKey, item.startMonth, item.endMonth))
+        .map((item) => item.card as string),
+      ...monthView.installments.filter((item) => !!item.card).map((item) => item.card as string),
+      ...Object.keys(monthCardBills || {}),
+    ]);
+
+    allUsedCardIds.forEach((cardId) => {
+      if (!existingCardIds.has(cardId)) return;
+
+      const labels: string[] = [];
+      if (fixedExpenses.some((item) => item.paymentMethod === 'cartao' && item.card === cardId && isMonthInRange(currentKey, item.startMonth, item.endMonth))) {
+        labels.push('gastos fixos');
+      }
+      if (monthView.installments.some((item) => item.card === cardId)) {
+        labels.push('parcelamentos');
+      }
+      if (Object.prototype.hasOwnProperty.call(monthCardBills, cardId)) {
+        labels.push('fatura do mês');
+      }
+
+      if (labels.length > 0) {
+        reasons[cardId] = labels.join(', ');
+      }
+    });
+
+    return reasons;
+  })();
+
   useEffect(() => {
     prefetchChartModule();
   }, []);
+
+  useEffect(() => {
+    const checkHash = () => {
+      const fullUrl = window.location.href;
+      const hashIndex = fullUrl.indexOf('#');
+      const hash = hashIndex >= 0 ? fullUrl.substring(hashIndex) : '';
+      console.log('Verificando hash:', hash.substring(0, 60));
+
+      if (!hash.includes('import=')) return;
+
+      const encoded = hash.split('import=')[1]?.split('&')[0];
+      if (!encoded) {
+        window.location.hash = '';
+        return;
+      }
+
+      try {
+        const decoded = decodeURIComponent(encoded);
+        const data = decodeHashToState(decoded);
+        if (!data) {
+          alert('Link de importação inválido ou expirado.');
+          window.location.hash = '';
+          return;
+        }
+
+        const confirmed = window.confirm('Deseja importar os dados do link? Isso substituirá seus dados atuais.');
+        if (confirmed) {
+          try {
+            const state = buildFinanceStateFromBackup(data);
+            actions.importFinanceState(state);
+            alert('Dados importados com sucesso! A página será recarregada.');
+            setTimeout(() => window.location.reload(), 500);
+          } catch (err) {
+            console.error('Erro ao importar:', err);
+            alert('Erro ao importar dados. Verifique o console (F12).');
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao decodificar link:', e);
+        alert('Link de importação inválido.');
+      }
+
+      window.location.hash = '';
+    };
+
+    // Pequeno delay para garantir que a URL está carregada
+    const timer = setTimeout(checkHash, 100);
+    return () => clearTimeout(timer);
+  }, [actions]);
 
   if (!isReady) {
     return (
@@ -69,9 +158,15 @@ export default function FinanceApp() {
           }
           cardBills={monthCardBills}
           onSetCardBill={setMonthCardBill}
+          cardList={settings.cardBills}
+          onSetCardList={handleSetCardList}
+          cardDeleteReasons={cardDeleteReasons}
         />
 
-        <ExportButton />
+        <div className="finance-backup-actions">
+          <ExportButton />
+          <ImportButton />
+        </div>
         <AppTabs tabs={TABS} activeTab={activeTab} translate={t} onChange={setActiveTab} />
       </header>
 
@@ -87,6 +182,7 @@ export default function FinanceApp() {
             pieChartRef={pieChartRef}
             barChartRef={barChartRef}
             onToggleMonthPaid={toggleMonthPaid}
+            cardList={settings.cardBills}
           />
         )}
 
@@ -95,6 +191,7 @@ export default function FinanceApp() {
             items={fixedExpenses}
             currentMonthKey={currentKey}
             monthOverrides={monthOverrides}
+            cardList={settings.cardBills}
             onAdd={(payload) => {
               const { ...rest } = payload;
               actions.addFixedExpense(rest as any);
@@ -115,6 +212,7 @@ export default function FinanceApp() {
             items={monthView.installments as any}
             currentMonthKey={currentKey}
             monthOverrides={monthOverrides}
+            cardList={settings.cardBills}
             onAdd={actions.addInstallment}
             onEdit={actions.updateInstallment}
             onDelete={actions.removeInstallment}

@@ -37,7 +37,7 @@ export function emptyFinanceState(): FinanceState {
     installments: [],
     revenues: [],
     monthOverrides: [],
-    settings: { theme: 'default', cardBills: DEFAULT_CARD_BILLS },
+    settings: { theme: 'default', cardBills: [] },
     meta: {
       schemaVersion: financeSchemaVersion,
       createdAt: new Date(),

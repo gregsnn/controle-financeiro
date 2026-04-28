@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { emptyFinanceState, DEFAULT_CARD_BILLS } from '../lib/schema';
+import { emptyFinanceState } from '../lib/schema';
 import { loadFinanceState, saveFinanceState } from '../lib/storage';
 import { monthKey } from '../lib/utils';
 import { buildMonthView } from '../selectors/buildMonth';
@@ -47,11 +47,11 @@ export function useHydrateFinanceState(
               revenues: (loadedState.revenues || []).map((item: Revenue) =>
                 normalizeRevenue(item as unknown as Record<string, unknown>)
               ),
-              settings: {
-                ...base.settings,
-                ...loadedSettings,
-                cardBills: loadedSettings.cardBills || DEFAULT_CARD_BILLS,
-              },
+               settings: {
+                 ...base.settings,
+                 ...loadedSettings,
+                 cardBills: loadedSettings.cardBills || [],
+               },
             };
           });
         }

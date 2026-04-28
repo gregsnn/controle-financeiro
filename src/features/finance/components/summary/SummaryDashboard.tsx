@@ -1,9 +1,13 @@
 import type { RefObject } from 'react';
+import { useMemo } from 'react';
 import { OVERRIDE_TYPES } from '../../domain/constants';
 import type { MonthOverride, MonthView } from '../../domain/types';
 import { useSummaryMetrics } from '../../hooks/useSummaryMetrics';
+import { hasInstallmentBarData } from '../../lib/charts/installmentBarConfig';
+import { hasPieChartData } from '../../lib/charts/pieConfig';
 import { formatMoney } from '../../lib/utils';
 import Summary from '../Summary';
+import { ChartEmpty } from './ChartEmpty';
 
 type PieMode = 'categories' | 'cards' | 'cardsStatus';
 
@@ -17,6 +21,7 @@ interface SummaryDashboardProps {
   pieChartRef: RefObject<HTMLCanvasElement | null>;
   barChartRef: RefObject<HTMLCanvasElement | null>;
   onToggleMonthPaid: (type: any, itemId: string, paid: boolean) => void;
+  cardList?: { key: string; label: string }[];
 }
 
 export function SummaryDashboard({
@@ -29,11 +34,37 @@ export function SummaryDashboard({
   pieChartRef,
   barChartRef,
   onToggleMonthPaid,
+  cardList,
 }: SummaryDashboardProps) {
   const { pieTitle, pieAriaLabel, totalRestante, almostDone } = useSummaryMetrics(
     monthView,
     pieMode
   );
+
+  const showPieChart = hasPieChartData(monthView, pieMode);
+  const showBarChart = hasInstallmentBarData(monthView);
+
+  const pieEmptyCopy = useMemo(() => {
+    switch (pieMode) {
+      case 'categories':
+        return {
+          title: 'Sem categorias neste mês',
+          hint: 'Cadastre gastos fixos ou parcelas para ver a distribuição.',
+        };
+      case 'cards':
+        return {
+          title: 'Sem despesas por cartão',
+          hint: 'Quando houver valores nos cartões, o gráfico aparece aqui.',
+        };
+      case 'cardsStatus':
+        return {
+          title: 'Nada para comparar',
+          hint: 'Com despesas por cartão no mês, você verá pago x pendente.',
+        };
+      default:
+        return { title: 'Sem dados', hint: 'Os gráficos aparecem quando houver informação.' };
+    }
+  }, [pieMode]);
 
   return (
     <>
@@ -45,6 +76,7 @@ export function SummaryDashboard({
         onToggleBillPaid={(card, paid) =>
           onToggleMonthPaid(OVERRIDE_TYPES.CARD_BILL_PAYMENT, card, paid)
         }
+        cardList={cardList}
       />
 
       <section className="charts-grid">
@@ -88,17 +120,28 @@ export function SummaryDashboard({
           <div
             className={`chart-frame chart-frame--pie ${pieMode === 'cardsStatus' ? 'chart-frame--status' : ''}`}
           >
-            <canvas ref={pieChartRef} role="img" aria-label={pieAriaLabel} />
+            {showPieChart ? (
+              <canvas ref={pieChartRef} role="img" aria-label={pieAriaLabel} />
+            ) : (
+              <ChartEmpty title={pieEmptyCopy.title} hint={pieEmptyCopy.hint} />
+            )}
           </div>
         </div>
         <div className="chart-card">
           <p className="chart-title">PARCELAMENTOS</p>
           <div className="chart-frame chart-frame--bar">
-            <canvas
-              ref={barChartRef}
-              role="img"
-              aria-label="Barras com valor mensal de cada parcelamento"
-            />
+            {showBarChart ? (
+              <canvas
+                ref={barChartRef}
+                role="img"
+                aria-label="Barras com total ja pago e falta pagar por parcelamento"
+              />
+            ) : (
+              <ChartEmpty
+                title="Sem parcelamentos"
+                hint="Cadastre parcelamentos na aba Parcelas para ver os valores mensais."
+              />
+            )}
           </div>
         </div>
       </section>

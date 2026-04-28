@@ -5,8 +5,8 @@
   padding: 10px 14px;
   font-size: 12px;
   color: var(--color-alert-text);
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--layout-gap-section);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--layout-gap-sm);
 }

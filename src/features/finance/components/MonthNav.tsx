@@ -1,7 +1,9 @@
-import { useEffect, useState, useRef } from 'react';
-import { applyMoneyMask, formatMoneyInput, parseMoneyInput } from '../lib/moneyInput';
-import { DEFAULT_CARD_BILLS } from '../lib/schema';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CardBillItem } from '../domain/types';
+import { DEFAULT_CARD_BILLS } from '../lib/schema';
+import { applyMoneyMask, formatMoneyInput, parseMoneyInput } from '../lib/moneyInput';
+import { ConfirmModal } from './modals';
+import { EmptyBillsState } from './EmptyBillsState';
 
 interface MonthNavProps {
   label: string;
@@ -11,16 +13,25 @@ interface MonthNavProps {
   onToggleTheme: () => void;
   cardBills: Record<string, number>;
   onSetCardBill: (cardId: string, amount: number | null) => void;
+  cardList?: CardBillItem[];
+  onSetCardList?: (list: CardBillItem[]) => void;
+  cardDeleteReasons?: Record<string, string>;
 }
 
 function BillCard({
   card,
   value,
   onChange,
+  onDelete,
+  canDelete,
+  deleteReason,
 }: {
   card: CardBillItem;
   value: string;
   onChange: (value: string) => void;
+  onDelete: () => void;
+  canDelete: boolean;
+  deleteReason?: string;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -45,7 +56,8 @@ function BillCard({
       onChange(inputValue);
       setHasValue(true);
     } else {
-      setInputValue(value);
+      onChange('');
+      setInputValue('');
       setHasValue(false);
     }
   };
@@ -58,94 +70,88 @@ function BillCard({
     }
   };
 
-  const getCardStyle = () => {
+  const getCardStyle = (): React.CSSProperties => {
     if (isEditing) {
       return {
         background: 'var(--color-background-primary)',
         border: '2px solid var(--color-accent)',
       };
     }
+    if (card.color) {
+      return {
+        background: `color-mix(in srgb, ${card.color} 18%, transparent)`,
+        border: `1px solid ${card.color}`,
+      };
+    }
     if (card.id === 'nubank') {
       return {
-        background: 'var(--color-pill-nub-bg)',
-        border: '2px solid var(--color-pill-nub-text)',
+        background: '#820AD120',
+        border: '1px solid #820AD140',
       };
     }
     if (card.id === 'santander') {
       return {
-        background: 'var(--color-pill-san-bg)',
-        border: '2px solid var(--color-pill-san-text)',
+        background: '#EC000020',
+        border: '1px solid #EC000040',
       };
     }
-    return { background: 'var(--color-card-bg)', border: '2px solid var(--color-card-border)' };
+    return {};
   };
-
-  const cardStyle = getCardStyle();
 
   return (
     <div
       className="bill-card"
-      onClick={() => setIsEditing(true)}
-      style={{
-        ...cardStyle,
-        borderRadius: '8px',
-        padding: '10px 12px',
-        cursor: 'pointer',
-        minWidth: '120px',
-        flex: '1 1 140px',
-        maxWidth: '160px',
-        transition: 'all 0.2s ease',
-        transform: isEditing ? 'scale(1.02)' : 'scale(1)',
+      style={getCardStyle()}
+      onClick={() => {
+        if (!isEditing && hasValue) setIsEditing(true);
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '6px',
-        }}
-      >
-        <span style={{ fontSize: '18px' }}>{card.icon || '•'}</span>
-        <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-          {card.name}
-        </span>
+      <div className="bill-card-ident">
+        <span className="bill-card-icon">{card.icon || '💳'}</span>
+        <span className="bill-card-name">{card.name}</span>
+        <button
+          type="button"
+          className="bill-card-delete"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          title={deleteReason ? `Não é possível apagar: ${deleteReason}` : `Apagar cartão ${card.name}`}
+          disabled={!!deleteReason}
+          aria-label={deleteReason ? `Cartão ${card.name} em uso` : `Apagar cartão ${card.name}`}
+        >
+          {deleteReason ? 'Em uso' : 'Apagar'}
+        </button>
       </div>
       {isEditing ? (
-        <div
-          style={{ display: 'flex', alignItems: 'center', gap: '2px' }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>R$</span>
+        <div className="bill-input-shell" onClick={(e) => e.stopPropagation()}>
+          <span className="bill-currency">R$</span>
           <input
             ref={inputRef}
+            className="bill-card-input"
             type="text"
-            inputMode="numeric"
             value={inputValue}
             onChange={(e) => setInputValue(applyMoneyMask(e.target.value))}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--color-text-primary)',
-              fontSize: '14px',
-              fontWeight: 600,
-              width: '100%',
-              outline: 'none',
-            }}
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="0,00"
           />
         </div>
+      ) : hasValue ? (
+        <p className="bill-card-value" onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} style={{ cursor: 'pointer' }}>{value}</p>
       ) : (
-        <div
-          style={{
-            fontSize: hasValue ? '16px' : '12px',
-            fontWeight: hasValue ? 600 : 400,
-            color: hasValue ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)',
+        <button
+          type="button"
+          className="bill-card-add-value"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditing(true);
           }}
         >
-          {hasValue ? value : '+ add'}
-        </div>
+          + Incluir fatura
+        </button>
       )}
     </div>
   );
@@ -159,11 +165,15 @@ export default function MonthNav({
   onToggleTheme,
   cardBills,
   onSetCardBill,
+  cardList,
+  onSetCardList,
+  cardDeleteReasons,
 }: MonthNavProps) {
   const isDarkTheme = theme === 'premium';
   const nextThemeIcon = isDarkTheme ? '☀' : '🌙';
   const nextThemeLabel = isDarkTheme ? 'Claro' : 'Escuro';
-  const cards = DEFAULT_CARD_BILLS;
+  const cards = useMemo(() => cardList ?? [], [cardList]);
+  const hasCards = cards.length > 0;
 
   const [billInputs, setBillInputs] = useState(() =>
     cards.reduce(
@@ -192,6 +202,45 @@ export default function MonthNav({
     setBillInputs((prev) => ({ ...prev, [cardId]: masked }));
     onSetCardBill(cardId, parseMoneyInput(masked, { allowZero: false }));
   };
+
+  const [isAdding, setIsAdding] = useState(false);
+  const [newCardName, setNewCardName] = useState('');
+  const [newCardIcon, setNewCardIcon] = useState('💳');
+  const [newCardColor, setNewCardColor] = useState('#000000');
+  const [deleteTarget, setDeleteTarget] = useState<CardBillItem | null>(null);
+
+  const iconOptions = ['💳', '🔴', '💙', '💚', '💜', '🖤', '🏦', '🏠', '💰', '🪙'];
+
+  const handleAddCard = () => {
+    if (!onSetCardList) return;
+    const id = newCardName.trim().toLowerCase().replace(/\s+/g, '-');
+    if (!id) return;
+    const newCard: CardBillItem = {
+      id,
+      name: newCardName.trim(),
+      icon: newCardIcon,
+    };
+    if (newCardColor !== '#000000') {
+      newCard.color = newCardColor;
+    }
+    const next = [...(cardList || []), newCard];
+    onSetCardList(next);
+    setNewCardName('');
+    setNewCardIcon('💳');
+    setNewCardColor('#000000');
+    setIsAdding(false);
+  };
+
+  const handleDeleteCard = (cardId: string) => {
+    if (!onSetCardList) return;
+    const target = cards.find((card) => card.id === cardId);
+    if (!target) return;
+    setDeleteTarget(target);
+  };
+
+  useEffect(() => {
+    if (!hasCards) setIsAdding(false);
+  }, [hasCards]);
 
   return (
     <div className="month-nav">
@@ -227,22 +276,89 @@ export default function MonthNav({
           <span className="theme-btn-label">{nextThemeLabel}</span>
         </button>
       </div>
-
-      <div className="card-bill-panel" style={{ paddingBottom: '8px' }}>
-        <p className="card-bill-title" style={{ marginBottom: '8px', fontSize: '13px' }}>
-          Faturas do mês
-        </p>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {cards.map((c) => (
-            <BillCard
-              key={c.id}
-              card={c}
-              value={billInputs?.[c.id] || ''}
-              onChange={(v) => handleBillInputChange(c.id, v)}
-            />
-          ))}
+      <div className="card-bill-panel">
+        <div className="card-bill-panel-head">
+          <p className="card-bill-title">Faturas do mês</p>
+          {hasCards && onSetCardList ? (
+            <button
+              type="button"
+              className="card-bill-add-btn"
+              onClick={() => setIsAdding((prev) => !prev)}
+            >
+              {isAdding ? 'Fechar' : '+ Novo cartão'}
+            </button>
+          ) : null}
         </div>
+
+        {isAdding ? (
+          <div className="card-bill-add-form">
+            <input
+              className="card-bill-add-input"
+              type="text"
+              placeholder="Nome do cartão"
+              value={newCardName}
+              onChange={(e) => setNewCardName(e.target.value)}
+            />
+            <div className="icon-selector">
+              {iconOptions.map((icon) => (
+                <button
+                  key={icon}
+                  type="button"
+                  className={`icon-option ${newCardIcon === icon ? 'selected' : ''}`}
+                  onClick={() => setNewCardIcon(icon)}
+                >
+                  {icon}
+                </button>
+              ))}
+            </div>
+            <input
+              type="color"
+              className="color-picker"
+              value={newCardColor}
+              onChange={(e) => setNewCardColor(e.target.value)}
+              title="Escolher cor do cartão"
+            />
+            <button type="button" className="card-bill-add-confirm" onClick={handleAddCard}>
+              Adicionar
+            </button>
+          </div>
+        ) : null}
+
+        {hasCards ? (
+          <div className="card-bill-grid">
+            {cards.map((c) => (
+              <BillCard
+                key={c.id}
+                card={c}
+                value={billInputs?.[c.id] || ''}
+                onChange={(v) => handleBillInputChange(c.id, v)}
+                onDelete={() => handleDeleteCard(c.id)}
+                canDelete={!cardDeleteReasons?.[c.id]}
+                deleteReason={cardDeleteReasons?.[c.id]}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyBillsState
+            canAdd={!!onSetCardList}
+            onAddCard={() => setIsAdding(true)}
+          />
+        )}
       </div>
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Apagar cartão"
+        message={`Tem certeza que deseja apagar o cartão "${deleteTarget?.name || ''}"?`}
+        confirmLabel="Apagar"
+        onConfirm={() => {
+          if (!deleteTarget || !onSetCardList) return;
+          onSetCardList(cards.filter((card) => card.id !== deleteTarget.id));
+          onSetCardBill(deleteTarget.id, null);
+          setDeleteTarget(null);
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

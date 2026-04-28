@@ -10,6 +10,10 @@ import type { MonthView } from '../../domain/types.js';
 
 type PieMode = 'categories' | 'cards' | 'cardsStatus';
 
+export function hasPieChartData(monthView: MonthView, pieMode: PieMode): boolean {
+  return buildPieChartConfig(monthView, pieMode) !== null;
+}
+
 export function buildPieChartConfig(monthView: MonthView, pieMode: PieMode) {
   if (pieMode === 'cardsStatus') {
     const statusSeries = buildCardStatusSeries(monthView);

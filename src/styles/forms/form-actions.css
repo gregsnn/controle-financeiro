@@ -1,7 +1,7 @@
 .factions {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: var(--layout-gap-section);
 }
 
 .btn-save {

@@ -8,7 +8,7 @@
 
   .saldo-hero {
     flex-direction: column;
-    gap: 10px;
+    gap: var(--layout-gap);
     align-items: flex-start;
   }
 

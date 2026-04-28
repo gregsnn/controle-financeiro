@@ -1,5 +1,5 @@
-import { OVERRIDE_TYPES, BILL_CARDS, BILL_CARD_KEYS, type BillCard } from '../domain/constants.js';
-import type { MonthOverride, Revenue, MonthView, MonthViewFixedExpense } from '../domain/types.js';
+import { OVERRIDE_TYPES, type BillCard } from '../domain/constants.js';
+import type { MonthOverride, MonthView, MonthViewFixedExpense, Revenue } from '../domain/types.js';
 
 interface CardBills {
   [key: string]: number;
@@ -10,7 +10,6 @@ interface BillPaymentMap {
 }
 
 export function readCardBill(cardBills: CardBills | null | undefined, card: string): number {
-  if (!BILL_CARD_KEYS.includes(card as BillCard)) return 0;
   const parsed = Number(cardBills?.[card] || 0);
   return Number.isFinite(parsed) ? parsed : 0;
 }
@@ -62,7 +61,8 @@ export function buildSummaryData(
   monthView: MonthView,
   cardBills: CardBills | null | undefined,
   monthOverrides: MonthOverride[],
-  currentMonthKey: string
+  currentMonthKey: string,
+  cardList?: { key: string; label: string }[]
 ): SummaryData {
   const { fixedExpenses, installments, revenues, totals } = monthView;
 
@@ -105,7 +105,6 @@ export function buildSummaryData(
     .reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   const cardKeys = new Set<BillCard>([
-    ...BILL_CARD_KEYS,
     ...(Object.keys(fixedExpensesByCard) as BillCard[]),
     ...(Object.keys(installmentsByCard) as BillCard[]),
   ]);
@@ -138,13 +137,22 @@ export function buildSummaryData(
   const saldoPrevisto = totals.receitas - despesasBrutas;
   const hasNegativeBalance = saldoPrevisto < 0;
 
-  const billCardsSummary = BILL_CARDS.map(({ key, label }) => {
+  // build dynamic list of cards to summarize: include cards with data, cards with bills, and all from cardList
+  const billKeys = Object.keys(cardBills || {}).filter(Boolean);
+  const keysFromList = (cardList || []).map((c: any) => c.key ?? c.id).filter(Boolean) as string[];
+  const combinedKeys = Array.from(
+    new Set([...Array.from(cardKeys), ...billKeys, ...keysFromList])
+  ).filter(Boolean);
+
+  const billCardsSummary = combinedKeys.map((key) => {
     const bill = readCardBill(cardBills, key);
     const fixedOnCard = fixedExpensesByCard[key] || 0;
     const installmentsOnCard = installmentsByCard[key] || 0;
     const abatimento = fixedOnCard + installmentsOnCard;
     const restanteFatura = bill > 0 ? Math.max(0, bill - abatimento) : 0;
     const paid = billPaymentMap[key] === true;
+    const found = (cardList || []).find((c: any) => (c.key ?? c.id) === key);
+    const label = (found && (found.label ?? found.name)) || key;
 
     return { key, label, bill, fixedOnCard, abatimento, restanteFatura, paid };
   });

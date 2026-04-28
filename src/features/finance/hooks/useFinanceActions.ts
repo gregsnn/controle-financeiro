@@ -18,6 +18,7 @@ export function useFinanceActions() {
     clearMonthOverride: _clearMonthOverride,
     changeMonth: _changeMonth,
     resetDatabase: _resetDatabase,
+    importFinanceState: _importFinanceState,
     setTheme: _setTheme,
     setCardBills: _setCardBills,
   } = useFinance();
@@ -58,6 +59,7 @@ export function useFinanceActions() {
       clearMonthOverride: _clearMonthOverride,
       changeMonth: _changeMonth,
       resetDatabase: _resetDatabase,
+      importFinanceState: _importFinanceState,
       setTheme: _setTheme,
       setCardBills: _setCardBills,
     }),
@@ -75,6 +77,7 @@ export function useFinanceActions() {
       _clearMonthOverride,
       _changeMonth,
       _resetDatabase,
+      _importFinanceState,
       _setTheme,
       _setCardBills,
     ]

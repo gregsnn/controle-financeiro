@@ -10,14 +10,14 @@ import {
 import { createActions } from '../domain/actions';
 import type {
   FinanceState,
-  MonthView,
   FixedExpense,
   Installment,
-  Revenue,
-  MonthOverride,
-  Settings,
   Meta,
+  MonthOverride,
+  MonthView,
   OverrideType,
+  Revenue,
+  Settings,
 } from '../domain/types';
 import {
   EMPTY_MONTH_VIEW,
@@ -40,6 +40,7 @@ interface FinanceContextValue {
   meta: Meta;
   changeMonth: (step: number) => void;
   resetDatabase: () => Promise<void>;
+  importFinanceState: (state: FinanceState) => void;
   setTheme: (theme: 'default' | 'premium') => void;
   setCardBills: (cardBills: Settings['cardBills']) => void;
   addFixedExpense: (data: Partial<FixedExpense>) => void;
@@ -99,21 +100,22 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       monthOverrides: [],
       settings: { theme: 'default' },
       meta: { schemaVersion: 3, createdAt: new Date(), lastResetAt: null },
-      changeMonth: () => {},
-      resetDatabase: async () => {},
-      setTheme: () => {},
-      setCardBills: () => {},
-      addFixedExpense: () => {},
-      addRevenue: () => {},
-      addInstallment: () => {},
-      updateFixedExpense: () => {},
-      removeFixedExpense: () => {},
-      updateRevenue: () => {},
-      removeRevenue: () => {},
-      updateInstallment: () => {},
-      removeInstallment: () => {},
-      upsertMonthOverride: () => {},
-      clearMonthOverride: () => {},
+      changeMonth: () => { },
+      resetDatabase: async () => { },
+      importFinanceState: () => { },
+      setTheme: () => { },
+      setCardBills: () => { },
+      addFixedExpense: () => { },
+      addRevenue: () => { },
+      addInstallment: () => { },
+      updateFixedExpense: () => { },
+      removeFixedExpense: () => { },
+      updateRevenue: () => { },
+      removeRevenue: () => { },
+      updateInstallment: () => { },
+      removeInstallment: () => { },
+      upsertMonthOverride: () => { },
+      clearMonthOverride: () => { },
     }),
     []
   );
@@ -134,6 +136,7 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       meta: state.meta,
       changeMonth: actions.changeMonth,
       resetDatabase: actions.resetDatabase,
+      importFinanceState: actions.importFinanceState,
       setTheme: actions.setTheme,
       setCardBills: actions.setCardBills,
       addFixedExpense: actions.addFixedExpense,

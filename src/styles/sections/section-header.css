@@ -1,4 +1,4 @@
-.section { margin-bottom: 1rem; }
+.section { margin-bottom: var(--layout-gap-section); }
 
 .sec-header {
   display: flex;

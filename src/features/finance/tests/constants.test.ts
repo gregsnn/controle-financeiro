@@ -69,7 +69,6 @@ describe('constants.ts', () => {
 
   describe('CATEGORIES', () => {
     it('has all categories', () => {
-      expect(CATEGORIES.debito).toBeDefined();
       expect(CATEGORIES.casa).toBeDefined();
       expect(CATEGORIES.aluguel).toBeDefined();
       expect(CATEGORIES.telefone).toBeDefined();

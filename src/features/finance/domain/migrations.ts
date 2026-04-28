@@ -39,7 +39,9 @@ function createEmptyFinanceState(): FinanceState {
 
 export function migrateLegacyCardBills(loadedState: Record<string, unknown>): FinanceState {
   const settings = loadedState?.settings as Record<string, unknown> | undefined;
-  const legacyCardBills = (settings?.cardBills as Record<string, unknown> | undefined) || {};
+  const rawCardBills = settings?.cardBills;
+  const legacyCardBills =
+    rawCardBills && !Array.isArray(rawCardBills) ? (rawCardBills as Record<string, unknown>) : {};
   const legacyTheme = settings?.theme;
   const settingsWithoutLegacyBills = { ...(settings || {}) };
   delete settingsWithoutLegacyBills.cardBills;
@@ -56,7 +58,10 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
     return {
       ...emptyState,
       ...loadedState,
-      settings: normalizedSettings,
+      settings: {
+        ...normalizedSettings,
+        ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+      },
     };
   }
 
@@ -71,7 +76,10 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
     return {
       ...emptyState,
       ...loadedState,
-      settings: normalizedSettings,
+      settings: {
+        ...normalizedSettings,
+        ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+      },
     };
   }
 
@@ -86,7 +94,10 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
     return {
       ...emptyState,
       ...loadedState,
-      settings: normalizedSettings,
+      settings: {
+        ...normalizedSettings,
+        ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+      },
     };
   }
 
@@ -103,6 +114,9 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
         amount: entry.amount,
       })),
     ],
-    settings: normalizedSettings,
+    settings: {
+      ...normalizedSettings,
+      ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+    },
   };
 }
