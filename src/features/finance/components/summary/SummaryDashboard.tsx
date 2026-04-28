@@ -146,7 +146,12 @@ export function SummaryDashboard({
         </div>
       </section>
 
-      <section className="metrics metrics--triplet">
+      <section className="metrics">
+        <div className="mcard">
+          <p className="mcard-label">GASTOS FIXOS</p>
+          <p className="mcard-val warn">{formatMoney(monthView.totals.despesasFixas)}</p>
+          <p className="mcard-sub">{monthView.fixedExpenses.length} lançamentos</p>
+        </div>
         <div className="mcard">
           <p className="mcard-label">TOTAL/MÊS</p>
           <p className="mcard-val warn">{formatMoney(monthView.totals.installments)}</p>
