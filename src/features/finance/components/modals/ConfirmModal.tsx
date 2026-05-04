@@ -1,3 +1,13 @@
+interface ConfirmModalProps {
+  open: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void | Promise<void>;
+  onCancel: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+}
+
 export function ConfirmModal({
   open,
   title,
@@ -6,7 +16,7 @@ export function ConfirmModal({
   onCancel,
   confirmLabel = 'Confirmar',
   cancelLabel = 'Cancelar',
-}) {
+}: ConfirmModalProps) {
   if (!open) return null;
 
   return (

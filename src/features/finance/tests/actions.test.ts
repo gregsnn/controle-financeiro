@@ -86,18 +86,20 @@ describe('actions.ts', () => {
   });
 
   describe('normalizeFixedExpense', () => {
-    it('converts cartao with valid card', () => {
+    it('keeps cartao with any card', () => {
       const result = normalizeFixedExpense({ name: 'TV', paymentMethod: 'cartao', card: 'nubank' });
-      expect(result.paymentMethod).toBe('nubank');
+      expect(result.paymentMethod).toBe('cartao');
+      expect((result as any).card).toBe('nubank');
     });
 
-    it('converts cartao with santander', () => {
+    it('keeps cartao for custom card ids', () => {
       const result = normalizeFixedExpense({
         name: 'Seguro',
         paymentMethod: 'cartao',
         card: 'santander',
       });
-      expect(result.paymentMethod).toBe('santander');
+      expect(result.paymentMethod).toBe('cartao');
+      expect((result as any).card).toBe('santander');
     });
 
     it('defaults invalid payment method to boleto', () => {
@@ -122,7 +124,11 @@ describe('actions.ts', () => {
     });
 
     it('handles cartao with outro card', () => {
-      const result = normalizeFixedExpense({ name: 'Test', paymentMethod: 'cartao', card: 'outro' });
+      const result = normalizeFixedExpense({
+        name: 'Test',
+        paymentMethod: 'cartao',
+        card: 'outro',
+      });
       expect(result.paymentMethod).toBe('cartao');
       expect((result as any).card).toBe('outro');
     });
@@ -245,7 +251,7 @@ describe('actions.ts', () => {
 
     it('does not override earlier endMonth when removing fixed expense', () => {
       let state = createTestState();
-      state.fixedExpenses[0].endMonth = '2026-05'; // Already has earlier endMonth
+      (state as any).fixedExpenses[0].endMonth = '2026-05'; // Already has earlier endMonth
       const actions = createActions(
         state as any,
         (updater: any) => {
@@ -263,8 +269,26 @@ describe('actions.ts', () => {
       let state = {
         ...createTestState(),
         revenues: [
-          { id: 'r1', name: 'Salario', baseAmount: 5000, active: true, startMonth: '2026-01', endMonth: null, category: 'outro', notes: '' },
-          { id: 'r2', name: 'Salario', baseAmount: 3000, active: true, startMonth: '2026-01', endMonth: null, category: 'outro', notes: '' },
+          {
+            id: 'r1',
+            name: 'Salario',
+            baseAmount: 5000,
+            active: true,
+            startMonth: '2026-01',
+            endMonth: null,
+            category: 'outro',
+            notes: '',
+          },
+          {
+            id: 'r2',
+            name: 'Salario',
+            baseAmount: 3000,
+            active: true,
+            startMonth: '2026-01',
+            endMonth: null,
+            category: 'outro',
+            notes: '',
+          },
         ],
       };
       const actions = createActions(

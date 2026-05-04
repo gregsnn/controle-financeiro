@@ -10,20 +10,13 @@ export const OVERRIDE_TYPES = {
 
 export type OverrideType = (typeof OVERRIDE_TYPES)[keyof typeof OVERRIDE_TYPES];
 
-export const ALLOWED_PAYMENT_METHODS = [
-  'boleto',
-  'pix',
-  'debito',
-  'cartao',
-  'santander',
-  'nubank',
-] as const;
+export const ALLOWED_PAYMENT_METHODS = ['boleto', 'pix', 'debito', 'cartao'] as const;
 
 export type PaymentMethod = (typeof ALLOWED_PAYMENT_METHODS)[number];
 
-export const ALLOWED_BILL_CARDS = ['santander', 'nubank', 'outro'] as const;
+export const ALLOWED_BILL_CARDS = ['outro'] as const;
 
-export type BillCard = (typeof ALLOWED_BILL_CARDS)[number];
+export type BillCard = string;
 
 export const PIE_MODES = ['categories', 'cards', 'cardsStatus'] as const;
 
@@ -32,16 +25,10 @@ export type PieMode = (typeof PIE_MODES)[number];
 export const ICONS: Record<string, string> = {
   boleto: '📄',
   pix: '⚡',
-  debito: '💳',
-  cartao: '💳',
-  santander: '🔴',
-  nubank: '💙',
   outro: '💳',
 };
 
-export const CARD_ICONS: Record<BillCard, string> = {
-  santander: '🔴',
-  nubank: '💙',
+export const CARD_ICONS: Record<string, string> = {
   outro: '💳',
 };
 
@@ -79,14 +66,11 @@ export interface BillCardConfig {
   color?: string;
 }
 
-export const BILL_CARDS: BillCardConfig[] = [
-  { key: 'santander', label: 'Santander', icon: '🔴', color: '#EC0000' },
-  { key: 'nubank', label: 'Nubank', icon: '💙', color: '#820AD1' },
-];
+export const BILL_CARDS: BillCardConfig[] = [];
 
-export const BILL_CARD_KEYS = BILL_CARDS.map((card) => card.key);
+export const BILL_CARD_KEYS: string[] = [];
 
-export const CARD_ORDER = ['santander', 'nubank', 'outro'] as const;
+export const CARD_ORDER = ['outro'] as const;
 
 export const CATEGORY_LABELS: Record<string, string> = {
   debito: 'DEBITO',
@@ -100,15 +84,11 @@ export const CATEGORY_LABELS: Record<string, string> = {
   outro: 'OUTRO',
 };
 
-export const CARD_LABELS: Record<BillCard, string> = {
-  santander: 'SANTANDER',
-  nubank: 'NUBANK',
+export const CARD_LABELS: Record<string, string> = {
   outro: 'OUTROS',
 };
 
-export const CARD_NAMES: Record<BillCard, string> = {
-  santander: 'Santander',
-  nubank: 'Nubank',
+export const CARD_NAMES: Record<string, string> = {
   outro: 'Outro',
 };
 

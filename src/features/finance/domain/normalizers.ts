@@ -1,21 +1,19 @@
-import { ALLOWED_PAYMENT_METHODS, ALLOWED_BILL_CARDS } from './constants';
 import { createFinanceId } from '../lib/ids';
+import { ALLOWED_PAYMENT_METHODS } from './constants';
 import type { FixedExpense, Installment, Revenue } from './types';
 
 export function normalizeFixedExpense(item: Record<string, unknown>): FixedExpense {
   const paymentMethod = item?.paymentMethod as string | undefined;
   const card = item?.card as string | undefined;
 
-  // If paymentMethod is 'cartao', convert it to the card name if it's a valid bill card (not 'outro')
   if (paymentMethod === 'cartao') {
     const normalizedCard = card?.trim() === '' ? 'outro' : card || 'outro';
-    if (normalizedCard !== 'outro' && ALLOWED_BILL_CARDS.includes(normalizedCard as (typeof ALLOWED_BILL_CARDS)[number])) {
-      return { ...item, paymentMethod: normalizedCard, card: null } as unknown as FixedExpense;
-    }
     return { ...item, paymentMethod: 'cartao', card: normalizedCard } as unknown as FixedExpense;
   }
 
-  if (!ALLOWED_PAYMENT_METHODS.includes(paymentMethod as (typeof ALLOWED_PAYMENT_METHODS)[number])) {
+  if (
+    !ALLOWED_PAYMENT_METHODS.includes(paymentMethod as (typeof ALLOWED_PAYMENT_METHODS)[number])
+  ) {
     return { ...item, paymentMethod: 'boleto', card: null } as unknown as FixedExpense;
   }
 

@@ -1,4 +1,15 @@
-export function RuleModal({ open, title, onClose, onSubmit, submitLabel, children }) {
+import { FormEvent, ReactNode } from 'react';
+
+interface RuleModalProps {
+  open: boolean;
+  title: string;
+  onClose: () => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  submitLabel: string;
+  children: ReactNode;
+}
+
+export function RuleModal({ open, title, onClose, onSubmit, submitLabel, children }: RuleModalProps) {
   if (!open) return null;
 
   return (

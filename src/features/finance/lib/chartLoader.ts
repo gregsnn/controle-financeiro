@@ -1,6 +1,8 @@
 let chartModulePromise: Promise<unknown> | null = null;
 let prefetchScheduled = false;
 
+import { parseCurrencyString } from './currency';
+
 interface Connection {
   saveData?: boolean;
   effectiveType?: string;
@@ -28,19 +30,15 @@ export function loadChartModule(): Promise<unknown> {
   return chartModulePromise;
 }
 
+import { createCurrencyFormatter } from './currency';
+
 export function getChartLoader(locale: string) {
   return {
     formatters: {
-      currency: new Intl.NumberFormat(locale, {
-        style: 'currency',
-        currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }),
+      currency: createCurrencyFormatter(locale),
     },
     parseCurrency: (value: string): number => {
-      const match = value.replace(/[^0-9.-]/g, '').match(/^-?\\d+/);
-      return match ? Number(match[0]) / 100 : 0;
+      return parseCurrencyString(value);
     },
   };
 }

@@ -1,12 +1,11 @@
 export const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
-export const currency = new Intl.NumberFormat('pt-BR', {
-  style: 'currency',
-  currency: 'BRL',
-});
+import { currencyFormatter, formatCurrency } from './currency';
+
+export const currency = currencyFormatter;
 
 export function formatMoney(value: unknown): string {
-  return currency.format(Number(value || 0));
+  return formatCurrency(value);
 }
 
 export function monthKey(date?: Date | null): string {

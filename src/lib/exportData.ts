@@ -8,7 +8,7 @@ import type { FinanceState } from '../features/finance/domain/types';
 import { emptyFinanceState, financeSchemaVersion } from '../features/finance/lib/schema';
 import { loadFinanceState } from '../features/finance/lib/storage';
 
-interface ExportData {
+export interface ExportData {
   version: number;
   exportedAt: string;
   data: {
@@ -121,8 +121,8 @@ async function exportAllData(): Promise<ExportData> {
       installments: state.installments,
       revenues: state.revenues,
       monthOverrides: state.monthOverrides,
-      settings: state.settings,
-      meta: state.meta,
+      settings: state.settings as unknown as Record<string, unknown>,
+      meta: state.meta as unknown as Record<string, unknown>,
     },
   };
 }
@@ -138,7 +138,8 @@ function encodeStateToHash(state: ExportData): string {
 
 function decodeHashToState(hash: string): ExportData | null {
   try {
-    const padded = hash.replace(/-/g, '+').replace(/_/g, '/') + '=='.slice(0, (4 - (hash.length % 4)) % 4);
+    const padded =
+      hash.replace(/-/g, '+').replace(/_/g, '/') + '=='.slice(0, (4 - (hash.length % 4)) % 4);
     const binary = atob(padded);
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     const json = new TextDecoder().decode(bytes);
@@ -159,11 +160,11 @@ async function generateExportLink(): Promise<string> {
       installments: state.installments,
       revenues: state.revenues,
       monthOverrides: state.monthOverrides,
-      settings: state.settings,
-      meta: state.meta,
+      settings: state.settings as unknown as Record<string, unknown>,
+      meta: state.meta as unknown as Record<string, unknown>,
     },
   };
-  const encoded = encodeStateToHash(data as ExportData);
+  const encoded = encodeStateToHash(data);
   const baseUrl = window.location.origin + window.location.pathname;
   return `${baseUrl}#import=${encoded}`;
 }
@@ -184,7 +185,14 @@ async function importFinanceBackupFile(file: File): Promise<FinanceState> {
   return buildFinanceStateFromBackup(raw);
 }
 
-export { downloadJSON, exportAllData, importFinanceBackupFile, generateExportLink, encodeStateToHash, decodeHashToState };
+export {
+  decodeHashToState,
+  downloadJSON,
+  encodeStateToHash,
+  exportAllData,
+  generateExportLink,
+  importFinanceBackupFile,
+};
 
 if (typeof window !== 'undefined') {
   (window as any).exportFinanceData = downloadJSON;

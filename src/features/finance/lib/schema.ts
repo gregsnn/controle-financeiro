@@ -1,13 +1,13 @@
 import type {
+  CardBillItem,
+  FinanceState,
   FixedExpense,
   Installment,
-  Revenue,
-  MonthOverride,
-  Settings,
   Meta,
-  FinanceState,
+  MonthOverride,
   MonthView,
-  CardBillItem,
+  Revenue,
+  Settings,
 } from '../domain/types';
 
 export type { CardBillItem };
@@ -15,19 +15,18 @@ export type { CardBillItem };
 export const financeSchemaVersion = 4;
 
 export const DEFAULT_CARD_BILLS: CardBillItem[] = [
-  { id: 'santander', name: 'Santander', icon: '🔴' },
-  { id: 'nubank', name: 'Nubank', icon: '💙' },
+  // default to empty — cards are dynamic and user-managed
 ];
 
 export type {
+  FinanceState,
   FixedExpense,
   Installment,
-  Revenue,
-  MonthOverride,
-  Settings,
   Meta,
-  FinanceState,
+  MonthOverride,
   MonthView,
+  Revenue,
+  Settings,
 };
 
 export function emptyFinanceState(): FinanceState {

@@ -39,7 +39,7 @@ export function FixedExpensesSection({
   onTogglePaid,
   cardList,
 }: FixedExpensesSectionProps) {
-  const cards = cardList ?? [];
+  const cards = useMemo(() => cardList ?? [], [cardList]);
 
   const cardIconMap = useMemo(() => {
     const map: Record<string, string> = { ...CARD_ICONS };
@@ -99,11 +99,11 @@ export function FixedExpensesSection({
         description={FIXED_EXPENSE_LABELS.description}
         addLabel={FIXED_EXPENSE_LABELS.addLabel}
         onAddClick={openCreateModal}
-        items={activeItems}
+        items={activeItems as any}
         emptyText={FIXED_EXPENSE_LABELS.emptyText}
         sortBy="value-desc"
-        columns={FIXED_EXPENSE_LABELS.columns}
-        renderItem={(item: FixedExpense, money: (value: number) => string) => (
+        columns={FIXED_EXPENSE_LABELS.columns as unknown as string[]}
+        renderItem={(item: any, money: (value: number) => string) => (
           <FixedExpenseRow
             key={item.id}
             item={item}

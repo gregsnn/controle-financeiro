@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CardBillItem } from '../domain/types';
-import { DEFAULT_CARD_BILLS } from '../lib/schema';
+import { detectBankColor } from '../lib/bankColors';
 import { applyMoneyMask, formatMoneyInput, parseMoneyInput } from '../lib/moneyInput';
-import { ConfirmModal } from './modals';
 import { EmptyBillsState } from './EmptyBillsState';
+import { ConfirmModal } from './modals';
 
 interface MonthNavProps {
   label: string;
@@ -81,18 +81,6 @@ function BillCard({
       return {
         background: `color-mix(in srgb, ${card.color} 18%, transparent)`,
         border: `1px solid ${card.color}`,
-      };
-    }
-    if (card.id === 'nubank') {
-      return {
-        background: '#820AD120',
-        border: '1px solid #820AD140',
-      };
-    }
-    if (card.id === 'santander') {
-      return {
-        background: '#EC000020',
-        border: '1px solid #EC000040',
       };
     }
     return {};
@@ -215,13 +203,23 @@ export default function MonthNav({
     if (!onSetCardList) return;
     const id = newCardName.trim().toLowerCase().replace(/\s+/g, '-');
     if (!id) return;
+
+    // Auto-detect bank color if not manually chosen
+    let cardColor = newCardColor;
+    if (newCardColor === '#000000') {
+      const detectedColor = detectBankColor(newCardName);
+      if (detectedColor) {
+        cardColor = detectedColor;
+      }
+    }
+
     const newCard: CardBillItem = {
       id,
       name: newCardName.trim(),
       icon: newCardIcon,
     };
-    if (newCardColor !== '#000000') {
-      newCard.color = newCardColor;
+    if (cardColor !== '#000000') {
+      newCard.color = cardColor;
     }
     const next = [...(cardList || []), newCard];
     onSetCardList(next);
@@ -311,13 +309,39 @@ export default function MonthNav({
                 </button>
               ))}
             </div>
-            <input
-              type="color"
-              className="color-picker"
-              value={newCardColor}
-              onChange={(e) => setNewCardColor(e.target.value)}
-              title="Escolher cor do cartão"
-            />
+            <div className="color-picker-section">
+              {newCardName && detectBankColor(newCardName) && newCardColor === '#000000' ? (
+                <div className="color-detection-info">
+                  <p className="color-detection-label">
+                    🎨 Cor detectada automaticamente: <strong>{newCardName}</strong>
+                  </p>
+                  <div
+                    className="color-preview"
+                    style={{
+                      background: `color-mix(in srgb, ${detectBankColor(newCardName)} 18%, transparent)`,
+                      border: `2px solid ${detectBankColor(newCardName)}`,
+                    }}
+                    title="Cor do cartão"
+                  >
+                    <span style={{ fontSize: '20px' }}>{newCardIcon}</span>
+                  </div>
+                </div>
+              ) : null}
+              <div className="color-picker-wrapper">
+                <label htmlFor="card-color-picker">Cor do cartão:</label>
+                <input
+                  id="card-color-picker"
+                  type="color"
+                  className="color-picker"
+                  value={newCardColor}
+                  onChange={(e) => setNewCardColor(e.target.value)}
+                  title="Clique para escolher uma cor personalizada"
+                />
+                {newCardColor !== '#000000' ? (
+                  <span className="color-custom-label">(Personalizado)</span>
+                ) : null}
+              </div>
+            </div>
             <button type="button" className="card-bill-add-confirm" onClick={handleAddCard}>
               Adicionar
             </button>

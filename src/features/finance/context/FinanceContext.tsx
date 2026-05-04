@@ -99,7 +99,7 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       revenues: [],
       monthOverrides: [],
       settings: { theme: 'default' },
-      meta: { schemaVersion: 3, createdAt: new Date(), lastResetAt: null },
+      meta: { schemaVersion: 4, createdAt: new Date(), lastResetAt: null },
       changeMonth: () => { },
       resetDatabase: async () => { },
       importFinanceState: () => { },

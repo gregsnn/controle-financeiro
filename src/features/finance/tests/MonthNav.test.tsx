@@ -59,13 +59,27 @@ describe('MonthNav.tsx', () => {
   });
 
   it('renders card bill inputs', () => {
-    render(<MonthNav {...defaultProps} />);
+    render(
+      <MonthNav
+        {...defaultProps}
+        cardList={[
+          { id: 'nubank', name: 'Nubank', icon: '💙' },
+          { id: 'santander', name: 'Santander', icon: '🔴' },
+        ]}
+      />
+    );
     expect(screen.getByText('Nubank')).toBeInTheDocument();
     expect(screen.getByText('Santander')).toBeInTheDocument();
   });
 
   it('renders card bill inputs with values', () => {
-    render(<MonthNav {...defaultProps} cardBills={{ nubank: 500 }} />);
+    render(
+      <MonthNav
+        {...defaultProps}
+        cardList={[{ id: 'nubank', name: 'Nubank', icon: '💙' }]}
+        cardBills={{ nubank: 500 }}
+      />
+    );
     expect(screen.getByText('Nubank')).toBeInTheDocument();
     expect(screen.getByText(/500,00/)).toBeInTheDocument();
   });

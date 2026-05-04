@@ -1,6 +1,6 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { buildFinanceStateFromBackup } from '../../../lib/exportData';
-import { emptyFinanceState, financeSchemaVersion, DEFAULT_CARD_BILLS } from '../lib/schema';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { buildFinanceStateFromBackup, type ExportData } from '../../../lib/exportData';
+import { DEFAULT_CARD_BILLS, emptyFinanceState, financeSchemaVersion } from '../lib/schema';
 import * as storageModule from '../lib/storage';
 
 describe('exportData.ts - buildFinanceStateFromBackup', () => {
@@ -53,8 +53,8 @@ describe('exportData.ts - buildFinanceStateFromBackup', () => {
     expect(state.currentDate.toISOString().startsWith('2026-04-01')).toBe(true);
     expect(state.settings.theme).toBe('premium');
     expect(state.settings.cardBills).toEqual([{ id: 'amex', name: 'Amex', icon: '💠' }]);
-    expect(state.fixedExpenses[0].paymentMethod).toBe('nubank');
-    expect(state.fixedExpenses[0].card).toBeNull();
+    expect(state.fixedExpenses[0].paymentMethod).toBe('cartao');
+    expect(state.fixedExpenses[0].card).toBe('nubank');
     expect(state.installments[0].card).toBe('santander');
     expect(state.meta.schemaVersion).toBe(financeSchemaVersion);
   });
@@ -160,9 +160,7 @@ describe('exportData.ts - buildFinanceStateFromBackup', () => {
   it('handles backup with monthOverrides', () => {
     // Note: monthOverrides are normalized as arrays by toArray() in normalizeBackupData
     // The actual FinanceState uses monthOverrides as Record, but during import it gets converted
-    const monthOverridesArray = [
-      { monthKey: '2026-02', income: 6000, expense: 3000 },
-    ];
+    const monthOverridesArray = [{ monthKey: '2026-02', income: 6000, expense: 3000 }];
 
     const state = buildFinanceStateFromBackup({
       version: 2,
@@ -177,7 +175,9 @@ describe('exportData.ts - buildFinanceStateFromBackup', () => {
     });
 
     // monthOverrides becomes an array after toArray() normalization
-    expect(Array.isArray(state.monthOverrides) || typeof state.monthOverrides === 'object').toBe(true);
+    expect(Array.isArray(state.monthOverrides) || typeof state.monthOverrides === 'object').toBe(
+      true
+    );
   });
 
   it('handles backup with null and undefined values gracefully', () => {
@@ -344,6 +344,8 @@ describe('exportData.ts - exportAllData', () => {
           id: 'f1',
           name: 'TV',
           amount: 100,
+          dueDay: 10,
+          category: 'outro',
           paymentMethod: 'nubank',
           card: null,
           active: true,
@@ -370,13 +372,24 @@ describe('exportData.ts - exportAllData', () => {
         {
           id: 'r1',
           name: 'Salário',
-          amount: 5000,
-          month: '2026-04',
+          baseAmount: 5000,
+          active: true,
+          startMonth: '2026-04',
+          endMonth: null,
+          category: 'outro',
           notes: '',
         },
       ],
-      monthOverrides: { '2026-02': { income: 6000 } },
-      settings: { theme: 'dark', cardBills: DEFAULT_CARD_BILLS },
+      monthOverrides: [
+        {
+          id: 'o1',
+          type: 'revenue' as const,
+          itemId: 'r1',
+          monthKey: '2026-02',
+          amount: 6000,
+        },
+      ],
+      settings: { theme: 'default' as 'default' | 'premium', cardBills: DEFAULT_CARD_BILLS },
       meta: {
         schemaVersion: financeSchemaVersion,
         createdAt: new Date('2026-01-01'),
@@ -387,18 +400,26 @@ describe('exportData.ts - exportAllData', () => {
     vi.spyOn(storageModule, 'loadFinanceState').mockResolvedValue(mockState);
 
     const { exportAllData } = await import('../../../lib/exportData');
-    const exported = await exportAllData();
+    const exported = (await exportAllData()) as ExportData;
 
     expect(exported.version).toBe(2);
     expect(exported.exportedAt).toBeDefined();
     expect(new Date(exported.exportedAt)).toBeInstanceOf(Date);
     expect(exported.data.fixedExpenses).toHaveLength(1);
-    expect(exported.data.fixedExpenses[0].name).toBe('TV');
+    expect((exported.data.fixedExpenses[0] as any).name).toBe('TV');
     expect(exported.data.installments).toHaveLength(1);
     expect(exported.data.revenues).toHaveLength(1);
-    expect(exported.data.monthOverrides).toEqual({ '2026-02': { income: 6000 } });
+    expect(exported.data.monthOverrides).toEqual([
+      {
+        id: 'o1',
+        type: 'revenue',
+        itemId: 'r1',
+        monthKey: '2026-02',
+        amount: 6000,
+      },
+    ]);
     expect(exported.data.settings).toEqual(mockState.settings);
-    expect(exported.data.meta.schemaVersion).toBe(financeSchemaVersion);
+    expect((exported.data.meta as any).schemaVersion).toBe(financeSchemaVersion);
   });
 
   it('exports empty state when no data exists', async () => {
@@ -407,7 +428,7 @@ describe('exportData.ts - exportAllData', () => {
     vi.spyOn(storageModule, 'loadFinanceState').mockResolvedValue(emptyState);
 
     const { exportAllData } = await import('../../../lib/exportData');
-    const exported = await exportAllData();
+    const exported = (await exportAllData()) as ExportData;
 
     expect(exported.version).toBe(2);
     expect(exported.data.fixedExpenses).toEqual([]);
@@ -422,7 +443,7 @@ describe('exportData.ts - exportAllData', () => {
 
     const beforeExport = new Date();
     const { exportAllData } = await import('../../../lib/exportData');
-    const exported = await exportAllData();
+    const exported = (await exportAllData()) as ExportData;
     const afterExport = new Date();
 
     const exportedDate = new Date(exported.exportedAt);
@@ -560,11 +581,11 @@ describe('exportData.ts - encodeStateToHash and decodeHashToState', () => {
     expect(encoded).not.toContain('+');
     expect(encoded).not.toContain('/');
 
-    const decoded = decodeHashToState(encoded);
+    const decoded = decodeHashToState(encoded) as ExportData | null;
     expect(decoded).toBeTruthy();
     expect(decoded?.version).toBe(2);
-    expect(decoded?.data.fixedExpenses[0].name).toBe('Test Expense');
-    expect(decoded?.data.fixedExpenses[0].card).toBe('nubank');
+    expect((decoded?.data.fixedExpenses[0] as any)?.name).toBe('Test Expense');
+    expect((decoded?.data.fixedExpenses[0] as any)?.card).toBe('nubank');
   });
 
   it('should handle special characters in JSON', async () => {
@@ -595,8 +616,8 @@ describe('exportData.ts - encodeStateToHash and decodeHashToState', () => {
     };
 
     const encoded = encodeStateToHash(testData as any);
-    const decoded = decodeHashToState(encoded);
-    expect(decoded?.data.fixedExpenses[0].name).toBe('Gasto com çãõ é ção');
+    const decoded = decodeHashToState(encoded) as ExportData | null;
+    expect((decoded?.data.fixedExpenses[0] as any)?.name).toBe('Gasto com çãõ é ção');
   });
 
   it('should return null for invalid hash', async () => {
@@ -620,7 +641,11 @@ describe('exportData.ts - generateExportLink', () => {
 });
 
 describe('Card usage bug fix - isMonthInRange filter', () => {
-  let isMonthInRange: (monthKey: string, startMonth: string | null, endMonth: string | null) => boolean;
+  let isMonthInRange: (
+    monthKey: string,
+    startMonth: string | null,
+    endMonth: string | null
+  ) => boolean;
 
   beforeEach(async () => {
     const utils = await import('../../../features/finance/lib/utils');

@@ -7,7 +7,7 @@ Aplicação React para controle de finanças pessoais com gestão de despesas fi
 - **Despesas Fixas**: Cadastro e gestão de despesas recorrentes mensais
 - **Parcelas**: Acompanhamento de compras parceladas
 - **Receitas**: Registro de rendimentos com possível variação mensal
-- **Faturas de Cartão**: Controle de faturas Santander e Nubank
+- **Faturas de Cartão**: Controle de faturas
 - **Overrides Mensais**:personalização de valores por mês específico
 - **Gráficos**: Visualização de despesas por categoria, cartão e status de pagamento
 - **Tema Claro/Escuro**: Alternância de tema visual

@@ -6,7 +6,7 @@ import { createFixedExpenseEditForm, createFixedExpenseEmptyForm } from './fixed
 interface UseFixedExpenseCrudStateParams {
   currentMonthKey: string;
   defaultCardId?: string;
-  onDelete: (item: FixedExpense) => Promise<void> | void;
+  onDelete?: (id: string) => Promise<void> | void;
 }
 
 export function useFixedExpenseCrudState({
@@ -36,7 +36,7 @@ export function useFixedExpenseCrudState({
   };
 
   const handleDelete = async (item: FixedExpense) => {
-    await onDelete(item);
+    if (onDelete) await onDelete(item.id);
   };
 
   return {

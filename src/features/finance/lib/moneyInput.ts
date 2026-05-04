@@ -29,8 +29,10 @@ export function applyMoneyMask(raw: unknown): string {
 export function parseMoneyInput(maskedValue: unknown, options: ParseOptions = {}): number | null {
   const { allowZero = true } = options;
   if (maskedValue === null || maskedValue === undefined || maskedValue === '') return null;
+
   const normalized = String(maskedValue).replace(/\./g, '').replace(',', '.');
   const parsed = Number(normalized);
+
   if (!Number.isFinite(parsed)) return null;
   if (!allowZero && parsed <= 0) return null;
   if (allowZero && parsed < 0) return null;

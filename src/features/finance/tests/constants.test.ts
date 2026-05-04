@@ -1,16 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  OVERRIDE_TYPES,
-  ALLOWED_PAYMENT_METHODS,
   ALLOWED_BILL_CARDS,
+  ALLOWED_PAYMENT_METHODS,
   BILL_CARDS,
   BILL_CARD_KEYS,
+  CARD_ICONS,
+  CARD_LABELS,
   CARD_ORDER,
   CATEGORIES,
   CATEGORY_LABELS,
-  CARD_LABELS,
   ICONS,
-  CARD_ICONS,
+  OVERRIDE_TYPES,
   TABS,
 } from '../domain/constants';
 
@@ -32,38 +32,32 @@ describe('constants.ts', () => {
       expect(ALLOWED_PAYMENT_METHODS).toContain('boleto');
       expect(ALLOWED_PAYMENT_METHODS).toContain('pix');
       expect(ALLOWED_PAYMENT_METHODS).toContain('debito');
-      expect(ALLOWED_PAYMENT_METHODS).toContain('santander');
-      expect(ALLOWED_PAYMENT_METHODS).toContain('nubank');
       expect(ALLOWED_PAYMENT_METHODS).toContain('cartao');
     });
   });
 
   describe('ALLOWED_BILL_CARDS', () => {
-    it('includes expected cards', () => {
-      expect(ALLOWED_BILL_CARDS).toContain('santander');
-      expect(ALLOWED_BILL_CARDS).toContain('nubank');
+    it('includes only fallback card', () => {
       expect(ALLOWED_BILL_CARDS).toContain('outro');
+      expect(ALLOWED_BILL_CARDS).toHaveLength(1);
     });
   });
 
   describe('BILL_CARDS', () => {
-    it('has correct structure', () => {
-      expect(BILL_CARDS).toHaveLength(2);
-      expect(BILL_CARDS[0]).toHaveProperty('key');
-      expect(BILL_CARDS[0]).toHaveProperty('label');
+    it('is empty (cards are dynamic)', () => {
+      expect(BILL_CARDS).toHaveLength(0);
     });
   });
 
   describe('BILL_CARD_KEYS', () => {
-    it('extracts card keys', () => {
-      expect(BILL_CARD_KEYS).toContain('santander');
-      expect(BILL_CARD_KEYS).toContain('nubank');
+    it('is empty (cards are dynamic)', () => {
+      expect(BILL_CARD_KEYS).toHaveLength(0);
     });
   });
 
   describe('CARD_ORDER', () => {
-    it('has expected order', () => {
-      expect(CARD_ORDER).toEqual(['santander', 'nubank', 'outro']);
+    it('has only fallback', () => {
+      expect(CARD_ORDER).toEqual(['outro']);
     });
   });
 
@@ -83,9 +77,7 @@ describe('constants.ts', () => {
   });
 
   describe('CARD_LABELS', () => {
-    it('has card labels', () => {
-      expect(CARD_LABELS.santander).toBe('SANTANDER');
-      expect(CARD_LABELS.nubank).toBe('NUBANK');
+    it('has fallback card label', () => {
       expect(CARD_LABELS.outro).toBe('OUTROS');
     });
   });
@@ -94,15 +86,12 @@ describe('constants.ts', () => {
     it('has icons for payment methods', () => {
       expect(ICONS.boleto).toBeDefined();
       expect(ICONS.pix).toBeDefined();
-      expect(ICONS.santander).toBeDefined();
-      expect(ICONS.nubank).toBeDefined();
+      expect(ICONS.outro).toBeDefined();
     });
   });
 
   describe('CARD_ICONS', () => {
-    it('has icons for cards', () => {
-      expect(CARD_ICONS.santander).toBeDefined();
-      expect(CARD_ICONS.nubank).toBeDefined();
+    it('has icons for fallback card', () => {
       expect(CARD_ICONS.outro).toBeDefined();
     });
   });

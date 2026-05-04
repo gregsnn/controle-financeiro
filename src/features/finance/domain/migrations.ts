@@ -1,6 +1,6 @@
 import { createFinanceId } from '../lib/ids';
 import { monthKey } from '../lib/utils';
-import { ALLOWED_BILL_CARDS, OVERRIDE_TYPES } from './constants';
+import { OVERRIDE_TYPES } from './constants';
 import type { FinanceState } from './types';
 
 export function parseLegacyCardBill(value: unknown): number | null {
@@ -84,7 +84,7 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
   }
 
   const migratedEntries = Object.entries(legacyCardBills)
-    .filter(([card]) => ALLOWED_BILL_CARDS.includes(card as (typeof ALLOWED_BILL_CARDS)[number]))
+    .filter(([card]) => typeof card === 'string' && card.trim() !== '')
     .flatMap(([card, value]) => {
       const amount = parseLegacyCardBill(value);
       return amount === null ? [] : [{ card, amount }];
