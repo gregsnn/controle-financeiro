@@ -154,13 +154,7 @@ export function useDerivedFinanceState(state: FinanceState | null) {
       monthOverrides: state.monthOverrides,
       currentDate: state.currentDate,
     };
-  }, [
-    state?.fixedExpenses,
-    state?.installments,
-    state?.revenues,
-    state?.monthOverrides,
-    state?.currentDate,
-  ]);
+  }, [state]);
 
   // Now monthView only rebuilds when the data actually changes
   const monthView = useMemo(() => {

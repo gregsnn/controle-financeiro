@@ -160,9 +160,11 @@ export function I18nProvider({
   const t = useCallback(
     (key: string) => {
       const lang = translations[locale as keyof typeof translations];
-      if (lang && lang[key as keyof typeof lang] !== undefined) return lang[key as keyof typeof lang];
+      if (lang && lang[key as keyof typeof lang] !== undefined)
+        return lang[key as keyof typeof lang];
       const fallback = translations['pt-BR'];
-      if (fallback && fallback[key as keyof typeof fallback] !== undefined) return fallback[key as keyof typeof fallback];
+      if (fallback && fallback[key as keyof typeof fallback] !== undefined)
+        return fallback[key as keyof typeof fallback];
       return key;
     },
     [locale]
@@ -185,7 +187,7 @@ export function useI18n() {
     return {
       locale: 'pt-BR',
       t: (key: string) => key,
-      changeLocale: () => { },
+      changeLocale: () => {},
       availableLocales: ['pt-BR', 'en-US'],
     };
   }

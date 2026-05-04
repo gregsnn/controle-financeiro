@@ -20,7 +20,6 @@ import type {
   Settings,
 } from '../domain/types';
 import {
-  EMPTY_MONTH_VIEW,
   useDerivedFinanceState,
   useHydrateFinanceState,
   usePersistFinanceState,
@@ -70,7 +69,7 @@ interface FinanceActionsValue {
   clearMonthOverride: (params: { type: OverrideType; itemId: string; monthKey: string }) => void;
 }
 
-interface FinanceContextValue extends FinanceStateValue, FinanceDerivedValue, FinanceActionsValue { }
+interface FinanceContextValue extends FinanceStateValue, FinanceDerivedValue, FinanceActionsValue {}
 
 const FinanceStateContext = createContext<FinanceStateValue | null>(null);
 const FinanceDerivedContext = createContext<FinanceDerivedValue | null>(null);
@@ -114,34 +113,24 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
     []
   );
 
-  const defaultDerived = useMemo<FinanceDerivedValue>(
-    () => ({
-      isReady: false,
-      currentDate: new Date(),
-      currentKey: '',
-      monthView: EMPTY_MONTH_VIEW,
-    }),
-    []
-  );
-
   const defaultActions = useMemo<FinanceActionsValue>(
     () => ({
-      changeMonth: () => { },
-      resetDatabase: async () => { },
-      importFinanceState: () => { },
-      setTheme: () => { },
-      setCardBills: () => { },
-      addFixedExpense: () => { },
-      addRevenue: () => { },
-      addInstallment: () => { },
-      updateFixedExpense: () => { },
-      removeFixedExpense: () => { },
-      updateRevenue: () => { },
-      removeRevenue: () => { },
-      updateInstallment: () => { },
-      removeInstallment: () => { },
-      upsertMonthOverride: () => { },
-      clearMonthOverride: () => { },
+      changeMonth: () => {},
+      resetDatabase: async () => {},
+      importFinanceState: () => {},
+      setTheme: () => {},
+      setCardBills: () => {},
+      addFixedExpense: () => {},
+      addRevenue: () => {},
+      addInstallment: () => {},
+      updateFixedExpense: () => {},
+      removeFixedExpense: () => {},
+      updateRevenue: () => {},
+      removeRevenue: () => {},
+      updateInstallment: () => {},
+      removeInstallment: () => {},
+      upsertMonthOverride: () => {},
+      clearMonthOverride: () => {},
     }),
     []
   );
@@ -157,7 +146,7 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       settings: state.settings,
       meta: state.meta,
     };
-  }, [state?.fixedExpenses, state?.installments, state?.revenues, state?.monthOverrides, state?.settings, state?.meta, defaultState]);
+  }, [defaultState, state]);
 
   const derivedValue = useMemo<FinanceDerivedValue>(() => {
     return {

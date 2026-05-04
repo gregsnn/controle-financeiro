@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { AppTabs } from './components/app-shell/AppTabs';
 import { LoadingScreen } from './components/app-shell/LoadingScreen';
 import { ExportButton } from './components/ExportButton';
-import { ImportButton } from './components/ImportButton';
 import MonthNav from './components/MonthNav';
 import {
   FixedExpensesSection,
@@ -51,7 +50,7 @@ export default function FinanceApp() {
   };
 
   const cardBillsList = settings.cardBills;
-  const cardListMapped = settings.cardBills?.map(cb => ({ key: cb.id, label: cb.name }));
+  const cardListMapped = settings.cardBills?.map((cb) => ({ key: cb.id, label: cb.name }));
 
   const cardDeleteReasons = useCardDeleteReasons({
     cardBills: settings.cardBills || [],
@@ -168,7 +167,6 @@ export default function FinanceApp() {
 
         <div className="finance-backup-actions">
           <ExportButton />
-          <ImportButton />
         </div>
         <AppTabs tabs={TABS} activeTab={activeTab} translate={t} onChange={setActiveTab} />
       </header>

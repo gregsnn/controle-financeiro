@@ -66,14 +66,8 @@ export function createActions(_state: FinanceState, setState: SetStateFunc, _cur
     removeInstallment: (id: string) =>
       setState((prev) => withState(prev, (s) => removeInstallmentReducer(s, id))),
     upsertMonthOverride: (params: UpsertOverrideParams) =>
-      setState((prev) =>
-        withState(prev, (s) =>
-          upsertMonthOverrideReducer(s, params)
-        )
-      ),
+      setState((prev) => withState(prev, (s) => upsertMonthOverrideReducer(s, params))),
     clearMonthOverride: (params: { type: OverrideType; itemId: string; monthKey: string }) =>
-      setState((prev) =>
-        withState(prev, (s) => clearMonthOverrideReducer(s, params))
-      ),
+      setState((prev) => withState(prev, (s) => clearMonthOverrideReducer(s, params))),
   };
 }
