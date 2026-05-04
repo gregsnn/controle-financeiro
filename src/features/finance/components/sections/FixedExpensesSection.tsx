@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { CARD_ICONS, OVERRIDE_TYPES } from '../../domain/constants';
+import { OVERRIDE_TYPES } from '../../domain/constants';
+import { CARD_ICONS } from '../../ui/constants';
 import type { CardBillItem, FixedExpense } from '../../domain/types';
 import { ConfirmModal, RuleModal } from '../modals';
 import RuleSection from '../RuleSection';
@@ -7,12 +8,12 @@ import { FixedExpenseForm } from './fixed-expenses/FixedExpenseForm';
 import { buildFixedExpensePayload } from './fixed-expenses/fixedExpenseFormHelpers';
 import { FixedExpenseRow } from './fixed-expenses/FixedExpenseRow';
 import { FIXED_EXPENSE_LABELS } from './fixed-expenses/fixedExpenseSectionLabels';
-import { useActiveFixedExpenses } from './fixed-expenses/useActiveFixedExpenses';
+import { useActiveFixedExpenses } from '../../hooks/useActiveFixedExpenses';
 import { useFixedExpenseCrudState } from './fixed-expenses/useFixedExpenseCrudState';
 import type { CrudSectionCommonProps, MonthPaidSectionProps } from './shared/types';
 import { useCrudFormFlow } from './shared/useCrudFormFlow';
 import { useCrudModalState } from './shared/useCrudModalState';
-import { useMonthPaymentMap } from './shared/useMonthPaymentMap';
+import { useMonthPaymentMap } from '../../hooks/useMonthPaymentMap';
 
 type FixedExpensePayload = {
   name: string;
@@ -43,19 +44,20 @@ export function FixedExpensesSection({
 
   const cardIconMap = useMemo(() => {
     const map: Record<string, string> = { ...CARD_ICONS };
-    cards.forEach((card) => {
+    (cardList ?? []).forEach((card) => {
       if (card.icon) map[card.id] = card.icon;
     });
     return map;
-  }, [cards]);
+  }, [cardList]);
 
   const activeItems = useActiveFixedExpenses(items, currentMonthKey);
 
-  const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } = useFixedExpenseCrudState({
-    currentMonthKey,
-    defaultCardId: cards[0]?.id || '',
-    onDelete,
-  });
+  const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } =
+    useFixedExpenseCrudState({
+      currentMonthKey,
+      defaultCardId: cards[0]?.id || '',
+      onDelete,
+    });
 
   const {
     modal,
@@ -73,8 +75,7 @@ export function FixedExpensesSection({
     OVERRIDE_TYPES.FIXED_EXPENSE_PAYMENT
   );
 
-  const buildPayload = (currentForm: any) =>
-    buildFixedExpensePayload(currentForm, cards);
+  const buildPayload = (currentForm: any) => buildFixedExpensePayload(currentForm, cards);
 
   const handleSubmit = useCrudFormFlow({
     modal,
@@ -123,7 +124,9 @@ export function FixedExpensesSection({
       <ConfirmModal
         open={confirm.open}
         title={FIXED_EXPENSE_LABELS.delete.title}
-        message={FIXED_EXPENSE_LABELS.delete.message((confirm.item as FixedExpense | null)?.name || '')}
+        message={FIXED_EXPENSE_LABELS.delete.message(
+          (confirm.item as FixedExpense | null)?.name || ''
+        )}
         onConfirm={async () => {
           const item = confirm.item as FixedExpense | null;
           if (item) await onDelete(item.id);
@@ -134,10 +137,18 @@ export function FixedExpensesSection({
 
       <RuleModal
         open={modal.open}
-        title={modal.mode === 'edit' ? FIXED_EXPENSE_LABELS.modal.edit.title : FIXED_EXPENSE_LABELS.modal.create.title}
+        title={
+          modal.mode === 'edit'
+            ? FIXED_EXPENSE_LABELS.modal.edit.title
+            : FIXED_EXPENSE_LABELS.modal.create.title
+        }
         onClose={closeModal}
         onSubmit={handleSubmit}
-        submitLabel={modal.mode === 'edit' ? FIXED_EXPENSE_LABELS.modal.edit.submitLabel : FIXED_EXPENSE_LABELS.modal.create.submitLabel}
+        submitLabel={
+          modal.mode === 'edit'
+            ? FIXED_EXPENSE_LABELS.modal.edit.submitLabel
+            : FIXED_EXPENSE_LABELS.modal.create.submitLabel
+        }
       >
         <FixedExpenseForm form={form} setForm={setForm} cards={cards} />
       </RuleModal>

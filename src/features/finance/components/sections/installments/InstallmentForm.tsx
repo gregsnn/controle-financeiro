@@ -1,5 +1,5 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import { CARD_ICONS } from '../../../domain/constants';
+import { CARD_ICONS } from '../../../ui/constants';
 import type { CardBillItem } from '../../../domain/types';
 import { applyMoneyMask } from '../../../lib/moneyInput';
 import { Input, SelectWithIcon } from '../../inputs';
@@ -39,7 +39,6 @@ function buildCardIconMap(cards: CardBillItem[]): Record<string, string> {
   return map;
 }
 
-
 export function InstallmentForm({ form, setForm, cards }: InstallmentFormProps) {
   const cardOptions = buildCardOptions(cards, form.card);
   const cardIconMap = buildCardIconMap(cards);
@@ -50,7 +49,9 @@ export function InstallmentForm({ form, setForm, cards }: InstallmentFormProps) 
         <Input
           label="Nome"
           value={form.name}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, name: e.target.value }))
+          }
           placeholder="HBO, Teclado, Kit PC..."
         />
         <Input
@@ -68,7 +69,9 @@ export function InstallmentForm({ form, setForm, cards }: InstallmentFormProps) 
           label="Total de parcelas"
           type="number"
           value={form.totalInstallments}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, totalInstallments: e.target.value }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, totalInstallments: e.target.value }))
+          }
           placeholder="12"
         />
       </div>
@@ -77,13 +80,17 @@ export function InstallmentForm({ form, setForm, cards }: InstallmentFormProps) 
           label="Mês de início"
           type="month"
           value={form.startMonth}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, startMonth: e.target.value }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, startMonth: e.target.value }))
+          }
         />
         <label className="field">
           <span>Cartão</span>
           <SelectWithIcon
             value={form.card}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, card: e.target.value }))}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setForm((prev) => ({ ...prev, card: e.target.value }))
+            }
             options={cardOptions}
             iconMap={cardIconMap}
             ariaLabel="Cartão"

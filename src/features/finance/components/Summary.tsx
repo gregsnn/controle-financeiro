@@ -1,6 +1,16 @@
 import { useMemo } from 'react';
+import type { MonthOverride, MonthView } from '../domain/types';
 import { formatMoney } from '../lib/utils';
 import { buildSummaryData } from '../selectors/summarySelectors';
+
+interface SummaryProps {
+  monthView: MonthView;
+  cardBills: Record<string, number> | null | undefined;
+  monthOverrides: MonthOverride[];
+  currentMonthKey: string;
+  onToggleBillPaid: (card: string, paid: boolean) => void;
+  cardList: Array<{ key: string; label: string }> | undefined;
+}
 
 export default function Summary({
   monthView,
@@ -9,7 +19,7 @@ export default function Summary({
   currentMonthKey,
   onToggleBillPaid,
   cardList,
-}) {
+}: SummaryProps) {
   const summaryData = useMemo(
     () => buildSummaryData(monthView, cardBills, monthOverrides, currentMonthKey, cardList),
     [monthView, cardBills, monthOverrides, currentMonthKey, cardList]
@@ -77,8 +87,16 @@ export default function Summary({
         <section className="metrics bill-metrics">
           {billCardsSummary.map((item) => (
             <div className="mcard" key={item.key}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <p className="mcard-label" style={{ margin: 0 }}>FATURA {item.label.toUpperCase()}</p>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <p className="mcard-label" style={{ margin: 0 }}>
+                  FATURA {item.label.toUpperCase()}
+                </p>
                 {item.bill > 0 ? (
                   <button
                     type="button"

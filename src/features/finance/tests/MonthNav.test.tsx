@@ -97,10 +97,7 @@ describe('MonthNav.tsx', () => {
 
   it('renders the card icon before the card name', () => {
     render(
-      <MonthNav
-        {...defaultProps}
-        cardList={[{ id: 'nubank', name: 'Nubank', icon: '💜' }]}
-      />
+      <MonthNav {...defaultProps} cardList={[{ id: 'nubank', name: 'Nubank', icon: '💜' }]} />
     );
 
     const card = screen.getByText('Nubank').closest('.bill-card');

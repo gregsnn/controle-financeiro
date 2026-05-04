@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { buildMonthPaymentMap } from '../../../domain/overrides/facade';
-import type { MonthOverride, OverrideType } from '../../../domain/types';
+import { buildMonthPaymentMap } from '../domain/overrides/facade';
+import type { MonthOverride, OverrideType } from '../domain/types';
 
 export function useMonthPaymentMap(
   monthOverrides: MonthOverride[],

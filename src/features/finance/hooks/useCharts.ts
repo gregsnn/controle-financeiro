@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
-import { loadChartModule } from '../lib/chartLoader.js';
-import { buildPieChartConfig } from '../lib/charts/pieConfig.js';
-import { buildInstallmentBarConfig } from '../lib/charts/installmentBarConfig.js';
 import type { MonthView } from '../domain/types.js';
+import { loadChartModule } from '../lib/chartLoader.js';
+import { buildInstallmentBarConfig } from '../lib/charts/installmentBarConfig.js';
+import { buildPieChartConfig } from '../lib/charts/pieConfig.js';
 
 type PieMode = 'categories' | 'cards' | 'cardsStatus';
 
@@ -37,13 +37,14 @@ export function useCharts(
   const barInstanceRef = useRef<unknown>(null);
   const [chartsReady, setChartsReady] = useState(true);
 
+  // Pie chart effect - updates when pie mode or month data changes
   useEffect(() => {
     let cancelled = false;
     destroyChart(pieInstanceRef);
 
-    async function initChart() {
+    async function initPieChart() {
       try {
-        if (cancelled) return;
+        if (cancelled || activeTab !== 'resumo') return;
         const config = buildPieChartConfig(monthView, pieMode);
         pieInstanceRef.current = await createChartOnCanvas(pieChartRef.current, config);
       } catch (e) {
@@ -53,7 +54,7 @@ export function useCharts(
     }
 
     if (activeTab === 'resumo') {
-      initChart();
+      initPieChart();
     }
 
     return () => {
@@ -62,13 +63,14 @@ export function useCharts(
     };
   }, [monthView, pieMode, activeTab]);
 
+  // Bar chart effect - independent from pie chart, updates only when month data changes
   useEffect(() => {
     let cancelled = false;
     destroyChart(barInstanceRef);
 
     async function initBarChart() {
       try {
-        if (cancelled) return;
+        if (cancelled || activeTab !== 'resumo') return;
         const config = buildInstallmentBarConfig(monthView);
         barInstanceRef.current = await createChartOnCanvas(barChartRef.current, config);
       } catch (e) {
@@ -85,6 +87,5 @@ export function useCharts(
       destroyChart(barInstanceRef);
     };
   }, [monthView, activeTab]);
-
   return { pieChartRef, barChartRef, chartsReady };
 }

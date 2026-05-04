@@ -23,14 +23,14 @@ function BillCard({
   value,
   onChange,
   onDelete,
-  canDelete,
+  _canDelete,
   deleteReason,
 }: {
   card: CardBillItem;
   value: string;
   onChange: (value: string) => void;
   onDelete: () => void;
-  canDelete: boolean;
+  _canDelete: boolean;
   deleteReason?: string;
 }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -104,7 +104,9 @@ function BillCard({
             e.stopPropagation();
             onDelete();
           }}
-          title={deleteReason ? `Não é possível apagar: ${deleteReason}` : `Apagar cartão ${card.name}`}
+          title={
+            deleteReason ? `Não é possível apagar: ${deleteReason}` : `Apagar cartão ${card.name}`
+          }
           disabled={!!deleteReason}
           aria-label={deleteReason ? `Cartão ${card.name} em uso` : `Apagar cartão ${card.name}`}
         >
@@ -128,7 +130,16 @@ function BillCard({
           />
         </div>
       ) : hasValue ? (
-        <p className="bill-card-value" onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} style={{ cursor: 'pointer' }}>{value}</p>
+        <p
+          className="bill-card-value"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditing(true);
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          {value}
+        </p>
       ) : (
         <button
           type="button"
@@ -163,27 +174,25 @@ export default function MonthNav({
   const cards = useMemo(() => cardList ?? [], [cardList]);
   const hasCards = cards.length > 0;
 
-  const [billInputs, setBillInputs] = useState(() =>
-    cards.reduce(
-      (acc, c) => {
-        acc[c.id] = formatMoneyInput(cardBills?.[c.id], { hideNonPositive: true });
-        return acc;
-      },
-      {} as Record<string, string>
-    )
-  );
-
-  useEffect(() => {
-    setBillInputs(
+  // Memoize the computation of billInputs to avoid redundant calculations
+  const computedBillInputs = useMemo(
+    () =>
       cards.reduce(
         (acc, c) => {
           acc[c.id] = formatMoneyInput(cardBills?.[c.id], { hideNonPositive: true });
           return acc;
         },
         {} as Record<string, string>
-      )
-    );
-  }, [cardBills, cards]);
+      ),
+    [cardBills, cards]
+  );
+
+  const [billInputs, setBillInputs] = useState(computedBillInputs);
+
+  // Keep local state in sync with computed values
+  useEffect(() => {
+    setBillInputs(computedBillInputs);
+  }, [computedBillInputs]);
 
   const handleBillInputChange = (cardId: string, rawValue: string) => {
     const masked = applyMoneyMask(rawValue);
@@ -357,16 +366,13 @@ export default function MonthNav({
                 value={billInputs?.[c.id] || ''}
                 onChange={(v) => handleBillInputChange(c.id, v)}
                 onDelete={() => handleDeleteCard(c.id)}
-                canDelete={!cardDeleteReasons?.[c.id]}
+                _canDelete={!cardDeleteReasons?.[c.id]}
                 deleteReason={cardDeleteReasons?.[c.id]}
               />
             ))}
           </div>
         ) : (
-          <EmptyBillsState
-            canAdd={!!onSetCardList}
-            onAddCard={() => setIsAdding(true)}
-          />
+          <EmptyBillsState canAdd={!!onSetCardList} onAddCard={() => setIsAdding(true)} />
         )}
       </div>
 

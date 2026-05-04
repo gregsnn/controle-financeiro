@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react';
-import { importFinanceBackupFile } from '../../../lib/exportData';
+import { importFinanceBackupFile } from '../lib/exportData';
 import { useFinanceActions } from '../hooks/useFinanceActions';
 
 export function ImportButton() {

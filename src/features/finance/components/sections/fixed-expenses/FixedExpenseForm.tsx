@@ -1,5 +1,5 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import { CARD_ICONS, CATEGORIES, ICONS } from '../../../domain/constants';
+import { CARD_ICONS, CATEGORIES, ICONS } from '../../../ui/constants';
 import type { CardBillItem } from '../../../domain/types';
 import { applyMoneyMask } from '../../../lib/moneyInput';
 import { Input, SelectWithIcon } from '../../inputs';
@@ -67,14 +67,18 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
         <Input
           label="Nome"
           value={form.name}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, name: e.target.value }))
+          }
           placeholder="Internet, luz, aluguel..."
         />
         <Input
           label="Valor"
           type="text"
           value={form.amount}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))
+          }
           inputMode="numeric"
           autoComplete="off"
           placeholder="0,00"
@@ -85,14 +89,18 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
           label="Dia de vencimento"
           type="number"
           value={form.dueDay}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, dueDay: e.target.value }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, dueDay: e.target.value }))
+          }
           placeholder="10"
         />
         <Input
           label="Mês de início"
           type="month"
           value={form.startMonth}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, startMonth: e.target.value }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, startMonth: e.target.value }))
+          }
           placeholder=""
         />
       </div>
@@ -101,7 +109,9 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
           <span>Forma de pagamento</span>
           <SelectWithIcon
             value={form.paymentMethod}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, paymentMethod: e.target.value }))}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setForm((prev) => ({ ...prev, paymentMethod: e.target.value }))
+            }
             options={paymentOptions}
             iconMap={{ ...ICONS, ...cardIconMap }}
             ariaLabel="Forma de pagamento"
@@ -112,7 +122,9 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
             <span>Cartão</span>
             <SelectWithIcon
               value={form.card}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, card: e.target.value }))}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                setForm((prev) => ({ ...prev, card: e.target.value }))
+              }
               options={cardOptions}
               iconMap={cardIconMap}
               ariaLabel="Cartão"
@@ -123,7 +135,9 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
           <span>Categoria</span>
           <select
             value={form.category}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm((prev) => ({ ...prev, category: e.target.value }))}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setForm((prev) => ({ ...prev, category: e.target.value }))
+            }
           >
             {Object.entries(CATEGORIES).map(([value, label]) => (
               <option key={value} value={value}>

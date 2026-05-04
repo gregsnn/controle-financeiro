@@ -1,4 +1,4 @@
-import { CARD_ICONS } from '../../../domain/constants';
+import { CARD_ICONS } from '../../../ui/constants';
 import { formatStartMonth } from '../../../lib/utils';
 import { RowActions } from '../shared/RowActions';
 
@@ -22,7 +22,15 @@ interface InstallmentRowProps {
   onDelete: () => void;
 }
 
-export function InstallmentRow({ item, money, isPaid, cardIconMap, onTogglePaid, onEdit, onDelete }: InstallmentRowProps) {
+export function InstallmentRow({
+  item,
+  money,
+  isPaid,
+  cardIconMap,
+  onTogglePaid,
+  onEdit,
+  onDelete,
+}: InstallmentRowProps) {
   const cardIcon = CARD_ICONS[item.card as keyof typeof CARD_ICONS];
   const icon = cardIcon || cardIconMap?.[item.card];
   const cardIconOnly = icon || '💳';

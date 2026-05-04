@@ -1,4 +1,4 @@
-import { ICONS } from '../../domain/constants';
+import { ICONS } from '../../ui/constants';
 
 interface SelectWithIconProps {
   value: string;
@@ -8,7 +8,13 @@ interface SelectWithIconProps {
   ariaLabel?: string;
 }
 
-export function SelectWithIcon({ value, onChange, options, iconMap = ICONS, ariaLabel }: SelectWithIconProps) {
+export function SelectWithIcon({
+  value,
+  onChange,
+  options,
+  iconMap = ICONS,
+  ariaLabel,
+}: SelectWithIconProps) {
   return (
     <div className="select-icon-wrapper">
       <select value={value} onChange={onChange} aria-label={ariaLabel}>

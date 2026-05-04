@@ -1,4 +1,4 @@
-import { ACTION_ICONS } from '../../../domain/constants';
+import { ACTION_ICONS } from '../../../ui/constants';
 
 interface RowActionsProps {
   onEdit: () => void;

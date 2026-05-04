@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import type { Revenue } from '../../../domain/types';
-import { isMonthInRange } from '../../../lib/utils';
+import type { Revenue } from '../domain/types';
+import { isMonthInRange } from '../lib/utils';
 
 export function useActiveRevenues(items: Revenue[], currentMonthKey: string) {
   return useMemo(

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { FixedExpense } from '../../../domain/types';
+import type { FixedExpense } from '../domain/types';
 
 export function useActiveFixedExpenses(items: FixedExpense[], currentMonthKey: string) {
   return useMemo(

@@ -20,24 +20,29 @@ import type {
   Settings,
 } from '../domain/types';
 import {
-  EMPTY_MONTH_VIEW,
   useDerivedFinanceState,
   useHydrateFinanceState,
   usePersistFinanceState,
   useThemeSync,
 } from './financeContextInternals';
 
-interface FinanceContextValue {
-  isReady: boolean;
-  currentDate: Date;
-  currentKey: string;
-  monthView: MonthView;
+interface FinanceStateValue {
   fixedExpenses: FixedExpense[];
   installments: Installment[];
   revenues: Revenue[];
   monthOverrides: MonthOverride[];
   settings: Settings;
   meta: Meta;
+}
+
+interface FinanceDerivedValue {
+  isReady: boolean;
+  currentDate: Date;
+  currentKey: string;
+  monthView: MonthView;
+}
+
+interface FinanceActionsValue {
   changeMonth: (step: number) => void;
   resetDatabase: () => Promise<void>;
   importFinanceState: (state: FinanceState) => void;
@@ -64,6 +69,13 @@ interface FinanceContextValue {
   clearMonthOverride: (params: { type: OverrideType; itemId: string; monthKey: string }) => void;
 }
 
+interface FinanceContextValue extends FinanceStateValue, FinanceDerivedValue, FinanceActionsValue {}
+
+const FinanceStateContext = createContext<FinanceStateValue | null>(null);
+const FinanceDerivedContext = createContext<FinanceDerivedValue | null>(null);
+const FinanceActionsContext = createContext<FinanceActionsValue | null>(null);
+
+// Backward compatibility context that combines all three
 const FinanceContext = createContext<FinanceContextValue | null>(null);
 
 interface FinanceProviderProps {
@@ -80,7 +92,7 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
   const { monthView, currentKey } = useDerivedFinanceState(state);
 
   const actions = useMemo(() => {
-    if (!state) return {} as FinanceContextValue;
+    if (!state) return {} as FinanceActionsValue;
     return createActions(
       state,
       setState as Dispatch<SetStateAction<FinanceState | null>>,
@@ -88,52 +100,66 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
     );
   }, [state]);
 
-  const defaultValue = useMemo<FinanceContextValue>(
+  // Default values for when state is not ready
+  const defaultState = useMemo<FinanceStateValue>(
     () => ({
-      isReady: false,
-      currentDate: new Date(),
-      currentKey: '',
-      monthView: EMPTY_MONTH_VIEW,
       fixedExpenses: [],
       installments: [],
       revenues: [],
       monthOverrides: [],
       settings: { theme: 'default' },
       meta: { schemaVersion: 4, createdAt: new Date(), lastResetAt: null },
-      changeMonth: () => { },
-      resetDatabase: async () => { },
-      importFinanceState: () => { },
-      setTheme: () => { },
-      setCardBills: () => { },
-      addFixedExpense: () => { },
-      addRevenue: () => { },
-      addInstallment: () => { },
-      updateFixedExpense: () => { },
-      removeFixedExpense: () => { },
-      updateRevenue: () => { },
-      removeRevenue: () => { },
-      updateInstallment: () => { },
-      removeInstallment: () => { },
-      upsertMonthOverride: () => { },
-      clearMonthOverride: () => { },
     }),
     []
   );
 
-  const value = useMemo((): FinanceContextValue => {
-    if (!state) return defaultValue;
+  const defaultActions = useMemo<FinanceActionsValue>(
+    () => ({
+      changeMonth: () => {},
+      resetDatabase: async () => {},
+      importFinanceState: () => {},
+      setTheme: () => {},
+      setCardBills: () => {},
+      addFixedExpense: () => {},
+      addRevenue: () => {},
+      addInstallment: () => {},
+      updateFixedExpense: () => {},
+      removeFixedExpense: () => {},
+      updateRevenue: () => {},
+      removeRevenue: () => {},
+      updateInstallment: () => {},
+      removeInstallment: () => {},
+      upsertMonthOverride: () => {},
+      clearMonthOverride: () => {},
+    }),
+    []
+  );
 
+  // Memoize each context value separately to prevent unnecessary re-renders
+  const stateValue = useMemo<FinanceStateValue>(() => {
+    if (!state) return defaultState;
     return {
-      isReady,
-      currentDate: state.currentDate,
-      currentKey,
-      monthView,
       fixedExpenses: state.fixedExpenses,
       installments: state.installments,
       revenues: state.revenues,
       monthOverrides: state.monthOverrides,
       settings: state.settings,
       meta: state.meta,
+    };
+  }, [defaultState, state]);
+
+  const derivedValue = useMemo<FinanceDerivedValue>(() => {
+    return {
+      isReady,
+      currentDate: state?.currentDate ?? new Date(),
+      currentKey,
+      monthView,
+    };
+  }, [isReady, state?.currentDate, currentKey, monthView]);
+
+  const actionsValue = useMemo<FinanceActionsValue>(() => {
+    if (!actions || Object.keys(actions).length === 0) return defaultActions;
+    return {
       changeMonth: actions.changeMonth,
       resetDatabase: actions.resetDatabase,
       importFinanceState: actions.importFinanceState,
@@ -151,9 +177,26 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       upsertMonthOverride: actions.upsertMonthOverride,
       clearMonthOverride: actions.clearMonthOverride,
     };
-  }, [actions, currentKey, isReady, monthView, state, defaultValue]);
+  }, [actions, defaultActions]);
 
-  return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;
+  // Combined value for backward compatibility
+  const value = useMemo((): FinanceContextValue => {
+    return {
+      ...stateValue,
+      ...derivedValue,
+      ...actionsValue,
+    };
+  }, [stateValue, derivedValue, actionsValue]);
+
+  return (
+    <FinanceStateContext.Provider value={stateValue}>
+      <FinanceDerivedContext.Provider value={derivedValue}>
+        <FinanceActionsContext.Provider value={actionsValue}>
+          <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>
+        </FinanceActionsContext.Provider>
+      </FinanceDerivedContext.Provider>
+    </FinanceStateContext.Provider>
+  );
 }
 
 export function useFinance(): FinanceContextValue {

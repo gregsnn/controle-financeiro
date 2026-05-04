@@ -3,10 +3,10 @@ import {
   normalizeFixedExpense,
   normalizeInstallment,
   normalizeRevenue,
-} from '../features/finance/domain/actions';
-import type { FinanceState } from '../features/finance/domain/types';
-import { emptyFinanceState, financeSchemaVersion } from '../features/finance/lib/schema';
-import { loadFinanceState } from '../features/finance/lib/storage';
+} from '../domain/actions';
+import type { FinanceState } from '../domain/types';
+import { emptyFinanceState, financeSchemaVersion } from './schema';
+import { loadFinanceState } from './storage';
 
 export interface ExportData {
   version: number;

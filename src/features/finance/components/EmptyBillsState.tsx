@@ -1,5 +1,3 @@
-import type { CardBillItem } from '../domain/types';
-
 interface EmptyBillsStateProps {
   canAdd: boolean;
   onAddCard: () => void;
