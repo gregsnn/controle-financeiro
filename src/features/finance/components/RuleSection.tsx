@@ -59,7 +59,11 @@ export default function RuleSection({
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <select value={sort} onChange={(e) => setSort(e.target.value as 'name' | 'value-asc' | 'value-desc')} className="sort-select">
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as 'name' | 'value-asc' | 'value-desc')}
+            className="sort-select"
+          >
             <option value="name">Nome A-Z</option>
             <option value="value-asc">Menor valor</option>
             <option value="value-desc">Maior valor</option>

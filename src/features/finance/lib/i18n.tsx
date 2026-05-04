@@ -158,14 +158,18 @@ export function I18nProvider({
   const [locale, setLocale] = useState(initialLocale);
 
   const t = useCallback(
-    (key) => {
-      return translations[locale]?.[key] || translations['pt-BR']?.[key] || key;
+    (key: string) => {
+      const lang = translations[locale as keyof typeof translations];
+      if (lang && lang[key as keyof typeof lang] !== undefined) return lang[key as keyof typeof lang];
+      const fallback = translations['pt-BR'];
+      if (fallback && fallback[key as keyof typeof fallback] !== undefined) return fallback[key as keyof typeof fallback];
+      return key;
     },
     [locale]
   );
 
-  const changeLocale = useCallback((newLocale) => {
-    if (translations[newLocale]) {
+  const changeLocale = useCallback((newLocale: string) => {
+    if (translations[newLocale as keyof typeof translations]) {
       setLocale(newLocale);
     }
   }, []);
@@ -180,8 +184,8 @@ export function useI18n() {
   if (!context) {
     return {
       locale: 'pt-BR',
-      t: (key) => key,
-      changeLocale: () => {},
+      t: (key: string) => key,
+      changeLocale: () => { },
       availableLocales: ['pt-BR', 'en-US'],
     };
   }

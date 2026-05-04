@@ -1,11 +1,15 @@
 import type { Revenue } from '../../domain/types';
+import { useActiveRevenues } from '../../hooks/useActiveRevenues';
 import RuleSection from '../RuleSection';
 import { ConfirmModal, RuleModal } from '../modals';
 import { RevenueForm } from './revenues/RevenueForm';
 import { RevenueRow } from './revenues/RevenueRow';
-import { buildRevenuePayload, toRevenueCreateItem, toRevenueEditItem } from './revenues/revenueFormHelpers';
+import {
+  buildRevenuePayload,
+  toRevenueCreateItem,
+  toRevenueEditItem,
+} from './revenues/revenueFormHelpers';
 import { REVENUE_LABELS } from './revenues/revenueSectionLabels';
-import { useActiveRevenues } from './revenues/useActiveRevenues';
 import { useRevenueCrudState } from './revenues/useRevenueCrudState';
 import type { CrudSectionCommonProps } from './shared/types';
 import { useCrudFormFlow } from './shared/useCrudFormFlow';
@@ -28,10 +32,12 @@ export function RevenuesSection({
   onDelete,
   onMonthRevenueAmount,
 }: RevenuesSectionProps) {
-  const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } = useRevenueCrudState({
-    currentMonthKey,
-    onDelete,
-  });
+  const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } = useRevenueCrudState(
+    {
+      currentMonthKey,
+      onDelete,
+    }
+  );
 
   const {
     modal,
@@ -81,11 +87,11 @@ export function RevenuesSection({
         description={REVENUE_LABELS.description}
         addLabel={REVENUE_LABELS.addLabel}
         onAddClick={openCreateModal}
-        items={activeItems}
+        items={activeItems as any}
         emptyText={REVENUE_LABELS.emptyText}
         sortBy="value-desc"
-        columns={REVENUE_LABELS.columns}
-        renderItem={(item: Revenue, money: (value: number) => string) => {
+        columns={[...REVENUE_LABELS.columns]}
+        renderItem={(item: any, money: (value: number) => string) => {
           const hasOverride = monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined;
 
           return (
@@ -123,10 +129,18 @@ export function RevenuesSection({
 
       <RuleModal
         open={modal.open}
-        title={modal.mode === 'edit' ? REVENUE_LABELS.modal.edit.title : REVENUE_LABELS.modal.create.title}
+        title={
+          modal.mode === 'edit'
+            ? REVENUE_LABELS.modal.edit.title
+            : REVENUE_LABELS.modal.create.title
+        }
         onClose={closeModal}
         onSubmit={handleSubmit}
-        submitLabel={modal.mode === 'edit' ? REVENUE_LABELS.modal.edit.submitLabel : REVENUE_LABELS.modal.create.submitLabel}
+        submitLabel={
+          modal.mode === 'edit'
+            ? REVENUE_LABELS.modal.edit.submitLabel
+            : REVENUE_LABELS.modal.create.submitLabel
+        }
       >
         <RevenueForm form={form} setForm={setForm} />
       </RuleModal>

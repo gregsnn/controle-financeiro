@@ -24,8 +24,6 @@ describe('FixedExpensesSection.tsx', () => {
     fireEvent.click(screen.getByRole('button', { name: '+ Novo gasto fixo' }));
 
     const paymentSelect = screen.getByLabelText('Forma de pagamento') as HTMLSelectElement;
-    expect(Array.from(paymentSelect.options).map((option) => option.textContent)).toContain(
-      'Amex'
-    );
+    expect(Array.from(paymentSelect.options).map((option) => option.textContent)).toContain('Amex');
   });
 });

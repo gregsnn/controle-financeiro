@@ -8,7 +8,7 @@ import {
 } from '../domain/actions';
 import type { FinanceState, FixedExpense, Installment, MonthView, Revenue } from '../domain/types';
 import { emptyFinanceState } from '../lib/schema';
-import { loadFinanceState, saveFinanceState } from '../lib/storage';
+import { financeRepository } from '../lib/storage';
 import { monthKey } from '../lib/utils';
 import { buildMonthView } from '../selectors/buildMonth';
 
@@ -28,7 +28,7 @@ export function useHydrateFinanceState(
 
     async function hydrate() {
       try {
-        const loadedRaw = await loadFinanceState();
+        const loadedRaw = await financeRepository.loadState();
         const loaded = migrateLegacyCardBills(loadedRaw as unknown as Record<string, unknown>);
         if (!cancelled) {
           setState((prev) => {
@@ -77,15 +77,18 @@ export function usePersistFinanceState(state: FinanceState | null, isReady: bool
     let idleHandle: any = null;
 
     const doSave = () => {
-      saveFinanceState(state).catch(() => {});
+      financeRepository.saveState(state).catch((error) => {
+        console.error('Failed to save finance state:', error);
+      });
       handle = null;
       idleHandle = null;
     };
 
     const schedule = () => {
-      // Prefer requestIdleCallback when available
+      // Prefer requestIdleCallback when available (more user-friendly than setTimeout)
+      // Use shorter timeout (500ms) for faster persistence on slow idle detection
       if (typeof window !== 'undefined' && (window as any).requestIdleCallback) {
-        idleHandle = (window as any).requestIdleCallback(doSave, { timeout: 1500 });
+        idleHandle = (window as any).requestIdleCallback(doSave, { timeout: 500 });
       } else {
         handle = window.setTimeout(doSave, 250);
       }
@@ -103,10 +106,10 @@ export function usePersistFinanceState(state: FinanceState | null, isReady: bool
     const flush = () => {
       try {
         // best-effort synchronous save: may not complete, but attempt
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        saveFinanceState(state);
-      } catch (e) {
-        // ignore
+        financeRepository.saveState(state);
+      } catch (error) {
+        // Log error but don't throw (unload handlers shouldn't throw)
+        console.warn('Failed to flush finance state on unload:', error);
       }
     };
 
@@ -132,12 +135,40 @@ export function useThemeSync(theme: FinanceState['settings']['theme'] | undefine
 }
 
 export function useDerivedFinanceState(state: FinanceState | null) {
-  const monthView = useMemo(() => {
-    if (!state) return EMPTY_MONTH_VIEW;
-    return buildMonthView(state, state.currentDate);
-  }, [state]);
+  // Memoize just the data needed for monthView to prevent rebuilds
+  // when unrelated state properties change (e.g., settings, meta)
+  const monthViewData = useMemo(() => {
+    if (!state) {
+      return {
+        fixedExpenses: [],
+        installments: [],
+        revenues: [],
+        monthOverrides: [],
+        currentDate: new Date(),
+      };
+    }
+    return {
+      fixedExpenses: state.fixedExpenses,
+      installments: state.installments,
+      revenues: state.revenues,
+      monthOverrides: state.monthOverrides,
+      currentDate: state.currentDate,
+    };
+  }, [
+    state?.fixedExpenses,
+    state?.installments,
+    state?.revenues,
+    state?.monthOverrides,
+    state?.currentDate,
+  ]);
 
-  const currentKey = monthKey(state?.currentDate || new Date());
+  // Now monthView only rebuilds when the data actually changes
+  const monthView = useMemo(() => {
+    if (!monthViewData) return EMPTY_MONTH_VIEW;
+    return buildMonthView(monthViewData, monthViewData.currentDate);
+  }, [monthViewData]);
+
+  const currentKey = monthKey(monthViewData?.currentDate || new Date());
 
   return { monthView, currentKey };
 }

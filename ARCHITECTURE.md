@@ -18,42 +18,55 @@ Este documento é a referência oficial para qualquer IA ou desenvolvedor que tr
 
 ```
 src/
-├── App.jsx                  # Composição raiz (fino)
-├── main.jsx                 # Bootstrap (fino)
+├── App.tsx                  # Composição raiz (fino)
+├── main.tsx                 # Bootstrap (fino)
 ├── styles.css               # Estilos globais
 └── features/finance/
     ├── index.ts             # Exports públicos
     ├── FinanceApp.tsx       # Componente principal
-    ├── domain/              # Regras de negócio
-    │   ├── constants.ts     # Constantes (OVERRIDE_TYPES, CATEGORIES, TABS, etc)
+    ├── domain/              # Regras de negócio (puro, sem React)
+    │   ├── constants.ts     # Constantes de domínio (OVERRIDE_TYPES, ALLOWED_PAYMENT_METHODS)
     │   ├── types.ts         # Tipagens de domínio
-    │   └── actions.ts       # Ações de manipulação de dados
-    ├── context/
-    │   └── FinanceContext.tsx # Provider de estado
+    │   ├── actions.ts       # Ações de manipulação de dados
+    │   ├── stateReducers.ts # Funções puras de estado (sem React)
+    │   ├── migrations.ts    # Migração de dados legados
+    │   └── normalizers.ts   # Normalização de dados
+    ├── ui/                  # Constantes de UI
+    │   └── constants.ts     # ICONS, CATEGORIES, TABS, etc
+    ├── context/              # Estado global
+    │   ├── FinanceContext.tsx      # Provider de estado
+    │   └── financeContextInternals.ts # Hydration, persistência
     ├── components/          # UI e composição visual
-    │   ├── Summary.tsx      # Resumo financeiro
-    │   ├── MonthNav.tsx     # Navegação de meses
-    │   ├── ExportButton.tsx # Botão de exportar
-    │   ├── ErrorBoundary.tsx
-    │   ├── RuleSection.tsx  # Seção genérica com tabela
-    │   ├── inputs/          # Input, SelectWithIcon
-    │   ├── modals/          # ConfirmModal, RuleModal
-    │   └── sections/        # FixedExpenses, Installments, Revenues
-    ├── hooks/               # Hooks de cálculo/efeitos
-    │   ├── useFinanceData.ts
+    │   ├── app-shell/      # AppTabs, LoadingScreen
+    │   ├── inputs/         # Input, SelectWithIcon
+    │   ├── modals/         # ConfirmModal, RuleModal
+    │   ├── sections/       # FixedExpenses, Installments, Revenues
+    │   │   └── shared/     # Componentes compartilhados de seção
+    │   ├── summary/        # SummaryDashboard
+    │   └── MonthNav.tsx    # Navegação de meses
+    ├── hooks/               # Hooks de lógica e efeitos
     │   ├── useFinanceActions.ts
+    │   ├── useFinanceData.ts      # useFinanceSettings
     │   ├── useMonthOverridesActions.ts
     │   ├── useCharts.ts
+    │   ├── useCardDeleteReasons.ts
+    │   ├── useHashImport.ts
+    │   ├── useActiveFixedExpenses.ts
+    │   ├── useActiveRevenues.ts
+    │   ├── useMonthPaymentMap.ts
     │   └── useDebounce.ts
-    ├── lib/                 # Utilitários puros
+    ├── lib/                 # Utilitários e infraestrutura
     │   ├── utils.ts         # formatMoney, monthKey, etc
     │   ├── moneyInput.ts    # Máscara de moeda
-    │   ├── storage.ts       # Persistência IndexedDB
+    │   ├── financeRepository.ts # Interface do repositório
+    │   ├── storage.ts       # Persistência IndexedDB (Dexie)
     │   ├── schema.ts        # Schema de dados
     │   ├── ids.ts           # Geração de IDs
     │   ├── i18n.tsx         # Internacionalização
     │   ├── chartLoader.ts   # Lazy load de charts
-    │   └── chartSeries.ts   # Dados para gráficos
+    │   ├── chartSeries.ts   # Dados para gráficos
+    │   ├── exportData.ts    # Export/Import de dados
+    │   └── bankColors.ts   # Cores de bancos
     ├── selectors/           # Selectors (derive de dados)
     │   ├── buildMonth.ts      # Construção da view mensal
     │   ├── summarySelectors.ts# Dados para o resumo
@@ -152,8 +165,9 @@ Configurações e metadados.
 
 ---
 
-## 4. Constantes (domain/constants.ts)
+## 4. Constantes
 
+### domain/constants.ts (Domínio)
 ```js
 // Tipos de override
 OVERRIDE_TYPES = {
@@ -167,19 +181,28 @@ OVERRIDE_TYPES = {
 };
 
 // Métodos de pagamento permitidos
-ALLOWED_PAYMENT_METHODS = ['boleto', 'pix', 'debito', 'santander', 'nubank', 'cartao'];
+ALLOWED_PAYMENT_METHODS = ['boleto', 'pix', 'debito', 'cartao'];
 
-// Cartões de fatura
-BILL_CARDS = [
-  { key: 'santander', label: 'Santander' },
-  { key: 'nubank', label: 'Nubank' },
-];
+// Tipos
+PaymentMethod, OverrideType, BillCard, PieMode, Theme
+```
 
-// Categorias de despesa
-CATEGORIES = { debito, credito, casa, telefone, aluguel, cartao, streaming, seguro, outro };
+### ui/constants.ts (Interface)
+```js
+// Ícones
+ICONS = { boleto: '📄', pix: '⚡', outro: '💳' };
+
+// Categorias para UI
+CATEGORIES = { casa: '🏠 CASA', telefone: '📱 TELEFONE', ... };
 
 // Rótulos para gráficos
-(CATEGORY_LABELS, CARD_LABELS, CARD_ORDER);
+CATEGORY_LABELS, CARD_LABELS, CARD_NAMES
+
+// Abas
+TABS = [{ id: 'resumo', labelKey: 'tabs.resumo' }, ...];
+
+// Ações
+ACTION_ICONS = { edit: '✎', delete: '🗑' };
 ```
 
 ---
@@ -231,7 +254,10 @@ Estas regras são **bloqueantes**. Não atender qualquer item significa tarefa i
 
 - **PROIBIDO** colocar lógica de negócio em componentes de UI
 - Componentes em `components/` devem ficar focados em renderização e eventos
-- Regra de negócio deve estar em: `domain/`, `lib/`, `selectors/`
+- Regra de negócio deve estar em: `domain/` (puro), `lib/` (infra), `selectors/`
+- **Domain deve ser puro**: sem imports do React (useState, useEffect, etc.)
+- **Repository pattern**: `lib/financeRepository.ts` abstrai acesso a dados
+- **Hooks de lógica** em `hooks/` (ex: `useCardDeleteReasons`, `useActiveFixedExpenses`)
 - Se identificar lógica reutilizável repetida, extrair para módulo dedicado
 
 ### 7.2 Testes Obrigatórios

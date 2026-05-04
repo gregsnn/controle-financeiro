@@ -1,248 +1,79 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { createFinanceId } from '../lib/ids';
-import { resetFinanceDatabase } from '../lib/storage';
-import { monthKey, previousMonthKey } from '../lib/utils';
-import { OVERRIDE_TYPES } from './constants';
+import { financeRepository } from '../lib/storage';
+import {
+  addFixedExpense as addFixedExpenseReducer,
+  addInstallment as addInstallmentReducer,
+  addRevenue as addRevenueReducer,
+  changeMonth as changeMonthReducer,
+  clearMonthOverride as clearMonthOverrideReducer,
+  importState as importStateReducer,
+  removeFixedExpense as removeFixedExpenseReducer,
+  removeInstallment as removeInstallmentReducer,
+  removeRevenue as removeRevenueReducer,
+  resetDatabaseState,
+  setCardBills as setCardBillsReducer,
+  setTheme as setThemeReducer,
+  updateFixedExpense as updateFixedExpenseReducer,
+  updateInstallment as updateInstallmentReducer,
+  updateRevenue as updateRevenueReducer,
+  upsertMonthOverride as upsertMonthOverrideReducer,
+} from './stateReducers';
 import type { FinanceState, FixedExpense, Installment, OverrideType, Revenue } from './types';
+import type { UpsertOverrideParams } from './stateReducers';
 
 type SetStateFunc = Dispatch<SetStateAction<FinanceState | null>>;
 
-export function createActions(_state: FinanceState, setState: SetStateFunc, currentDate: Date) {
+function withState(
+  state: FinanceState | null,
+  reducer: (state: FinanceState) => FinanceState
+): FinanceState | null {
+  if (!state) return state;
+  return reducer(state);
+}
+
+export function createActions(_state: FinanceState, setState: SetStateFunc, _currentDate: Date) {
   return {
     changeMonth: (step: number) => {
-      const next = new Date(currentDate);
-      next.setMonth(next.getMonth() + step);
-      setState((prev) => {
-        if (!prev) return prev;
-        return { ...prev, currentDate: next };
-      });
+      setState((prev) => withState(prev, (s) => changeMonthReducer(s, step)));
     },
     resetDatabase: async () => {
-      await resetFinanceDatabase();
-      setState(null);
+      await financeRepository.reset();
+      setState(resetDatabaseState());
     },
     importFinanceState: (nextState: FinanceState) => {
-      setState(() => nextState);
+      setState((_prev) => importStateReducer(_prev, nextState));
     },
     setTheme: (theme: 'default' | 'premium') =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return { ...prev, settings: { ...prev.settings, theme } };
-      }),
+      setState((prev) => withState(prev, (s) => setThemeReducer(s, theme))),
     setCardBills: (cardBills: FinanceState['settings']['cardBills']) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return { ...prev, settings: { ...prev.settings, cardBills } };
-      }),
+      setState((prev) => withState(prev, (s) => setCardBillsReducer(s, cardBills))),
     addFixedExpense: (data: Partial<FixedExpense>) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          fixedExpenses: [
-            ...prev.fixedExpenses,
-            {
-              id: createFinanceId('fixed'),
-              active: true,
-              notes: '',
-              endMonth: null,
-              ...data,
-            } as FixedExpense,
-          ],
-        };
-      }),
+      setState((prev) => withState(prev, (s) => addFixedExpenseReducer(s, data))),
     addRevenue: (data: Partial<Revenue>) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          revenues: [
-            ...prev.revenues,
-            {
-              id: createFinanceId('rev'),
-              active: true,
-              notes: '',
-              endMonth: null,
-              ...data,
-            } as Revenue,
-          ],
-        };
-      }),
+      setState((prev) => withState(prev, (s) => addRevenueReducer(s, data))),
     addInstallment: (data: Partial<Installment>) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          installments: [
-            ...prev.installments,
-            {
-              id: createFinanceId('inst'),
-              active: true,
-              closedAt: null,
-              currentInstallment: 1,
-              ...data,
-            } as Installment,
-          ],
-        };
-      }),
+      setState((prev) => withState(prev, (s) => addInstallmentReducer(s, data))),
     updateFixedExpense: (id: string, updates: Partial<FixedExpense>) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          fixedExpenses: prev.fixedExpenses.map((item) =>
-            item.id === id ? { ...item, ...updates } : item
-          ),
-        };
-      }),
+      setState((prev) => withState(prev, (s) => updateFixedExpenseReducer(s, id, updates))),
     removeFixedExpense: (id: string) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        const closingMonth = previousMonthKey(monthKey(prev.currentDate));
-        return {
-          ...prev,
-          fixedExpenses: prev.fixedExpenses.map((item) =>
-            item.id === id
-              ? {
-                  ...item,
-                  endMonth:
-                    item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
-                }
-              : item
-          ),
-        };
-      }),
+      setState((prev) => withState(prev, (s) => removeFixedExpenseReducer(s, id))),
     updateRevenue: (id: string, updates: Partial<Revenue>) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          revenues: prev.revenues.map((item) => (item.id === id ? { ...item, ...updates } : item)),
-        };
-      }),
+      setState((prev) => withState(prev, (s) => updateRevenueReducer(s, id, updates))),
     removeRevenue: (id: string) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        const closingMonth = previousMonthKey(monthKey(prev.currentDate));
-        return {
-          ...prev,
-          revenues: prev.revenues.map((item) =>
-            item.id === id
-              ? {
-                  ...item,
-                  endMonth:
-                    item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
-                }
-              : item
-          ),
-        };
-      }),
+      setState((prev) => withState(prev, (s) => removeRevenueReducer(s, id))),
     updateInstallment: (id: string, updates: Partial<Installment>) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          installments: prev.installments.map((item) =>
-            item.id === id ? { ...item, ...updates } : item
-          ),
-        };
-      }),
+      setState((prev) => withState(prev, (s) => updateInstallmentReducer(s, id, updates))),
     removeInstallment: (id: string) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        const closingMonth = previousMonthKey(monthKey(prev.currentDate));
-        return {
-          ...prev,
-          installments: prev.installments.map((item) =>
-            item.id === id
-              ? {
-                  ...item,
-                  closedAt:
-                    item.closedAt && item.closedAt < closingMonth ? item.closedAt : closingMonth,
-                }
-              : item
-          ),
-          monthOverrides: prev.monthOverrides.filter(
-            (override) =>
-              !(override.type === OVERRIDE_TYPES.INSTALLMENT_PAYMENT && override.itemId === id)
-          ),
-        };
-      }),
-    upsertMonthOverride: ({
-      type,
-      itemId,
-      monthKey: overrideMonthKey,
-      amount,
-      name,
-      hidden,
-      paid,
-    }: {
-      type: OverrideType;
-      itemId: string;
-      monthKey: string;
-      amount?: number;
-      name?: string;
-      hidden?: boolean;
-      paid?: boolean;
-    }) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        const idx = prev.monthOverrides.findIndex(
-          (override) =>
-            override.type === type &&
-            override.itemId === itemId &&
-            override.monthKey === overrideMonthKey
-        );
-
-        const cleaned = {
-          ...(amount !== undefined ? { amount: Number(amount) } : {}),
-          ...(name !== undefined ? { name } : {}),
-          ...(hidden !== undefined ? { hidden } : {}),
-          ...(typeof paid === 'boolean' ? { paid } : {}),
-        };
-
-        if (idx === -1) {
-          return {
-            ...prev,
-            monthOverrides: [
-              ...prev.monthOverrides,
-              {
-                id: createFinanceId('ovr'),
-                type,
-                itemId,
-                monthKey: overrideMonthKey,
-                ...cleaned,
-              },
-            ],
-          };
-        }
-
-        const nextOverrides = [...prev.monthOverrides];
-        nextOverrides[idx] = { ...nextOverrides[idx], ...cleaned };
-        return { ...prev, monthOverrides: nextOverrides };
-      }),
-    clearMonthOverride: ({
-      type,
-      itemId,
-      monthKey: overrideMonthKey,
-    }: {
-      type: OverrideType;
-      itemId: string;
-      monthKey: string;
-    }) =>
-      setState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          monthOverrides: prev.monthOverrides.filter(
-            (override) =>
-              !(
-                override.type === type &&
-                override.itemId === itemId &&
-                override.monthKey === overrideMonthKey
-              )
-          ),
-        };
-      }),
+      setState((prev) => withState(prev, (s) => removeInstallmentReducer(s, id))),
+    upsertMonthOverride: (params: UpsertOverrideParams) =>
+      setState((prev) =>
+        withState(prev, (s) =>
+          upsertMonthOverrideReducer(s, params)
+        )
+      ),
+    clearMonthOverride: (params: { type: OverrideType; itemId: string; monthKey: string }) =>
+      setState((prev) =>
+        withState(prev, (s) => clearMonthOverrideReducer(s, params))
+      ),
   };
 }

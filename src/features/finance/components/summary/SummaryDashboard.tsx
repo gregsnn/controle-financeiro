@@ -73,7 +73,7 @@ export function SummaryDashboard({
         cardBills={monthCardBills}
         monthOverrides={monthOverrides}
         currentMonthKey={currentMonthKey}
-        onToggleBillPaid={(card, paid) =>
+        onToggleBillPaid={(card: string, paid: boolean) =>
           onToggleMonthPaid(OVERRIDE_TYPES.CARD_BILL_PAYMENT, card, paid)
         }
         cardList={cardList}

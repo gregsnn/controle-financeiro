@@ -1,4 +1,4 @@
-import { CARD_ICONS, CATEGORIES, ICONS } from '../../../domain/constants';
+import { CARD_ICONS, CATEGORIES, ICONS } from '../../../ui/constants';
 import type { FixedExpense } from '../../../domain/types';
 import { formatStartMonth } from '../../../lib/utils';
 import { RowActions } from '../shared/RowActions';
@@ -18,7 +18,15 @@ function resolvePaymentMethod(item: FixedExpense) {
   return item.paymentMethod || 'boleto';
 }
 
-export function FixedExpenseRow({ item, money, isPaid, onTogglePaid, onEdit, onDelete, cardIconMap }: FixedExpenseRowProps) {
+export function FixedExpenseRow({
+  item,
+  money,
+  isPaid,
+  onTogglePaid,
+  onEdit,
+  onDelete,
+  cardIconMap,
+}: FixedExpenseRowProps) {
   return (
     <tr>
       <td>{item.name}</td>
@@ -28,7 +36,12 @@ export function FixedExpenseRow({ item, money, isPaid, onTogglePaid, onEdit, onD
           const methodOrCard = resolvePaymentMethod(item);
           if (item.paymentMethod === 'cartao' && item.card) {
             // Prefer dynamic card icon map, then CARD_ICONS, then ICONS
-            return (cardIconMap && cardIconMap[item.card]) || CARD_ICONS[item.card as keyof typeof CARD_ICONS] || ICONS[item.card] || '💳';
+            return (
+              (cardIconMap && cardIconMap[item.card]) ||
+              CARD_ICONS[item.card as keyof typeof CARD_ICONS] ||
+              ICONS[item.card] ||
+              '💳'
+            );
           }
           return ICONS[methodOrCard] || '💳';
         })()}

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildFinanceStateFromBackup, type ExportData } from '../../../lib/exportData';
+import { buildFinanceStateFromBackup, type ExportData } from '../lib/exportData';
 import { DEFAULT_CARD_BILLS, emptyFinanceState, financeSchemaVersion } from '../lib/schema';
 import * as storageModule from '../lib/storage';
 
@@ -399,7 +399,7 @@ describe('exportData.ts - exportAllData', () => {
 
     vi.spyOn(storageModule, 'loadFinanceState').mockResolvedValue(mockState);
 
-    const { exportAllData } = await import('../../../lib/exportData');
+    const { exportAllData } = await import('../lib/exportData');
     const exported = (await exportAllData()) as ExportData;
 
     expect(exported.version).toBe(2);
@@ -427,7 +427,7 @@ describe('exportData.ts - exportAllData', () => {
 
     vi.spyOn(storageModule, 'loadFinanceState').mockResolvedValue(emptyState);
 
-    const { exportAllData } = await import('../../../lib/exportData');
+    const { exportAllData } = await import('../lib/exportData');
     const exported = (await exportAllData()) as ExportData;
 
     expect(exported.version).toBe(2);
@@ -442,7 +442,7 @@ describe('exportData.ts - exportAllData', () => {
     vi.spyOn(storageModule, 'loadFinanceState').mockResolvedValue(mockState);
 
     const beforeExport = new Date();
-    const { exportAllData } = await import('../../../lib/exportData');
+    const { exportAllData } = await import('../lib/exportData');
     const exported = (await exportAllData()) as ExportData;
     const afterExport = new Date();
 
@@ -549,7 +549,7 @@ describe('exportData.ts - Data integrity round-trip', () => {
 
 describe('exportData.ts - encodeStateToHash and decodeHashToState', () => {
   it('should encode and decode state correctly (round-trip)', async () => {
-    const { encodeStateToHash, decodeHashToState } = await import('../../../lib/exportData');
+    const { encodeStateToHash, decodeHashToState } = await import('../lib/exportData');
 
     const testData = {
       version: 2,
@@ -589,7 +589,7 @@ describe('exportData.ts - encodeStateToHash and decodeHashToState', () => {
   });
 
   it('should handle special characters in JSON', async () => {
-    const { encodeStateToHash, decodeHashToState } = await import('../../../lib/exportData');
+    const { encodeStateToHash, decodeHashToState } = await import('../lib/exportData');
 
     const testData = {
       version: 2,
@@ -621,7 +621,7 @@ describe('exportData.ts - encodeStateToHash and decodeHashToState', () => {
   });
 
   it('should return null for invalid hash', async () => {
-    const { decodeHashToState } = await import('../../../lib/exportData');
+    const { decodeHashToState } = await import('../lib/exportData');
 
     expect(decodeHashToState('invalid_hash')).toBeNull();
     expect(decodeHashToState('')).toBeNull();
@@ -631,7 +631,7 @@ describe('exportData.ts - encodeStateToHash and decodeHashToState', () => {
 
 describe('exportData.ts - generateExportLink', () => {
   it('should generate a valid link with import hash', async () => {
-    const { generateExportLink } = await import('../../../lib/exportData');
+    const { generateExportLink } = await import('../lib/exportData');
 
     const link = await generateExportLink();
     expect(link).toBeTruthy();

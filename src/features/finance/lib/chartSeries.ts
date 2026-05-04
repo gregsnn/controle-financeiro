@@ -1,4 +1,4 @@
-import { CARD_LABELS, CATEGORY_LABELS } from '../domain/constants.js';
+import { CARD_LABELS, CATEGORY_LABELS } from '../ui/constants.js';
 import type { MonthView, MonthViewFixedExpense } from '../domain/types.js';
 import { getExpenseCard } from '../selectors/summarySelectors.js';
 import { formatMoney } from './utils.js';

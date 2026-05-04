@@ -1,18 +1,23 @@
-import { generateExportLink } from '../../../lib/exportData';
+import { generateExportLink } from '../lib/exportData';
 
 export function ExportButton() {
   const handleExport = async () => {
     try {
       const link = await generateExportLink();
       console.log('Link gerado (primeiros 100 chars):', link.substring(0, 100) + '...');
-      const copiado = await navigator.clipboard.writeText(link).then(() => true).catch(() => false);
+      const copiado = await navigator.clipboard
+        .writeText(link)
+        .then(() => true)
+        .catch(() => false);
       if (copiado) {
         alert('Link copiado! Cole em outro navegador/guia para importar.');
       } else {
         prompt('Copie o link abaixo:', link);
       }
       // Abre em nova aba para teste automático
-      const testar = window.confirm('Deseja abrir o link em uma nova aba para testar a importação?');
+      const testar = window.confirm(
+        'Deseja abrir o link em uma nova aba para testar a importação?'
+      );
       if (testar) {
         window.open(link, '_blank');
       }

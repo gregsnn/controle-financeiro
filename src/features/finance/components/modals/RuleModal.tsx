@@ -9,7 +9,14 @@ interface RuleModalProps {
   children: ReactNode;
 }
 
-export function RuleModal({ open, title, onClose, onSubmit, submitLabel, children }: RuleModalProps) {
+export function RuleModal({
+  open,
+  title,
+  onClose,
+  onSubmit,
+  submitLabel,
+  children,
+}: RuleModalProps) {
   if (!open) return null;
 
   return (

@@ -25,15 +25,13 @@ export function useMonthOverridesActions({
   upsertMonthOverride,
   clearMonthOverride,
 }: UseMonthOverridesActionsParams) {
-  const monthCardBills = useMemo(
-    () => getMonthCardBills(monthOverrides, currentKey),
-    [currentKey, monthOverrides]
-  );
-
-  const monthRevenueAmounts = useMemo(
-    () => getMonthRevenueAmounts(monthOverrides, currentKey),
-    [currentKey, monthOverrides]
-  );
+  // Combine related computations into single useMemo to avoid multiple iterations
+  const { monthCardBills, monthRevenueAmounts } = useMemo(() => {
+    return {
+      monthCardBills: getMonthCardBills(monthOverrides, currentKey),
+      monthRevenueAmounts: getMonthRevenueAmounts(monthOverrides, currentKey),
+    };
+  }, [currentKey, monthOverrides]);
 
   const overrideMutations = useMemo(
     () => createOverrideMutations(currentKey, { upsertMonthOverride, clearMonthOverride }),

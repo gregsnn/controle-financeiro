@@ -16,14 +16,18 @@ export function RevenueForm({ form, setForm }: RevenueFormProps) {
         <Input
           label="Nome"
           value={form.name}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, name: e.target.value }))
+          }
           placeholder="Salário, extra, bônus..."
         />
         <Input
           label="Valor"
           type="text"
           value={form.amount}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))
+          }
           inputMode="numeric"
           autoComplete="off"
           placeholder="0,00"
@@ -33,7 +37,9 @@ export function RevenueForm({ form, setForm }: RevenueFormProps) {
         label="Mês de início"
         type="month"
         value={form.startMonth}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, startMonth: e.target.value }))}
+        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          setForm((prev) => ({ ...prev, startMonth: e.target.value }))
+        }
         placeholder=""
       />
     </>

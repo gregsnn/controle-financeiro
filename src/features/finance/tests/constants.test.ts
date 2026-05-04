@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { ALLOWED_BILL_CARDS, ALLOWED_PAYMENT_METHODS, OVERRIDE_TYPES } from '../domain/constants';
 import {
-  ALLOWED_BILL_CARDS,
-  ALLOWED_PAYMENT_METHODS,
   BILL_CARDS,
   BILL_CARD_KEYS,
   CARD_ICONS,
@@ -10,9 +9,8 @@ import {
   CATEGORIES,
   CATEGORY_LABELS,
   ICONS,
-  OVERRIDE_TYPES,
   TABS,
-} from '../domain/constants';
+} from '../ui/constants';
 
 describe('constants.ts', () => {
   describe('OVERRIDE_TYPES', () => {

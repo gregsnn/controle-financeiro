@@ -5,7 +5,7 @@ import { createRevenueEditForm, createRevenueEmptyForm } from './revenueFormHelp
 
 interface UseRevenueCrudStateParams {
   currentMonthKey: string;
-  onDelete: (item: Revenue) => Promise<void> | void;
+  onDelete: (id: string) => Promise<void> | void;
 }
 
 export function useRevenueCrudState({ currentMonthKey, onDelete }: UseRevenueCrudStateParams) {
@@ -29,7 +29,7 @@ export function useRevenueCrudState({ currentMonthKey, onDelete }: UseRevenueCru
   };
 
   const handleDelete = async (item: Revenue) => {
-    await onDelete(item);
+    await onDelete(item.id);
   };
 
   return {

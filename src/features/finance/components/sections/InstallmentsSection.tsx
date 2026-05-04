@@ -11,7 +11,7 @@ import { useInstallmentCrudState } from './installments/useInstallmentCrudState'
 import type { CrudSectionCommonProps, MonthPaidSectionProps } from './shared/types';
 import { useCrudFormFlow } from './shared/useCrudFormFlow';
 import { useCrudModalState } from './shared/useCrudModalState';
-import { useMonthPaymentMap } from './shared/useMonthPaymentMap';
+import { useMonthPaymentMap } from '../../hooks/useMonthPaymentMap';
 
 type InstallmentItem = {
   id: string;
@@ -46,7 +46,7 @@ export function InstallmentsSection({
   onTogglePaid,
   cardList,
 }: InstallmentsSectionProps) {
-  const cards = cardList ?? [];
+  const cards = useMemo(() => cardList ?? [], [cardList]);
   const cardIconMap = useMemo(() => {
     const map: Record<string, string> = {};
     cards.forEach((card) => {
@@ -57,10 +57,11 @@ export function InstallmentsSection({
     return map;
   }, [cards]);
 
-  const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } = useInstallmentCrudState({
-    defaultCardId: cards[0]?.id || '',
-    onDelete,
-  });
+  const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } =
+    useInstallmentCrudState({
+      defaultCardId: cards[0]?.id || '',
+      onDelete,
+    });
 
   const {
     modal,
@@ -106,8 +107,8 @@ export function InstallmentsSection({
         items={items}
         sortBy="value-desc"
         emptyText={INSTALLMENT_LABELS.emptyText}
-        columns={INSTALLMENT_LABELS.columns}
-        renderItem={(item: InstallmentItem, money: (value: number) => string) => (
+        columns={INSTALLMENT_LABELS.columns as unknown as string[]}
+        renderItem={(item: any, money: (value: number) => string) => (
           <InstallmentRow
             key={item.id}
             item={item}
@@ -137,10 +138,18 @@ export function InstallmentsSection({
 
       <RuleModal
         open={modal.open}
-        title={modal.mode === 'edit' ? INSTALLMENT_LABELS.modal.edit.title : INSTALLMENT_LABELS.modal.create.title}
+        title={
+          modal.mode === 'edit'
+            ? INSTALLMENT_LABELS.modal.edit.title
+            : INSTALLMENT_LABELS.modal.create.title
+        }
         onClose={closeModal}
         onSubmit={handleSubmit}
-        submitLabel={modal.mode === 'edit' ? INSTALLMENT_LABELS.modal.edit.submitLabel : INSTALLMENT_LABELS.modal.create.submitLabel}
+        submitLabel={
+          modal.mode === 'edit'
+            ? INSTALLMENT_LABELS.modal.edit.submitLabel
+            : INSTALLMENT_LABELS.modal.create.submitLabel
+        }
       >
         <InstallmentForm form={form} setForm={setForm} cards={cards} />
       </RuleModal>
