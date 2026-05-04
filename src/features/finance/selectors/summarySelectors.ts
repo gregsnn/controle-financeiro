@@ -1,4 +1,4 @@
-import { OVERRIDE_TYPES, type BillCard } from '../domain/constants.js';
+import { ALLOWED_PAYMENT_METHODS, OVERRIDE_TYPES, type BillCard } from '../domain/constants.js';
 import type { MonthOverride, MonthView, MonthViewFixedExpense, Revenue } from '../domain/types.js';
 
 interface CardBills {
@@ -14,10 +14,16 @@ export function readCardBill(cardBills: CardBills | null | undefined, card: stri
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function getExpenseCard(item: { paymentMethod?: string; card?: string }): BillCard | null {
-  if (item.paymentMethod === 'santander' || item.paymentMethod === 'nubank')
-    return item.paymentMethod as BillCard;
+export function getExpenseCard(item: {
+  paymentMethod?: string;
+  card?: string | null;
+}): BillCard | null {
+  // support legacy and direct card paymentMethod values — treat unknown paymentMethod strings as dynamic card ids
+  if (!item.paymentMethod) return null;
   if (item.paymentMethod === 'cartao') return (item.card || 'outro') as BillCard;
+  if (!(ALLOWED_PAYMENT_METHODS as readonly string[]).includes(item.paymentMethod)) {
+    return item.paymentMethod as BillCard;
+  }
   return null;
 }
 
@@ -104,9 +110,12 @@ export function buildSummaryData(
     .filter((item) => !getExpenseCard(item as MonthViewFixedExpense) && item.paid === true)
     .reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
+  // Include all cards: those with fixed/installments AND those with bills
+  const billKeys = Object.keys(cardBills || {}).filter(Boolean) as string[];
   const cardKeys = new Set<BillCard>([
     ...(Object.keys(fixedExpensesByCard) as BillCard[]),
     ...(Object.keys(installmentsByCard) as BillCard[]),
+    ...billKeys,
   ]);
 
   let cardGrossExpenses = 0;
@@ -137,12 +146,13 @@ export function buildSummaryData(
   const saldoPrevisto = totals.receitas - despesasBrutas;
   const hasNegativeBalance = saldoPrevisto < 0;
 
-  // build dynamic list of cards to summarize: include cards with data, cards with bills, and all from cardList
-  const billKeys = Object.keys(cardBills || {}).filter(Boolean);
+  // build dynamic list of cards to summarize: respect order from cardList (settings.cardBills),
+  // then append any cards with data that weren't in the list
   const keysFromList = (cardList || []).map((c: any) => c.key ?? c.id).filter(Boolean) as string[];
-  const combinedKeys = Array.from(
-    new Set([...Array.from(cardKeys), ...billKeys, ...keysFromList])
-  ).filter(Boolean);
+  const keysWithDataNotInList = Array.from(cardKeys)
+    .concat(billKeys)
+    .filter((k) => !keysFromList.includes(k as string));
+  const combinedKeys = [...keysFromList, ...keysWithDataNotInList].filter(Boolean);
 
   const billCardsSummary = combinedKeys.map((key) => {
     const bill = readCardBill(cardBills, key);
@@ -151,8 +161,8 @@ export function buildSummaryData(
     const abatimento = fixedOnCard + installmentsOnCard;
     const restanteFatura = bill > 0 ? Math.max(0, bill - abatimento) : 0;
     const paid = billPaymentMap[key] === true;
-    const found = (cardList || []).find((c: any) => (c.key ?? c.id) === key);
-    const label = (found && (found.label ?? found.name)) || key;
+    const found = (cardList || []).find((c) => c.key === key);
+    const label = (found && found.label) || key;
 
     return { key, label, bill, fixedOnCard, abatimento, restanteFatura, paid };
   });

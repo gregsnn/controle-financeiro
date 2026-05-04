@@ -1,14 +1,14 @@
 import Dexie, { type Table } from 'dexie';
-import { emptyFinanceState, financeSchemaVersion } from './schema.js';
-import { monthKey } from './utils.js';
 import type {
   FixedExpense,
   Installment,
-  Revenue,
-  MonthOverride,
-  Settings,
   Meta,
+  MonthOverride,
+  Revenue,
+  Settings,
 } from '../domain/types.js';
+import { emptyFinanceState, financeSchemaVersion } from './schema.js';
+import { monthKey } from './utils.js';
 
 interface SettingsRow {
   key: string;
@@ -39,9 +39,8 @@ class FinanceDatabase extends Dexie {
       meta: 'key',
     });
 
-    this.version(2).upgrade(() => {
-      return this.table('importedTransactions').clear();
-    });
+    // Version 2: Removed - legacy importedTransactions table cleanup
+    // No longer needed as importedTransactions table was deprecated
 
     this.version(3).stores({
       fixedExpenses: 'id,active,startMonth,endMonth',
@@ -104,36 +103,61 @@ export async function loadFinanceState() {
 export async function saveFinanceState(state: ReturnType<typeof emptyFinanceState> | null) {
   const payload = state || emptyFinanceState();
   const currentMonthKey = monthKey(payload.currentDate || new Date());
-
+  // Perform incremental writes: update/insert new items and remove deleted ones
   await db.transaction(
     'rw',
     [db.fixedExpenses, db.installments, db.revenues, db.monthOverrides, db.settings, db.meta],
     async () => {
-      await db.fixedExpenses.clear();
-      await db.installments.clear();
-      await db.revenues.clear();
-      await db.monthOverrides.clear();
-      await db.settings.clear();
-      await db.meta.clear();
+      // Helper to sync a table by id
+      async function syncTable<T extends { id: string }>(
+        table: Table<T, string>,
+        items: T[] | undefined
+      ) {
+        const desired = items || [];
+        const existing = await table.toArray();
+        const desiredMap = new Map(desired.map((it) => [it.id, it]));
+        const existingIds = existing.map((e) => e.id);
 
-      if (payload.fixedExpenses?.length) await db.fixedExpenses.bulkPut(payload.fixedExpenses);
-      if (payload.installments?.length) await db.installments.bulkPut(payload.installments);
-      if (payload.revenues?.length) await db.revenues.bulkPut(payload.revenues);
-      if (payload.monthOverrides?.length) await db.monthOverrides.bulkPut(payload.monthOverrides);
+        // Upsert desired items
+        if (desired.length > 0) await table.bulkPut(desired as T[]);
 
+        // Delete items that exist but are not desired
+        const toDelete = existingIds.filter((id) => !desiredMap.has(id));
+        if (toDelete.length) await table.bulkDelete(toDelete as string[]);
+      }
+
+      await syncTable(db.fixedExpenses, payload.fixedExpenses);
+      await syncTable(db.installments, payload.installments);
+      await syncTable(db.revenues, payload.revenues);
+      await syncTable(db.monthOverrides, payload.monthOverrides);
+
+      // Sync settings and meta as key/value pairs
       const settingsEntries = Object.entries(payload.settings || {}).map(([key, value]) => ({
         key,
         value,
       }));
       const mergedSettings = settingsEntries.filter((entry) => entry.key !== 'currentMonthKey');
       mergedSettings.push({ key: 'currentMonthKey', value: currentMonthKey });
+
       const metaEntries = Object.entries({
         ...payload.meta,
         schemaVersion: financeSchemaVersion,
       }).map(([key, value]) => ({ key, value }));
 
-      if (mergedSettings.length) await db.settings.bulkPut(mergedSettings);
-      if (metaEntries.length) await db.meta.bulkPut(metaEntries);
+      if (mergedSettings.length) await db.settings.bulkPut(mergedSettings as unknown as any[]);
+      // remove settings keys that are not present
+      const existingSettings = await db.settings.toArray();
+      const settingsToDelete = existingSettings
+        .map((s) => s.key)
+        .filter((k) => !mergedSettings.some((e) => e.key === k));
+      if (settingsToDelete.length) await db.settings.bulkDelete(settingsToDelete as string[]);
+
+      if (metaEntries.length) await db.meta.bulkPut(metaEntries as unknown as any[]);
+      const existingMeta = await db.meta.toArray();
+      const metaToDelete = existingMeta
+        .map((m) => m.key)
+        .filter((k) => !metaEntries.some((e) => e.key === k));
+      if (metaToDelete.length) await db.meta.bulkDelete(metaToDelete as string[]);
     }
   );
 }

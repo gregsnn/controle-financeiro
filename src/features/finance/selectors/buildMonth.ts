@@ -1,12 +1,12 @@
 import { OVERRIDE_TYPES } from '../domain/constants.js';
-import { isMonthInRange, monthKey } from '../lib/utils.js';
 import type {
   FinanceState,
-  MonthView,
   MonthOverride,
+  MonthView,
   MonthViewFixedExpense,
   MonthViewInstallment,
 } from '../domain/types.js';
+import { isMonthInRange, monthKey } from '../lib/utils.js';
 
 interface OverrideWithHidden extends MonthOverride {
   hidden?: boolean;
@@ -68,68 +68,70 @@ export function buildMonthView(state: FinanceState, monthDate: Date | null = nul
       }
     });
 
-  const fixedExpenses = state.fixedExpenses
+  const fixedExpenses: MonthViewFixedExpense[] = [];
+  let despesasFixasTotal = 0;
+  let despesasFixasPagasTotal = 0;
+
+  state.fixedExpenses
     .filter((item) => item.active !== false)
     .filter((item) => isMonthInRange(currentMonthKey, item.startMonth, item.endMonth))
-    .map((item) =>
-      applyOverride(
+    .forEach((item) => {
+      const overridden = applyOverride(
         item,
         overridesMap[OVERRIDE_TYPES.FIXED_EXPENSE]?.get(item.id) as OverrideWithHidden | undefined
-      )
-    )
-    .map(
-      (item): MonthViewFixedExpense => ({
-        ...item,
-        paid: overridesMap[OVERRIDE_TYPES.FIXED_EXPENSE_PAYMENT]?.get(item.id)?.paid === true,
-      })
-    )
-    .filter((item) => (item as MonthViewFixedExpense & { hidden?: boolean }).hidden !== true);
-
-  const revenues = state.revenues
-    .filter((item) => item.active !== false)
-    .filter((item) => isMonthInRange(currentMonthKey, item.startMonth, item.endMonth))
-    .map((item) => {
-      const revenueAmount = monthRevenueAmounts?.[item.id];
-      if (revenueAmount !== undefined) {
-        return { ...item, amount: revenueAmount };
+      ) as MonthViewFixedExpense;
+      const paid = overridesMap[OVERRIDE_TYPES.FIXED_EXPENSE_PAYMENT]?.get(item.id)?.paid === true;
+      const finalItem: MonthViewFixedExpense = { ...overridden, paid };
+      if (!(finalItem as MonthViewFixedExpense & { hidden?: boolean }).hidden) {
+        fixedExpenses.push(finalItem);
+        despesasFixasTotal += Number(finalItem.amount || 0);
+        despesasFixasPagasTotal += finalItem.paid ? Number(finalItem.amount || 0) : 0;
       }
-      return { ...item, amount: item.baseAmount };
     });
 
-  const installments = state.installments
+  const revenues: typeof state.revenues = [];
+  let receitasTotal = 0;
+  state.revenues
+    .filter((item) => item.active !== false)
+    .filter((item) => isMonthInRange(currentMonthKey, item.startMonth, item.endMonth))
+    .forEach((item) => {
+      const revenueAmount = monthRevenueAmounts?.[item.id];
+      const final = {
+        ...item,
+        amount: revenueAmount !== undefined ? revenueAmount : item.baseAmount,
+      };
+      revenues.push(final);
+      receitasTotal += Number(final.amount || 0);
+    });
+
+  const installments: MonthViewInstallment[] = [];
+  let parcelasTotal = 0;
+  let parcelasPagasTotal = 0;
+  state.installments
     .filter((item) => item.active !== false)
     .filter((item) => isMonthInRange(currentMonthKey, item.startMonth, item.closedAt))
     .filter((item) => currentMonthKey >= item.startMonth)
-    .map((item): MonthViewInstallment => {
+    .forEach((item) => {
       const calculatedInstallment = calculateCurrentInstallment(
         item.startMonth,
         item.currentInstallment || 1,
         currentMonthKey
       );
-      return {
+      const finalItem: MonthViewInstallment = {
         ...item,
         currentInstallment: calculatedInstallment,
         totalInstallments: Number(item.totalInstallments || 1),
         installmentValue: Number(item.installmentValue || 0),
         paid: overridesMap[OVERRIDE_TYPES.INSTALLMENT_PAYMENT]?.get(item.id)?.paid === true,
       };
-    })
-    .filter((item) => item.currentInstallment <= item.totalInstallments);
+      if (finalItem.currentInstallment <= finalItem.totalInstallments) {
+        installments.push(finalItem);
+        parcelasTotal += Number(finalItem.installmentValue || 0);
+        parcelasPagasTotal += finalItem.paid ? Number(finalItem.installmentValue || 0) : 0;
+      }
+    });
 
-  const receitasTotal = revenues.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const despesasFixasTotal = fixedExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const parcelasTotal = installments.reduce(
-    (sum, item) => sum + Number(item.installmentValue || 0),
-    0
-  );
-  const despesasFixasPagasTotal = fixedExpenses.reduce(
-    (sum, item) => sum + (item.paid ? Number(item.amount || 0) : 0),
-    0
-  );
-  const parcelasPagasTotal = installments.reduce(
-    (sum, item) => sum + (item.paid ? Number(item.installmentValue || 0) : 0),
-    0
-  );
+  // totals computed during population loops above
 
   const totals = {
     receitas: receitasTotal,

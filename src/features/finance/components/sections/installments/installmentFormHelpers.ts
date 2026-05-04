@@ -27,7 +27,7 @@ export function createInstallmentEditForm(item: InstallmentItemLike): Installmen
     installmentValue: formatMoneyInput(item.installmentValue),
     totalInstallments: String(item.totalInstallments || ''),
     startMonth: item.startMonth || '',
-    card: item.card || 'santander',
+    card: item.card || '',
   };
 }
 

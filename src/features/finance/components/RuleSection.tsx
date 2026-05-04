@@ -1,5 +1,20 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { formatMoney } from '../lib/utils';
+
+interface RuleSectionProps {
+  title: string;
+  description: string;
+  items: Array<{ name: string; amount?: number; installmentValue?: number }>;
+  renderItem: (
+    item: { name: string; amount?: number; installmentValue?: number },
+    money: (value: number) => string
+  ) => ReactNode;
+  emptyText: string;
+  columns?: string[];
+  addLabel?: string;
+  onAddClick: () => void;
+  sortBy?: 'name' | 'value-asc' | 'value-desc';
+}
 
 export default function RuleSection({
   title,
@@ -11,7 +26,7 @@ export default function RuleSection({
   addLabel = '+ Adicionar',
   onAddClick,
   sortBy = 'name',
-}) {
+}: RuleSectionProps) {
   const [sort, setSort] = useState(sortBy);
 
   const sortedItems = [...items].sort((a, b) => {
@@ -44,7 +59,7 @@ export default function RuleSection({
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <select value={sort} onChange={(e) => setSort(e.target.value)} className="sort-select">
+          <select value={sort} onChange={(e) => setSort(e.target.value as 'name' | 'value-asc' | 'value-desc')} className="sort-select">
             <option value="name">Nome A-Z</option>
             <option value="value-asc">Menor valor</option>
             <option value="value-desc">Maior valor</option>
