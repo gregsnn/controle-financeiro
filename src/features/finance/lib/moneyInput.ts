@@ -1,7 +1,4 @@
-const moneyInputFormatter = new Intl.NumberFormat('pt-BR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+import { moneyInputFormatter } from './currency';
 
 interface FormatOptions {
   hideNonPositive?: boolean;

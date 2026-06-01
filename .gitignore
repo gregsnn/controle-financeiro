@@ -1,9 +1,8 @@
 node_modules/
+package-lock.json
 dist/
 *.log
-ARCHITECTURE.md
 CHANGELOG.md
-package-lock.json
 
 
 # Local environment secrets

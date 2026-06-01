@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import type { PieMode } from '../domain/constants.js';
 import type { MonthView } from '../domain/types.js';
 import { loadChartModule } from '../lib/chartLoader.js';
 import { buildInstallmentBarConfig } from '../lib/charts/installmentBarConfig.js';
 import { buildPieChartConfig } from '../lib/charts/pieConfig.js';
-
-type PieMode = 'categories' | 'cards' | 'cardsStatus';
 
 interface ChartModule {
   default?: new (canvas: HTMLCanvasElement, config: unknown) => unknown;
@@ -26,6 +25,62 @@ async function createChartOnCanvas(
   return new (Chart as new (node: HTMLCanvasElement, cfg: unknown) => unknown)(canvas, config);
 }
 
+export function buildPieChartDataKey(monthView: MonthView, pieMode: PieMode): string {
+  if (pieMode === 'categories') {
+    return JSON.stringify(
+      monthView.fixedExpenses.map((item) => ({
+        id: item.id,
+        category: item.category,
+        amount: Number(item.amount || 0),
+      }))
+    );
+  }
+
+  if (pieMode === 'cards') {
+    return JSON.stringify({
+      fixedExpenses: monthView.fixedExpenses.map((item) => ({
+        id: item.id,
+        amount: Number(item.amount || 0),
+        card: item.card || null,
+        paymentMethod: item.paymentMethod,
+      })),
+      installments: monthView.installments.map((item) => ({
+        id: item.id,
+        amount: Number(item.installmentValue || 0),
+        card: item.card || null,
+      })),
+    });
+  }
+
+  return JSON.stringify({
+    fixedExpenses: monthView.fixedExpenses.map((item) => ({
+      id: item.id,
+      amount: Number(item.amount || 0),
+      card: item.card || null,
+      paid: item.paid === true,
+      paymentMethod: item.paymentMethod,
+    })),
+    installments: monthView.installments.map((item) => ({
+      id: item.id,
+      amount: Number(item.installmentValue || 0),
+      card: item.card || null,
+      paid: item.paid === true,
+    })),
+  });
+}
+
+export function buildInstallmentChartDataKey(monthView: MonthView): string {
+  return JSON.stringify(
+    monthView.installments.map((item) => ({
+      id: item.id,
+      name: item.name,
+      installmentValue: Number(item.installmentValue || 0),
+      currentInstallment: Number(item.currentInstallment || 0),
+      totalInstallments: Number(item.totalInstallments || 0),
+    }))
+  );
+}
+
 export function useCharts(
   monthView: MonthView,
   pieMode: PieMode = 'categories',
@@ -35,7 +90,12 @@ export function useCharts(
   const barChartRef = useRef<HTMLCanvasElement>(null);
   const pieInstanceRef = useRef<unknown>(null);
   const barInstanceRef = useRef<unknown>(null);
+  const latestMonthViewRef = useRef(monthView);
   const [chartsReady, setChartsReady] = useState(true);
+  const pieDataKey = useMemo(() => buildPieChartDataKey(monthView, pieMode), [monthView, pieMode]);
+  const barDataKey = useMemo(() => buildInstallmentChartDataKey(monthView), [monthView]);
+
+  latestMonthViewRef.current = monthView;
 
   // Pie chart effect - updates when pie mode or month data changes
   useEffect(() => {
@@ -45,7 +105,7 @@ export function useCharts(
     async function initPieChart() {
       try {
         if (cancelled || activeTab !== 'resumo') return;
-        const config = buildPieChartConfig(monthView, pieMode);
+        const config = buildPieChartConfig(latestMonthViewRef.current, pieMode);
         pieInstanceRef.current = await createChartOnCanvas(pieChartRef.current, config);
       } catch (e) {
         console.error('Pie chart error:', e);
@@ -61,7 +121,7 @@ export function useCharts(
       cancelled = true;
       destroyChart(pieInstanceRef);
     };
-  }, [monthView, pieMode, activeTab]);
+  }, [pieDataKey, pieMode, activeTab]);
 
   // Bar chart effect - independent from pie chart, updates only when month data changes
   useEffect(() => {
@@ -71,7 +131,7 @@ export function useCharts(
     async function initBarChart() {
       try {
         if (cancelled || activeTab !== 'resumo') return;
-        const config = buildInstallmentBarConfig(monthView);
+        const config = buildInstallmentBarConfig(latestMonthViewRef.current);
         barInstanceRef.current = await createChartOnCanvas(barChartRef.current, config);
       } catch (e) {
         console.error('Bar chart error:', e);
@@ -86,6 +146,6 @@ export function useCharts(
       cancelled = true;
       destroyChart(barInstanceRef);
     };
-  }, [monthView, activeTab]);
+  }, [barDataKey, activeTab]);
   return { pieChartRef, barChartRef, chartsReady };
 }

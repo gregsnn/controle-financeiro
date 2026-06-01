@@ -4,6 +4,8 @@
 @import './styles/core/page.css';
 @import './styles/core/app.css';
 
+@import './styles/shared/controls.css';
+
 @import './styles/navigation/month-nav.css';
 
 @import './styles/sections/metrics.css';
@@ -11,6 +13,7 @@
 @import './styles/sections/card-shell.css';
 @import './styles/sections/alerts.css';
 @import './styles/sections/saldo.css';
+@import './styles/sections/quick-capture.css';
 
 @import './styles/data/table.css';
 @import './styles/data/progress.css';

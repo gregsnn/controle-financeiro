@@ -1,18 +1,35 @@
 body {
   background-color: var(--color-background-canvas);
-  background-image: radial-gradient(1200px 420px at 50% -220px, var(--color-background-glow) 0%, rgba(0, 0, 0, 0) 72%);
+  background-image: none;
   color: var(--color-text-primary);
-  padding: 16px;
+  padding: 0;
   font-family: var(--font-sans);
 }
 
-.app {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 16px 0 40px;
+body[data-theme='premium'] {
+  background-image: radial-gradient(
+    900px 320px at 50% -180px,
+    var(--color-background-glow) 0%,
+    transparent 76%
+  );
 }
 
-.neg { color: var(--color-semantic-danger); }
-.pos { color: var(--color-semantic-success); }
-.warn { color: var(--color-semantic-warning); }
-.neu { color: var(--color-text-primary); }
+.app {
+  --app-max-width: 1400px;
+  max-width: none;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.neg {
+  color: var(--color-semantic-danger);
+}
+.pos {
+  color: var(--color-semantic-success);
+}
+.warn {
+  color: var(--color-semantic-warning);
+}
+.neu {
+  color: var(--color-text-primary);
+}

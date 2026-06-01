@@ -3,12 +3,10 @@ import { ALLOWED_BILL_CARDS, ALLOWED_PAYMENT_METHODS, OVERRIDE_TYPES } from '../
 import {
   BILL_CARDS,
   BILL_CARD_KEYS,
-  CARD_ICONS,
   CARD_LABELS,
   CARD_ORDER,
   CATEGORIES,
   CATEGORY_LABELS,
-  ICONS,
   TABS,
 } from '../ui/constants';
 
@@ -80,20 +78,6 @@ describe('constants.ts', () => {
     });
   });
 
-  describe('ICONS', () => {
-    it('has icons for payment methods', () => {
-      expect(ICONS.boleto).toBeDefined();
-      expect(ICONS.pix).toBeDefined();
-      expect(ICONS.outro).toBeDefined();
-    });
-  });
-
-  describe('CARD_ICONS', () => {
-    it('has icons for fallback card', () => {
-      expect(CARD_ICONS.outro).toBeDefined();
-    });
-  });
-
   describe('TABS', () => {
     it('has all tabs', () => {
       expect(TABS).toHaveLength(4);
@@ -101,6 +85,11 @@ describe('constants.ts', () => {
       expect(TABS.find((t) => t.id === 'gastos')).toBeDefined();
       expect(TABS.find((t) => t.id === 'parcelas')).toBeDefined();
       expect(TABS.find((t) => t.id === 'receitas')).toBeDefined();
+    });
+
+    it('keeps stable ids while pointing to the new product labels', () => {
+      expect(TABS.find((t) => t.id === 'gastos')?.labelKey).toBe('tabs.gastos');
+      expect(TABS.find((t) => t.id === 'parcelas')?.labelKey).toBe('tabs.parcelas');
     });
   });
 });

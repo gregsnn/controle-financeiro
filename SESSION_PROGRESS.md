@@ -1,0 +1,657 @@
+# Session Progress - Deduplicacao Web
+
+Data: 2026-05-12
+
+## Contexto recebido
+
+- Usuario pediu continuar o roadmap em `web/roadmap-deduplicacao.md`.
+- Resumo informado pelo usuario dizia que a IA anterior parou apos aplicar o passo 2.2 e antes de validar.
+- Regra do roadmap: cada passo deve passar em `npm test` + `npm run build` antes de prosseguir.
+
+## Estado confirmado
+
+- Roadmap correto lido: `web/roadmap-deduplicacao.md`.
+- Fase atual: Fase 2 - Funcoes Utilitarias.
+- Passo 2.1 (`clone`) ja esta aplicado:
+  - `lib/utils.ts` exporta `clone`.
+  - `lib/storage.ts` importa `clone` de `./utils.js`.
+- Passo 2.2 (`resolvePaymentMethod`) ja esta aplicado no codigo:
+  - `lib/utils.ts` exporta `resolvePaymentMethod`.
+  - `FixedExpenseRow.tsx` importa `resolvePaymentMethod`.
+  - `fixedExpenseFormHelpers.ts` importa `resolvePaymentMethod`.
+
+## Proximo trabalho
+
+1. Validar passo 2.2 com `npm test` e `npm run build`.
+2. Se passar, executar passo 2.3:
+   - `selectMonthCardBillAmounts` e `selectMonthCardBills` em `selectors/monthOverrideSelectors.ts` sao duplicados.
+   - Remover um seletor e atualizar consumidores/testes.
+3. Validar passo 2.3 com `npm test` e `npm run build`.
+
+## Log
+
+- Criado este arquivo para permitir continuidade se a sessao terminar por falta de tokens.
+- Tentativa inicial de validar 2.2 com `npm test` e `npm run build` no PowerShell falhou porque `npm` nao estava no PATH.
+- Tentativa com Node bundlado chamando `vitest`/`vite` diretamente falhou com `spawn EPERM` ao carregar configs.
+- Usuario orientou usar `bash` em vez de PowerShell.
+- Git Bash encontrado em `C:\Program Files\Git\bin\bash.exe`; dentro do sandbox falhou com `couldn't create signal pipe, Win32 error 5`.
+- Rodado via Git Bash fora do sandbox:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+- Passo 2.2 validado. Proximo: aplicar 2.3.
+- Passo 2.3 aplicado:
+  - Removido `selectMonthCardBills` de `selectors/monthOverrideSelectors.ts`.
+  - `selectMonthCardBillAmounts` mantido como seletor canonico.
+  - Atualizados `monthOverrideSelectors.test.ts` e `performanceFull.test.ts`.
+  - Busca por `selectMonthCardBills` em `src` nao retornou referencias.
+- Passo 2.3 validado via Git Bash fora do sandbox:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+- Proximo: aplicar passo 2.4 (`cardIconMap` compartilhado).
+- Passo 2.4 aplicado:
+  - Criado `src/features/finance/lib/cardIconMap.ts`.
+  - `FixedExpensesSection.tsx` usa `buildCardIconMap(cardList ?? [])`, preservando `CARD_ICONS` como base.
+  - `InstallmentsSection.tsx` usa `buildCardIconMap(cards, {})`, preservando comportamento anterior sem base defaults local.
+- Passo 2.4 validado via Git Bash fora do sandbox:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+- Proximo: aplicar passo 2.5 (`useMemo cardList` compartilhado).
+- Passo 2.5 aplicado:
+  - Criado `src/features/finance/hooks/useCardList.ts`.
+  - `MonthNav.tsx`, `FixedExpensesSection.tsx` e `InstallmentsSection.tsx` usam `useCardList(cardList)`.
+  - Busca pelo padrao antigo em `src/features/finance` ficou restrita ao proprio hook.
+- Passo 2.5 validado via Git Bash fora do sandbox:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+- Proximo: analisar e aplicar passo 2.6 (`Currency formatters`).
+- Passo 2.6 aplicado:
+  - `moneyInputFormatter` movido para `src/features/finance/lib/currency.ts`.
+  - `moneyInput.ts` importa o formatter de `currency.ts`.
+  - Busca por `new Intl.NumberFormat` em `lib` ficou concentrada em `currency.ts`.
+- Passo 2.6 validado via Git Bash fora do sandbox:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+- Proximo: analisar e aplicar passo 2.7 (`matchOverride`).
+- Passo 2.7 aplicado:
+  - Criado `matchOverride` em `src/features/finance/domain/overrides/repository.ts`.
+  - `filterByMonthAndType` e `findOverride` usam `matchOverride`.
+  - `stateReducers.ts` usa `matchOverride` em `removeInstallment`, `upsertMonthOverride` e `clearMonthOverride`.
+  - Busca por comparacoes antigas de `override.type/itemId/monthKey` nos arquivos alvo nao retornou resultados.
+- Passo 2.7 validado via Git Bash fora do sandbox:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+- Fase 2 concluida integralmente.
+- Proximo: iniciar analise da Fase 3 (CSS), comecando por `month-nav.css`.
+- Fase 3 iniciada.
+- Passo 3.1 aplicado:
+  - Consolidada a repeticao de `.bill-input-shell` em `src/styles/navigation/month-nav.css`.
+  - Removidos blocos duplicados de `.bill-display.editing ...` e `.bill-card-static` sem uso.
+  - Mantidos estados: `.bill-input-shell.visible`, `.bill-display.editing .bill-input-shell`, `.bill-input-shell:focus-within` e `.bill-card .bill-input-shell`.
+- Passo 3.1 validado:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+  - Dev server iniciado em `http://127.0.0.1:5173/` usando `node.exe node_modules/vite/bin/vite.js`.
+  - Checagem visual desktop e mobile com Chrome headless:
+    - Estado sem cartao renderizou corretamente.
+    - Estado com cartao e input de fatura aberto renderizou sem sobreposicao aparente.
+- Dev server encerrado e artefatos temporarios removidos.
+- Passo 3.2 conferido:
+  - A consolidacao do 3.1 tambem removeu os blocos repetidos de `.bill-display.editing`.
+  - Restaram somente tres seletores de estado: moeda, valor/botao e input shell.
+- Passo 3.3 aplicado e validado:
+  - `month-nav.css` agora possui um unico `@media (max-width: 900px)`.
+  - `responsive.css` mantem seu proprio bloco global; sem sobreposicao alterada.
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+  - Captura mobile com cartao e input de fatura aberto renderizou sem sobreposicao aparente.
+  - Dev server encerrado e artefatos temporarios removidos.
+- Passo 3.4 aplicado:
+  - Criada base CSS agrupada em `section-header.css` usando `:where(.add-btn, .month-step-btn, .theme-btn, .card-bill-add-btn, .card-bill-empty-btn, .bill-pay-btn)`.
+  - Removidas declaracoes repetidas de display/alinhamento/borda/radius/background/cor/cursor em `month-nav.css`, `metrics.css` e `section-header.css`.
+  - Mantidas variacoes especificas de tamanho, borda e estados pagos/pendentes.
+- Passo 3.4 validado:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+  - Checagem visual desktop com cartao criado confirmou botoes principais alinhados.
+  - Dev server encerrado e artefatos temporarios removidos.
+- Proximo: aplicar passo 3.5 (`Label xs pattern`).
+- Passo 3.5 aplicado:
+  - Criada utilidade `.label-xs` em `section-header.css`.
+  - A base tambem cobre `.sec-title`, `.mcard-label`, `.saldo-label`, `.card-bill-title` e `.bill-card-label` por agrupamento.
+  - Usadas variaveis CSS para preservar tamanhos/cores/espaçamentos especificos.
+  - Removidas declaracoes repetidas de labels em `metrics.css`, `saldo.css` e `month-nav.css`.
+- Passo 3.5 validado:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+  - Checagem visual desktop confirmou labels principais legiveis e alinhados.
+  - Dev server encerrado e artefatos temporarios removidos.
+- Proximo: aplicar passo 3.6 (`Summary inline colors`).
+- Passo 3.6 aplicado:
+  - Criados tokens `--color-summary-paid` e `--color-summary-payable` em `src/styles/theme/tokens.css`.
+  - Criadas classes `.saldo-detail-paid` e `.saldo-detail-payable` em `src/styles/sections/saldo.css`.
+  - `Summary.tsx` deixou de usar cores inline para os detalhes de pago/a pagar.
+- Passo 3.6 validado via Git Bash fora do sandbox:
+  - `npm test`: 22 test files passed, 219 tests passed.
+  - `npm run build`: build concluido com sucesso.
+- Fase 3 concluida conforme roadmap.
+- Observacao: ha ruido potencial de final de linha em alguns CSS no diff normal; o diff com `--ignore-space-at-eol` mostra apenas as mudancas reais esperadas.
+- Higiene pos-ressalvas aplicada:
+  - Criado `web/.editorconfig` para padronizar arquivos do projeto web com LF, newline final e indentacao de 2 espacos.
+  - Criado `src/styles/shared/controls.css` para centralizar utilidades compartilhadas de botoes e labels.
+  - `src/styles.css` importa `shared/controls.css` antes dos modulos especificos; `section-header.css` voltou a conter apenas regras da secao.
+  - Script `format` de `package.json` agora inclui CSS e `src/styles.css`.
+  - `ErrorBoundary.test.tsx` silencia apenas os erros esperados do teste de boundary, removendo stack traces do output.
+- Higiene pos-ressalvas validada:
+  - `npm test`: 22 test files passed, 219 tests passed, sem stack traces esperados do ErrorBoundary no output.
+  - `npm run build`: build concluido com sucesso.
+- Husky/pre-commit corrigido:
+  - `git config core.hooksPath` configurado no repositorio raiz para `web/.husky`.
+  - `web/.husky/pre-commit` agora possui shebang, entra em `web` e roda `npm run lint && npm run test`.
+  - Script `prepare` de `package.json` agora reconfigura `core.hooksPath` para `web/.husky`, adequado ao repo raiz `ledger` com app em subpasta.
+  - Validado com `npm run prepare` e `git hook run pre-commit`: lint passou e 219 testes passaram.
+- Limpeza de package/test setup:
+  - Removido `lint-staged` e `.lintstagedrc.json`, pois o pre-commit atual roda lint/test do projeto web diretamente.
+  - Consolidado `jest-dom` em `vitest.setup.ts` usando `@testing-library/jest-dom/vitest`.
+  - Removido `src/features/finance/tests/setupTests.ts` e simplificado `setupFiles` em `vitest.config.ts`.
+  - Validado com `npm run lint`, `npm test` (219 testes) e `npm run build`.
+- Mini-ajuste do ponto 5 aplicado:
+  - Removidas duplicacoes locais de `buildCardIconMap` em `FixedExpenseForm.tsx` e `InstallmentForm.tsx`.
+  - Ambos os forms agora usam `src/features/finance/lib/cardIconMap.ts`.
+  - Validado com `npm run lint`, `npm test` (219 testes) e `npm run build`.
+- Ponto 6 (validacao visual ampliada) aplicado:
+  - Validada tela de resumo vazia em desktop e mobile com checks de overflow horizontal.
+  - Validado estado com cartao/fatura criado via UI em contexto temporario Playwright, desktop e mobile.
+  - Validada aba `Gastos Fixos` em desktop e mobile para `.sec-header`, `.sec-title`, `.sec-actions` e `.add-btn`.
+  - Encontrado e corrigido no mobile o botao `+ Novo gasto fixo` quebrando em varias linhas.
+  - `RuleSection.tsx` agora usa `className="sec-actions"` no grupo de acoes; `section-header.css` trata wrap mobile e `white-space: nowrap` nos botoes.
+  - Validado novamente com `npm run lint`, `npm test` (219 testes), `npm run build` e capturas Playwright.
+- Correcao do `BillCard` de faturas:
+  - Restaurado comportamento esperado do `R$`: escondido no repouso, aparece animando pela esquerda apenas no modo de edicao.
+  - Valor exibido no repouso fica sem `R$`, evitando sobreposicao com o prefixo.
+  - Clique fora do input agora confirma o valor e fecha a edicao.
+  - Input de fatura passou a aplicar mascara monetaria enquanto digita.
+  - Adicionados testes para valor existente, card sem valor/botao `+ Incluir fatura` e fechamento ao clicar fora.
+  - Validado com `npm run lint`, `npm test` (221 testes), `npm run build` e capturas Playwright dos estados normal/edicao/clique fora.
+- Analise ampla do `web`:
+  - `npm run lint`: passou.
+  - `npm test`: passou, 22 arquivos e 221 testes.
+  - `npm run build`: passou.
+  - `tsc --noEmit --pretty false`: passou.
+  - `git diff --check` e `git diff --cached --check`: passaram.
+  - `git hook run pre-commit`: passou, executando lint e testes via `web/.husky/pre-commit`.
+  - Nao foram encontrados erros de TypeScript, imports quebrados, testes falhando, conflito de merge ou whitespace invalidado pelo Git.
+  - Ressalva atual: `src/styles/navigation/month-nav.css` esta em estado `MM`; ha um ajuste nao stageado posterior na animacao do `BillCard` que causou regressao visual e deve ser refeito antes do commit.
+  - Ressalva de ambiente/dependencias: Vite emite warnings sobre `vite:react-babel`/`oxc`, e `@vitejs/plugin-react` esta fora da faixa peer ideal para `vite@8`; build segue verde, mas isso merece ajuste dedicado.
+  - Restaram logs temporarios locais `dev-server.log` e `dev-server.err.log`.
+- Ajuste final do `BillCard`:
+  - `bill-input-shell` do card voltou para fluxo flex com `max-width` animado de `0` para `100%`, para ser empurrado pelo `R$` ao entrar em edicao em vez de pular para a posicao final.
+  - Entrada em edicao agora previne o foco padrao do clique/pointer e agenda foco/seleção do input no proprio gesto do usuario.
+  - `useLayoutEffect` reforca foco/seleção quando `isEditing` muda.
+  - `eslint` passou via Node local.
+  - `npm test`/`npm run build` nao puderam ser rerodados nesta ultima iteracao por falha de ambiente: Git Bash passou a falhar com `Win32 error 5`, e Vitest via Node direto falhou com `spawn EPERM` ao carregar config do Vite. Na iteracao imediatamente anterior, antes deste ajuste de foco, lint/test/build estavam verdes.
+- Fase 4 iniciada e concluida:
+  - Passos 4.1 a 4.4:
+    - Criado `src/features/finance/components/sections/shared/useCrudState.ts`.
+    - `useRevenueCrudState.ts`, `useFixedExpenseCrudState.ts` e `useInstallmentCrudState.ts` agora delegam estado/form/delete para o hook generico, preservando suas APIs publicas.
+    - Validado com `npm run lint`, `npm test` (221 testes) e `npm run build`.
+  - Passo 4.5:
+    - Criado `src/features/finance/components/sections/shared/createSectionLabels.ts`.
+    - `revenueSectionLabels.ts`, `fixedExpenseSectionLabels.ts` e `installmentSectionLabels.ts` usam a factory tipada, preservando estrutura de labels/modal/delete.
+    - Validado com `npm run lint`, `npm test` (221 testes) e `npm run build`.
+  - Passo 4.6:
+    - Criado `src/features/finance/components/sections/shared/createFormHelpers.ts`.
+    - `revenueFormHelpers.ts`, `fixedExpenseFormHelpers.ts` e `installmentFormHelpers.ts` usam a factory tipada para `createEmptyForm`, `createEditForm` e `buildPayload`.
+    - Validado com `npm run lint`, `npm test` (221 testes) e `npm run build`.
+  - Passo 4.7:
+    - Criado `softDeleteItem` em `src/features/finance/lib/utils.ts`.
+    - `stateReducers.ts` usa o helper para remover gastos fixos, receitas e parcelamentos (`endMonth`/`closedAt`).
+    - Validado com `npm run lint`, `npm test` (221 testes) e `npm run build`.
+  - Ressalva: tentativa de validacao visual dos modais CRUD nao concluiu porque o dev server local nao respondeu em `127.0.0.1:5173`; os gates de codigo da fase passaram.
+  - Proximo passo formal do roadmap: Fase 5, comecando por 5.1 (identificar diferencas reais entre as 3 sections).
+- Fase 5 iniciada:
+  - Passo 5.1 aplicado como analise comparativa documentada em `ROADMAP_PHASE5_ANALYSIS.md`.
+  - Conclusao: a extracao segura deve cobrir o shell repetido (`RuleSection`, `ConfirmModal`, `RuleModal`, `useCrudFormFlow`), mantendo fora do generico os dados derivados e renderizacao de rows de cada dominio.
+  - Proximo: passo 5.2, criar `shared/CrudSection.tsx` com esse limite de responsabilidade.
+- Fase 5 concluida:
+  - Passo 5.2: criado `src/features/finance/components/sections/shared/CrudSection.tsx` para encapsular `RuleSection`, modal CRUD, confirmacao de delete e `useCrudFormFlow`.
+  - Passos 5.3 a 5.5: `RevenuesSection.tsx`, `FixedExpensesSection.tsx` e `InstallmentsSection.tsx` migradas para o `CrudSection`, mantendo preparo de dados e row rendering especificos em cada section.
+  - Passo 5.6: boilerplate morto dos tres arquivos foi removido junto com a migracao.
+  - Passo 5.7: criado `src/features/finance/components/modals/ModalShell.tsx`; `ConfirmModal` e `RuleModal` compartilham o wrapper visual.
+  - Validado com `npm run lint`, `npm test` (221 testes) e `npm run build`.
+  - Ressalva: warnings ja conhecidos do Vite/plugin React continuam aparecendo, sem falhar build.
+  - Proximo passo formal do roadmap: Fase 6, comecando por factories de defaults em `domain/factories.ts`.
+- Fase 6 concluida:
+  - Passo 6.1: criado `src/features/finance/domain/factories.ts` com `createDefaultFixedExpense`, `createDefaultRevenue` e `createDefaultInstallment`.
+  - Passo 6.2: `stateReducers.ts` e `useFinanceActions.ts` passaram a usar as factories.
+  - Passo 6.3: defaults com `createFinanceId` ficaram centralizados nas factories.
+  - Validado com `npm run lint`, `npm test` (221 testes) e `npm run build`.
+  - Roadmap principal de deduplicacao concluido ate a Fase 6.
+- Auditoria final pos-roadmap:
+  - Atualizado `roadmap-deduplicacao.md` com a secao "Auditoria Final Pos-Roadmap".
+  - Removidos `dev-server.log` e `dev-server.err.log`.
+  - Removido `console.log` de `ExportButton.tsx`.
+  - `RuleSection` passou a ser generico, permitindo `CrudSection` usar itens tipados sem cast.
+  - Removidos casts `as any` introduzidos pela migracao para `CrudSection` em `RevenuesSection`, `FixedExpensesSection`, `InstallmentsSection` e `CrudSection`.
+  - Ressalvas mantidas no roadmap: `package-lock.json` ignorado, `*roadmap*` ignorado e warnings recorrentes do Vite/plugin React.
+  - Validado com `npm run lint`, `npm test` (221 testes), `npm run build`, `tsc --noEmit --pretty false` e `git diff --check`.
+- Preparacao V1:
+  - `ARCHITECTURE.md` reescrito para refletir a arquitetura atual apos o roadmap de deduplicacao.
+  - Documento agora cobre camadas, fluxo de dados, CRUD compartilhado, factories, soft-delete, estilos, gates, hooks/Husky, warnings conhecidos e ressalvas antes do lancamento.
+  - Adicionada secao explicita `Regras Obrigatorias para IA`, mantendo as convencoes existentes e tornando os pontos bloqueantes mais visiveis para futuras sessoes.
+  - `git diff --check -- ARCHITECTURE.md`: passou.
+- Roadmap UI Pos-V1 iniciado na branch `feat/new-layout`:
+  - Criado/atualizado `roadmap-ui-pos-v1.md` para guiar o polimento visual pos-V1.
+  - Primeira passada implementada em Header/Faturas, Acoes Globais e Tabs.
+  - `ExportButton` saiu do bloco solto entre header e tabs e agora entra em `MonthNav` via `headerActions`.
+  - `MonthNav` ganhou area `.month-nav-actions` para exportacao e tema.
+  - Header/tabs foram compactados; tabs receberam estilo mais leve e indicador ativo menos pesado.
+  - Painel de faturas ficou mais compacto; cards alinham a esquerda, com largura/min-height ajustados para reduzir area vazia.
+  - `roadmap-ui-pos-v1.md` marcou como feitos os passos 1.1-1.4, 2.1-2.3 e 3.1-3.3.
+  - Validado com Prettier nos arquivos alterados, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (221 testes) e `npm run build`.
+  - Observacao: `npm test`/`npm run build` passaram via Git Bash com permissao elevada apos `.cmd` falhar no sandbox com `spawn EPERM`; warnings conhecidos do Vite/plugin React persistem sem quebrar build.
+  - Segunda passada aplicada em KPIs principais, faturas no resumo, graficos e KPIs inferiores.
+  - `Summary.tsx` removeu estilos inline dos cards de fatura e criou classes para header/linhas de detalhe.
+  - `saldo.css` reforcou hierarquia do saldo previsto e organizou Receitas/Pago/A pagar em pares alinhados.
+  - `metrics.css` adicionou `mcard--summary`, `bill-summary-card` e `metrics--support` para consistencia dos cards.
+  - `chartTheme.ts` centralizou cores/fontes de eixos e grades usadas por configs Chart.js.
+  - `charts-layout.css` aumentou respiro dos cards de grafico e deixou titulos/switches mais legiveis.
+  - `roadmap-ui-pos-v1.md` marcou como feitos os passos 4.1-4.4, 5.1-5.3, 6.1-6.4 e 7.1-7.3.
+  - Fase 8 aplicada:
+    - Adicionado token `--layout-gap-lg: 24px`.
+    - Header, conteudo, MonthNav, cards de resumo e charts passaram a usar os tokens `8/12/16/24` nos espacamentos principais.
+    - Corrigido typo de token `--color-semantic-waning` para `--color-semantic-warning`, que ja era referenciado por `.warn`, progressos e alertas.
+    - `roadmap-ui-pos-v1.md` marcou como feitos os passos 8.1-8.4.
+    - `ARCHITECTURE.md` atualizado com `chartTheme.ts` e a escala de gaps `8/12/16/24`.
+- Fechamento do Roadmap UI Pos-V1:
+  - Adicionada diretriz de experiencia ao roadmap: transformar ansiedade em clareza, priorizando sensacao de organizacao em vez de contabilidade.
+  - Criado `src/features/finance/tests/Summary.test.tsx` cobrindo fatura paga, pendente, sem valor e valor alto no resumo.
+  - Criado `src/features/finance/tests/chartConfigs.test.ts` cobrindo modos de grafico `categories`, `cards`, `cardsStatus` e o grafico de parcelamentos.
+  - Roadmap marcou como feitos os passos 1.5, 2.4, 3.4, 5.4, 6.5, 7.4, 9.1, 9.2, 9.4, 9.5 e 9.6.
+  - Passo 9.3 ficou marcado como limitado: ambiente sem captura de browser estavel; antes do merge/release, recomenda-se apenas aprovacao visual manual rapida.
+- Revisao do Roadmap UI Pos-V1:
+  - Confirmado que as fases de implementacao estao refletidas em codigo, estilos e testes.
+  - Ajustado o status da Fase 0.1 para `[limitado]`, porque nao ha screenshot de baseline salvo no projeto; os estados ficaram cobertos por testes/gates e a aprovacao visual final deve ser manual.
+  - Ajustados os passos 9.4 e 9.5 para `[limitado]`, pois validacao desktop/mobile completa depende de browser visual real.
+- Planejamento de Clareza Financeira:
+  - Criado `roadmap-ui-clareza-financeira.md` com base no layout atual apos as alteracoes.
+  - Roadmap foca em transformar ansiedade em clareza: estado do mes, hierarquia de numeros, faturas mais calmas, linguagem dos KPIs, graficos como apoio e alertas orientativos.
+  - Escopo mantem regras financeiras intactas; mudancas previstas sao de apresentacao, microcopy, hierarquia e validacao visual.
+- Roadmap UI Clareza Financeira iniciado:
+  - Fase 1 concluida.
+  - `Summary.tsx` ganhou helper local de status do mes (`comfortable`, `tight`, `negative`).
+  - O topo do saldo agora mostra uma frase curta de contexto para mes confortavel, apertado ou negativo.
+  - Alerta negativo deixou de repetir o valor do saldo e passou a orientar revisao de despesas/faturas.
+  - `saldo.css` e `alerts.css` suavizam o tom visual do estado negativo sem remover contraste.
+  - `Summary.test.tsx` cobre os tres estados de apresentacao.
+  - Fase 2 concluida.
+  - `Summary.tsx` ganhou `getExpenseRatioCopy` para trocar percentuais extremos por textos mais humanos (`quase toda a receita`, `acima da receita do mes`, `sem receita cadastrada`).
+  - Cards de `Receitas` e `Despesas` ganharam classe `summary-support`, com peso visual reduzido em `metrics.css`.
+  - `Summary.test.tsx` cobre relacao de despesas saudavel, alta, acima da receita e sem receita cadastrada.
+  - Fase 3 concluida.
+  - Badges de fatura no resumo perderam os simbolos, ficando como status textual simples (`Paga`/`Pendente`).
+  - `Abatimento` agora fica oculto quando for `R$ 0,00`.
+  - `Restante para pagar` foi encurtado para `Restante`.
+  - Fatura sem valor mostra `Sem fatura lancada` em vez de competir como `R$ 0,00`.
+  - `bill-pay-btn.unpaid` ficou visualmente mais neutro em `metrics.css`.
+  - Fase 4 concluida.
+  - `useSummaryMetrics` troca `DISTRIBUICAO DE DESPESAS` por `PARA ONDE O DINHEIRO VAI`.
+  - `SummaryDashboard.tsx` troca `PARCELAMENTOS` por `PARCELAS EM ABERTO`, `TOTAL/MES` por `PARCELAS DESTE MES`, `TOTAL RESTANTE` por `PARCELAS FUTURAS` e `QUASE NO FIM` por `PERTO DE QUITAR`.
+  - Criado `SummaryDashboard.test.tsx` para travar a nova linguagem dos graficos e KPIs de apoio.
+  - Fase 5 concluida.
+  - `charts-layout.css` reduziu peso visual dos cards de grafico, diminuiu alturas e suavizou titulos/switches.
+  - `useSummaryMetrics` troca `DESPESAS POR CARTAO` por `GASTOS POR CARTAO` e `PAGO X PENDENTE (RASTREADO)` por `PAGO E PENDENTE`.
+  - `SummaryDashboard.test.tsx` cobre os tres titulos de modo do grafico principal.
+  - Fase 6 concluida.
+    - Tokens `--color-alert-guidance-bg` e `--color-alert-guidance-border` adicionados para temas default e premium.
+    - `alert-bar--guidance` agora usa tokens dedicados em vez de misturas ad hoc.
+    - `Summary.test.tsx` valida que o alerta negativo usa texto orientativo e classe de guidance.
+  - Fase 7 concluida.
+    - `roadmap-ui-clareza-financeira.md` encerrado para implementacao em codigo.
+    - `ARCHITECTURE.md` atualizado com tokens de alerta orientativo e diretriz de microcopy para resumo.
+    - Validacao manual desktop/mobile ficou marcada como limitada por depender de browser visual real.
+- Polimento pos-revisao visual do Roadmap UI Clareza Financeira:
+  - Rosca com uma unica categoria ficou menos dominante e ganhou leitura auxiliar `Principal foco`, mantendo o grafico como apoio.
+  - Grafico de parcelas com poucos itens muito concentrados ganhou uma frase de interpretacao rapida antes do canvas.
+  - Cards de fatura no topo tiveram gradiente e sombra suavizados para competir menos com o saldo previsto.
+  - Card de despesas acima da receita agora exibe orientacao pratica: `Priorize faturas e gastos recorrentes.`
+  - Cobertura ajustada em `Summary.test.tsx` e `SummaryDashboard.test.tsx`.
+  - Validado com Prettier nos arquivos alterados, ESLint, `npm test` (229 testes), `npm run build`, `tsc --noEmit --pretty false` e `git diff --check`.
+  - Observacao: `npm test` e `npm run build` precisaram rodar via Git Bash com permissao elevada por `spawn EPERM`/erro de pipe no sandbox; warnings conhecidos do Vite/plugin React persistem sem quebrar os gates.
+- Correcao do polimento apos revisao em tela:
+  - A rosca com unica categoria deixou de renderizar canvas para evitar o oval espremido; agora usa um estado textual de insight.
+  - Parcelas em aberto com ate 3 itens deixaram de usar barras Chart.js e viraram lista compacta com mini trilhos discretos.
+  - Grafico de barras permanece reservado para cenarios com mais volume de itens, onde a comparacao visual faz mais sentido.
+  - Revalidado com Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (229 testes) e `npm run build`.
+- Terceira versao dos blocos de pouco dado:
+  - Categoria unica passou a mostrar `100%`, foco, valor e uma frase de revisao de categoria, em formato compacto.
+  - Ate 3 parcelas abertas agora mostram total em aberto, quantidade e linhas com mini trilhos, evitando o vazio de um canvas pobre.
+  - `chart-card--compact` diferencia esses estados de insight dos cards de grafico completos.
+  - `SummaryDashboard.test.tsx` atualizado para cobrir os novos textos de insight.
+  - Validado com Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (229 testes) e `npm run build`.
+- Planejamento de migracao visual inspirado no FinFlow:
+  - Analisado `finflow/finflow`, app Next/Tailwind separado com dados mockados.
+  - Confirmado que o FinFlow deve ser usado como referencia de layout, nao como fonte de regras, estado ou arquitetura.
+  - Criado `roadmap-finflow-layout.md` com fases para migrar moldura global, faturas, tabs, resumo, graficos, CRUDs e modais sem quebrar a V1.
+  - Plano prioriza tokens/surfaces, topbar, tabs e faturas antes de mexer em CRUD compartilhado.
+- Migracao visual FinFlow iniciada:
+  - Tokens de tema em `tokens.css` receberam paleta mais proxima do FinFlow: canvas escuro premium, superficies elevadas, verde como accent, aliases de border e sombras.
+  - `FinanceApp.tsx` ganhou topbar sticky com marca, mes centralizado e acoes globais; `MonthNav` ficou como area de faturas.
+  - `AppTabs` foi reestilizado via `app.css` como segmented control com ativo verde.
+  - Area de faturas e cards de cartao foram ampliados e receberam surface/elevation mais premium sem alterar regras de fatura.
+  - Saldo previsto, cards de resumo e cards de graficos ganharam hierarchy/elevation mais proximas do FinFlow.
+  - `roadmap-finflow-layout.md` atualizado com a primeira leva: fases 0, 1 e 3 feitas; fase 2 parcial; inicio das fases 4 e 5.
+  - Validado com Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (229 testes) e `npm run build`.
+- Migracao visual FinFlow em Parcelamentos:
+  - `InstallmentsSection` deixou de renderizar a tabela generica para usar cards de progresso inspirados no FinFlow.
+  - Cada parcelamento mostra nome, cartao, mes inicial, valor mensal, parcela atual/total, progresso, valor ja pago e badge `Perto de quitar` quando >= 75%.
+  - Modais de criacao/edicao, confirmacao de delete, soft-delete e toggle de pago no mes continuam usando os mesmos hooks/acoes atuais.
+  - Estado vazio ganhou surface propria.
+  - `roadmap-finflow-layout.md` marcou Fase 7 como feita, com cobertura visual de cenarios ainda parcial.
+  - Validado com Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (229 testes) e `npm run build`.
+- Migracao visual FinFlow em tabelas e Receitas:
+  - `RuleSection` passou a usar `rule-table-card` e empty state sem inline style.
+  - Tabelas compartilhadas ganharam surface/elevation, header mais forte, linhas mais altas, hover mais discreto e acoes de linha menos ruidosas.
+  - Inputs de override mensal ficaram mais premium, com foco/accent alinhado aos tokens FinFlow.
+  - `RevenuesSection` ganhou resumo superior seguro com total do mes e quantidade de lancamentos ativos, sem inventar status recebido/previsto.
+  - Fase 6 marcada como parcialmente avancada; Fase 8 marcada como parcial com regra 8.4 respeitada.
+  - Validado com Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (229 testes) e `npm run build`.
+- Migracao visual FinFlow em modais e status:
+  - `ModalShell` ganhou backdrop com blur, surface mais premium, borda, radius e sombra alinhados ao FinFlow.
+  - `RuleModal` e `ConfirmModal` deixaram inline styles e passaram a usar classes reutilizaveis.
+  - Inputs/selects de formulario e botoes de acao foram reestilizados com focus ring/accent.
+  - `FixedExpenseRow` foi reescrito preservando comportamento e trocando o checkbox cru por controle `Pago`/`Pendente`.
+  - `roadmap-finflow-layout.md` marcou Fase 6.3 e Fase 9.1-9.3 como feitas, com validacao de foco/escape ainda parcial.
+  - Validado com Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (229 testes) e `npm run build`.
+- Fechamento da migracao visual FinFlow:
+  - `ChartEmpty` deixou de usar emoji e passou a usar icone CSS discreto.
+  - `chartSeries` e `chartTheme` receberam paleta/eixos mais alinhados ao accent verde/azul do FinFlow.
+  - Cards de fatura ganharam classes de estado (`has-value`, `empty`, `locked`) para acabamento visual sem mudar fluxo inline.
+  - `ExportButton` foi reescrito para remover caractere corrompido e manter texto/confirmacao em ASCII.
+  - `ARCHITECTURE.md` atualizado com diretrizes FinFlow: topbar fixa, surfaces elevadas, accent verde, modais com blur, charts como apoio e FinFlow como referencia visual, nao dependencia.
+  - `roadmap-finflow-layout.md` marcado como fechado para implementacao automatizada; pontos restantes dependem de revisao visual manual ou decisao de produto.
+  - Validacao final passou: Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (229 testes) e `npm run build`.
+  - `roadmap-finflow-layout.md` marcou Fase 10 como feita, com revisao visual desktop/mobile limitada ao ambiente.
+- Ajuste do fluxo de adicionar cartao:
+  - Modal de novo cartao deixou de oferecer seletor de icones.
+  - Criacao agora aceita `Nome do cartao` e `Fatura deste mes` opcional.
+  - Texto do modal deixa claro que a fatura pode ser informada depois.
+  - Ao salvar, o cartao continua recebendo cor automatica por banco quando detectada; se houver valor valido, a fatura do mes e lancada junto.
+  - Estilos antigos do seletor de icones foram removidos de `month-nav.css`.
+  - `MonthNav.test.tsx` atualizado para cobrir criacao sem fatura obrigatoria e criacao com fatura inicial.
+  - Validado com Prettier, ESLint, `tsc --noEmit --pretty false`, `git diff --check`, `npm test` (230 testes) e `npm run build`.
+- Remocao do legado de icones de cartao:
+  - `CardBillItem` agora guarda apenas `id`, `name` e `color` opcional.
+  - Removido `cardIconMap.ts` e `CARD_ICONS`.
+  - Gastos fixos e parcelamentos passaram a exibir nomes de cartao em vez de icones/fallbacks.
+  - Formulario de cartao em gastos/parcelamentos usa select textual para cartoes.
+  - Import/reducer normalizam `cardBills` para descartar qualquer campo antigo fora do modelo atual.
+  - Testes/fixtures foram atualizados para nao depender de `icon`.
+- Refinamento visual para aproximar do FinFlow:
+  - Tabs ficaram mais baixas e arredondadas.
+  - Botoes de fatura ficaram menos grossos; excluir ganhou simbolo CSS discreto.
+  - Cards de receitas/despesas do resumo ganharam marcador visual de tendencia.
+  - Parcelamentos trocaram o checkbox visual por botao `Pago`/`Pendente`, preservando `onTogglePaid`.
+  - Receitas agora renderiza o resumo dentro da propria secao, antes da tabela.
+  - Controle de ordenacao da tabela ficou oculto visualmente para a tabela seguir o layout limpo do FinFlow.
+  - Validado neste ambiente com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+  - `vitest` e `vite build` nao rodaram nesta tentativa por `spawn EPERM`; o bypass via Git Bash elevado foi bloqueado pelo limite de uso do ambiente.
+- Refinamento visual de tabelas FinFlow:
+  - Gastos fixos reorganizou colunas para `Descricao`, `Categoria`, `Pagamento`, `Vencimento`, `Valor`, `Pago`, `Acoes`.
+  - Gastos fixos deixou de exibir emojis de categoria/metodo nas celulas e passou a usar texto limpo.
+  - Receitas reorganizou colunas para `Descricao`, `Categoria`, `Recebimento`, `Recorrente`, `Valor`, `Acoes`, mantendo a tela sem status.
+  - Receitas ganhou terceiro card de resumo (`MEDIA`) para aproximar a proporcao visual dos cards do FinFlow sem criar status recebido/previsto.
+  - Acoes de linha deixaram de usar icones antigos e passaram a exibir `Editar`/`Excluir` como pills discretas.
+  - Validado sem testes, conforme combinado, com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+- Fechamento visual sem icones residuais:
+  - Removido `SelectWithIcon` e CSS associado.
+  - Categorias do form deixaram de carregar emojis, mantendo apenas labels textuais.
+  - Cards inferiores do resumo ganharam marcadores CSS discretos e mais espacamento.
+  - Graficos receberam area um pouco maior e segmented control interno mais arredondado.
+  - Marca do topo ganhou simbolo CSS proprio no estilo do FinFlow, sem asset externo.
+  - `ARCHITECTURE.md` atualizado para refletir que `inputs/` agora expõe apenas `Input`.
+  - Varredura em `src` confirmou que nao sobraram referencias a `SelectWithIcon`, `CARD_ICONS`, `ACTION_ICONS`, `ICONS` ou `cardIcon`.
+  - Validado sem testes/build, conforme combinado, com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+- Rodada de acabamento para aproximar mais dos prints do FinFlow:
+  - `app`/topbar/dashboard passaram a usar shell mais parecido com produto: barra fixa fina, conteudo centralizado e largura maxima controlada por `--app-max-width`.
+  - Faturas do mes ganharam painel mais alto, cards maiores e botoes internos mais achatados.
+  - Tabs, botoes de criacao e botoes de modal ficaram mais baixos, arredondados e verdes quando sao acao primaria.
+  - Tabelas compartilhadas ganharam linhas mais altas, surface/radius mais premium e acoes de criacao alinhadas ao FinFlow.
+  - Parcelamentos ganharam cards mais altos, barra de progresso mais proxima da referencia e status `Pago`/`Pendente` menos intrusivo.
+  - Saldo, cards de resumo e graficos tiveram ajustes de escala/padding para reduzir diferencas de hierarquia visual.
+  - Tema claro nao foi trabalhado nesta rodada por decisao explicita.
+  - Validado sem testes/build com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+- Ajustes finos apontados em QA visual:
+  - Faturas: `R$` do input ganhou largura reservada para nao ser cortado pelo valor; botoes `EM USO`/`Excluir` ficaram maiores.
+  - Resumo: marcadores de Receitas/Despesas foram redimensionados; guidance de despesas virou texto absoluto para nao alterar altura do card.
+  - Faturas no resumo ganharam marcador CSS de cartao.
+  - Grafico/lista de `Parcelas em aberto` passou a mostrar impacto mensal (`installmentValue`) em vez de total restante do parcelamento.
+  - Campos de tabela `Categoria`, `Pagamento` e `Vencimento` ganharam peso visual maior.
+  - Gastos Fixos passou a mostrar quantidade e total no subtitulo da secao.
+  - Parcelamentos passou a usar `RowActions`, igual a Gastos Fixos e Receitas.
+  - Receitas ganhou categoria no modal, mantendo a coluna da tabela consistente com o formulario.
+  - Modal de confirmacao recebeu ajustes de largura/espacamento.
+  - Validado sem testes/build com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+- Ajustes de icones e Receitas:
+  - Removidos marcadores CSS decorativos que estavam cortando/sobrepondo em Receitas, Despesas e cards inferiores do resumo.
+  - Icone de cartao dos cards de fatura do resumo foi movido para a esquerda do nome da fatura.
+  - Estado `Sem fatura lancada` ganhou bloco interno mais compacto para reduzir vazio visual.
+  - Botao `Excluir` dos cartoes em Faturas do Mes deixou de usar o desenho CSS quebrado e passou a usar um marcador textual simples.
+  - Categoria foi removida da UI de Receitas, do payload/formulario, da tabela e do tipo `Revenue`; dados antigos importados descartam esse campo no normalizer.
+  - Validado sem testes/build com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+- Migracao para biblioteca de icones:
+  - Adicionado uso de `lucide-react` para substituir pseudo-icones CSS frageis.
+  - Exportar link, alternancia de tema, adicionar cartao, excluir cartao, fatura no resumo, empty states de faturas/graficos e cards inferiores do resumo passaram a usar icones Lucide.
+  - Removidos pseudo-elementos CSS de icones que estavam quebrando ou sobrepondo botoes.
+  - Validado sem testes/build com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+- Refinamento de botoes e charts:
+  - Botoes primarios das sections passaram a usar `Plus` do Lucide e remover o `+` textual duplicado.
+  - Alinhamento de icone/texto dos botoes primarios foi ajustado com `inline-flex`, gap e altura consistentes.
+  - Grafico de rosca agora vira insight/lista quando um item domina 90% ou mais da distribuicao, evitando fatias quase invisiveis.
+  - Cards de chart em modo compacto ficaram menores para reduzir espaco em branco.
+  - Lista de parcelas em aberto teve altura minima reduzida para ocupar menos area vazia quando ha poucos itens.
+  - Validado sem testes/build com Prettier, ESLint, `tsc --noEmit --pretty false` e `git diff --check`.
+- Ajuste de layout do modal de exclusao:
+  - `ConfirmModal` ganhou um corpo proprio para separar mensagem e rodape de acoes.
+  - Modal de confirmacao teve largura, padding, gap e botoes ajustados para evitar aperto visual.
+  - Acoes de confirmacao ficam alinhadas no desktop e empilhadas em telas estreitas.
+- Planejamento de reorganizacao conceitual:
+  - Criado `roadmap-despesas-cartoes.md` para planejar a evolucao de `Gastos Fixos` para `Despesas`.
+  - Roadmap tambem planeja transformar `Parcelamentos` em `Cartoes`, movendo `Faturas do mes` para essa aba.
+  - Documento separa fases de navegacao, layout, resumo e dominio futuro de despesas variaveis.
+- Inicio da reorganizacao Despesas/Cartoes:
+  - Abas visiveis passaram a ser `Resumo`, `Despesas`, `Cartoes` e `Receitas`, preservando ids internos para reduzir risco.
+  - `Gastos Fixos` evoluiu visualmente para `Despesas Fixas`, com segmentacao `Fixas / Variaveis`; variaveis fica planejado/desabilitado por enquanto.
+  - `Faturas do mes` saiu do topo global e passou a ser renderizado dentro da aba `Cartoes`, acima de `Parcelamentos`.
+  - Area de faturas foi extraida para `CardBillsSection.tsx`; `MonthNav.tsx` fica como wrapper legado/testavel.
+  - `Resumo` manteve apenas leitura agregada de faturas, sem o CRUD completo no topo.
+  - Criado teste de `ExpensesSection` e ajustados testes existentes para os novos labels, sem executar a suite.
+  - `ARCHITECTURE.md` e `roadmap-despesas-cartoes.md` atualizados com o estado atual.
+- Ajustes de UX apos QA da reorganizacao:
+  - Hover dos botoes primarios de criar item foi corrigido para nao herdar fundo neutro.
+  - Cabecalho de `Faturas do mes` foi alinhado mais ao topo do painel e o vazio superior foi reduzido.
+  - Espacamento entre header e lista/empty state de `Parcelamentos` foi reduzido.
+  - Aba `Variaveis` em Despesas passou a ser acessivel, com placeholder e botao desabilitado ate a fase de CRUD.
+  - Receitas passaram a modelar `paymentDay` e `recurring`, mantendo `startMonth` como controle interno de validade.
+  - UI de Receitas removeu o subtexto, trocou `Mes de inicio` por `Dia de recebimento` e adicionou seletor de recorrencia.
+  - Cards de Receitas agora mostram `Total do mes`, `Ja recebido` e `A receber`, removendo `Lancamentos` e `Media`.
+  - Criados/ajustados testes para Receitas, Despesas variaveis e receita nao recorrente, sem executar a suite.
+- Padronizacao estrutural de Despesas:
+  - `RuleSection` e `CrudSection` passaram a aceitar `className` para sections com identidade visual propria.
+  - `Despesas Fixas` usa `expense-content-section`, igualando a arquitetura visual com `Parcelamentos`.
+  - Aba `Variaveis` usa a mesma estrutura de section.
+  - Gap entre header/subtexto e tabela/empty state foi reduzido de forma consistente para Despesas e Parcelamentos.
+- Planejamento de gastos variaveis e faturas:
+  - Criado `roadmap-gastos-variaveis-e-faturas.md`.
+  - Documento planeja `VariableExpense`, vencimento de fatura por cartao, edicao de cartao e reducao de friccao no cadastro.
+  - Roadmap registra perguntas em aberto antes da implementacao, especialmente sobre fatura manual vs automatica e escopo de automacoes.
+- Limpeza de roadmaps:
+  - `roadmap-finflow-layout.md` foi validado como encerrado e removido.
+  - `roadmap-despesas-cartoes.md` foi mantido porque ainda registra decisoes/pendencias de navegacao, Cartoes e validacao visual, alem de parte ter sido desdobrada no roadmap novo.
+- Fechamento de Despesas/Cartoes:
+  - `Resumo` ganhou CTA discreto `Ver cartoes`, apontando para a aba `Cartoes`.
+  - Empty states de faturas, parcelamentos e despesas variaveis foram ajustados para orientar melhor o usuario.
+  - `roadmap-despesas-cartoes.md` foi encerrado como reorganizacao estrutural.
+  - Itens de dominio novo, como despesas variaveis, vencimento de fatura por cartao e edicao de cartao, seguem no roadmap ativo `roadmap-gastos-variaveis-e-faturas.md`.
+- Refinamento do tema claro:
+  - Criado `roadmap-tema-claro-ui.md` com foco em fundo neutro, cards brancos, cores semanticas vivas e tabs de chart alinhadas a esquerda.
+  - Tokens claros foram ajustados para sair do creme pesado e usar cinza claro, branco, bordas suaves e sombras leves.
+  - Verde/vermelho do tema claro ficaram mais diretos para valores, status e acoes principais.
+  - Tabs principais mantem verde vivo, mas sem a borda preta pesada da referencia.
+  - Tabs internas dos graficos agora ficam alinhadas a esquerda e ocupam apenas a largura necessaria.
+  - Criado teste para garantir que os controles de modo do grafico continuam escopados ao card de chart.
+  - Segunda passada suavizou alertas, modais, inputs, empty states e bordas remanescentes do tema claro.
+  - Fonte da referencia FinFlow identificada como Geist; `web` agora carrega Geist via Google Fonts e usa como fonte principal.
+  - Tema escuro redesenhado para combinar com o tema claro: canvas quase-preto neutro, surfaces menos azuladas, bordas discretas e cores semanticas vivas sem neon.
+- Inicio do roadmap de gastos variaveis e faturas:
+  - Removidos `roadmap-despesas-cartoes.md` e `roadmap-tema-claro-ui.md`, mantendo apenas o roadmap ativo.
+  - Adicionado dominio inicial de `VariableExpense` com tipo, factory, normalizer, reducers, actions, context, persistencia Dexie e export/import.
+  - `buildMonthView`, resumo, faturas rastreadas e series de graficos agora consideram despesas variaveis do mes.
+  - Aba `Despesas > Variaveis` ganhou CRUD funcional com cadastro rapido por descricao/valor, campos secundarios compactos, edicao, exclusao e empty state.
+  - Exclusao de cartoes passa a considerar uso por despesas variaveis no mes.
+  - Cartoes ganharam `dueDay`, campo opcional de vencimento na criacao, modal de edicao de nome/vencimento e exibicao discreta do vencimento no card.
+  - Cards de fatura mantiveram largura estavel; edicao do cartao foi movida para o nome clicavel com icone discreto, deixando o topo livre para status/exclusao.
+  - CTA `Ver cartoes` saiu da linha propria do resumo e foi incorporado ao cabecalho do card `Parcelas em aberto`.
+  - Despesas variaveis ganharam linha de cadastro rapido dentro da tabela e preferencias locais para ultima categoria, ultimo pagamento e ultimo cartao.
+  - Roadmap ativo `roadmap-gastos-variaveis-e-faturas.md` foi fechado: itens de baixa friccao, testes de dominio, resumo/graficos e bloqueio de exclusao por variaveis foram marcados como feitos.
+  - Testes direcionados rodados: `ExpensesSection`, dominio de `VariableExpense`, series de graficos, selectors de resumo e `useCardDeleteReasons`.
+- Planejamento de captura inteligente global:
+  - Criado `roadmap-captura-inteligente-global.md` para planejar reducao de friccao em todo o app, nao apenas em despesas.
+  - Roadmap cobre captura textual, preview, executor, memoria local, sugestoes, OCR, baixa/pagamento, receitas, faturas, despesas fixas, variaveis e parcelamentos.
+  - Plano define uma nova camada `capture/` para evitar duplicar regra de dominio dentro dos componentes.
+- Inicio da captura inteligente global:
+  - Fase 0 concluida sem mudanca visual.
+  - Criada a camada inicial `src/features/finance/capture/` com contratos (`types.ts`), matriz de exemplos (`exampleMatrix.ts`) e parser base sem efeito colateral (`parser.ts`).
+  - Criadas fixtures de teste em `captureFixtures.ts` e testes de contrato em `captureContracts.test.ts`.
+  - Parser inicial retorna `unknown`/baixa confianca e nao recebe actions, preservando a regra de que parsing nao altera estado.
+  - Fase 1 concluida com parsers textuais base: tokenizer, valor monetario, data/dia, recorrencia, parcelamento, metodo de pagamento, cartao conhecido e categoria inicial por palavras-chave.
+  - `parseCaptureInput` passou a enriquecer `CaptureDraft.fields` sem tornar o resultado executavel e mantendo `intent: unknown` ate a fase de detector de intencao.
+  - Criado `captureParsers.test.ts` para cobrir os parsers primitivos e o enriquecimento do draft.
+  - Fase 2 concluida com `intentDetector.ts`.
+  - O detector classifica despesa variavel, despesa fixa, parcelamento, receita, fatura de cartao, baixa/pagamento e casos ambiguos.
+  - Casos ambiguos como `cartao 200` e `paguei luz` ficam com baixa confianca, campos faltantes e alternativas para revisao.
+  - Criado `captureIntentDetector.test.ts` cobrindo a matriz principal de intents e ambiguidades.
+  - Fase 3 concluida com `previewBuilder.ts` e `executor.ts`, ainda sem UI.
+  - Executor recebe actions como dependencia e mapeia drafts para variavel, fixa, parcelamento, receita, fatura de cartao e baixa de fatura por cartao.
+  - Execucao fica bloqueada para intent desconhecida ou campos obrigatorios faltantes.
+  - Criado `capturePreviewExecutor.test.ts` cobrindo previews e actions mockadas.
+  - Fase 4 concluida com `QuickCaptureBar` no topo do dashboard.
+  - Capturas de alta confianca salvam direto via executor; capturas de media/baixa confianca chamam `onReview` sem executar actions.
+  - Preview inline, estado curto de sucesso e atalho `Ctrl/Cmd+K` foram adicionados.
+  - Criado `QuickCaptureBar.test.tsx` cobrindo execucao segura, rota de revisao e foco por teclado.
+- Captura inteligente global - Fase 5:
+  - Criado `CaptureReviewModal` para revisar drafts antes de salvar.
+  - O modal permite trocar destino, corrigir campos, validar obrigatorios por destino e salvar via executor existente.
+  - `QuickCaptureBar` agora abre revisao real para capturas de media/baixa confianca.
+  - Adicionadas acoes `Salvar`, `Salvar e adicionar outro` e `Cancelar`.
+  - Criado `CaptureReviewModal.test.tsx` cobrindo correcao de captura ambigua, baixa com alvo manual e fluxo de salvar/adicionar outro.
+- Captura inteligente global - Fase 6:
+  - Criado `capture/preferences.ts` com memoria local best-effort.
+  - Preferencias corrompidas ou ausentes sao ignoradas sem quebrar captura.
+  - Parser aplica categoria, pagamento, cartao e recorrencia lembrados por descricao normalizada.
+  - Capturas salvas direto e capturas revisadas atualizam preferencias apos execucao bem-sucedida.
+  - Criado `capturePreferences.test.ts` cobrindo storage corrompido, aplicacao de preferencias e gravacao apos draft valido.
+- Captura inteligente global - Fase 7:
+  - Criado `capture/suggestions.ts` para sugestoes pos-captura sem salvamento automatico.
+  - Preview da `QuickCaptureBar` mostra sugestoes discretas que abrem revisao com draft ajustado.
+  - Sugestoes cobrem parcelamento para valor alto no cartao, tornar despesa fixa, usar ultimo cartao e marcar fatura como paga.
+  - Preferencia de ultimo cartao deixou de ser aplicada silenciosamente para textos novos; agora entra como sugestao revisavel.
+  - Criado `captureSuggestions.test.ts` e ampliado `QuickCaptureBar.test.tsx` para cobrir aceite de sugestao.
+- Captura inteligente global - Fase 8:
+  - Adicionada dependencia `tesseract.js` para OCR real no navegador.
+  - Criados contratos `ReceiptOcrResult`, `ReceiptCaptureSource` e `ParsedReceipt`.
+  - Criado `capture/ocr/receiptParser.ts` para ler imagem/texto, extrair texto via OCR, detectar estabelecimento/data/total e gerar draft revisavel.
+  - `QuickCaptureBar` ganhou upload de cupom (`image/*`, `.txt`) e envia o draft do cupom para revisao obrigatoria.
+  - Criado `receiptParser.test.ts` cobrindo cupom com total e fallback seguro sem total.
+- Captura inteligente global - Fase 9:
+  - Capturas salvas guardam o ultimo draft salvo e oferecem CTA discreto para abrir a aba de destino.
+  - `CaptureContext` passou a receber alvos de pagamento do mes: faturas, despesas fixas e parcelamentos.
+  - Parser detecta alvo de baixa por texto (`paguei luz`, `paguei teclado`) usando `paymentTargetMatcher`.
+  - Executor agora baixa fatura, despesa fixa e parcelamento via overrides mensais apropriados.
+  - `FinanceApp` conecta os novos callbacks de baixa usando `toggleMonthPaid`.
+  - Teste de executor cobre baixa de despesa fixa e parcelamento.
+- Captura inteligente global - Fases 10, 11 e 12:
+  - Testes focados de captura cobrem contratos, parsers, detector, executor, barra, modal, preferencias, sugestoes, OCR e metricas.
+  - `QuickCaptureBar` tem label acessivel, `aria-live`, Enter seguro, tooltip `Ctrl/Cmd+K` e Escape para limpar preview.
+  - `CaptureReviewModal` fecha com Escape e retorna foco para a captura apos salvar.
+  - Criado `capture/metrics.ts` com contadores locais best-effort para salvas, revisadas, canceladas e intents.
+  - Criado `captureMetrics.test.ts` cobrindo metricas corrompidas e contadores por intent.
+- Captura inteligente global - Fase 13 e validacao:
+  - Formularios CRUD foram revisados e mantidos como fallback/auditoria, sem remocao extra de campos para nao reduzir controle manual.
+  - Faturas de cartao continuam com edicao direta e tambem passam a aceitar captura textual por `cardBill`.
+  - Instalado `tesseract.js` com `--legacy-peer-deps` porque o projeto ja possui conflito peer entre Vite 8 e `@vitejs/plugin-react`.
+  - Suite completa passou: 39 arquivos de teste, 294 testes.
+  - Build, TypeScript, ESLint e `git diff --check` passaram.
+- Validacao visual na porta 3000:
+  - `QuickCaptureBar` abriu corretamente em `http://localhost:3000`.
+  - Captura direta `mercado 123,45` salvou e exibiu CTA `Abrir em Despesas`.
+  - Captura ambigua `cartao 200` abriu `CaptureReviewModal`; corrigido bug onde o select parecia `Despesa variavel`, mas o estado interno ainda era `unknown`.
+  - Salvamento pela revisao agora limpa o texto/preview antigo da barra de captura e mantem apenas o CTA de destino.
+  - Sugestao `Tornar fixa` abre revisao como despesa fixa e exige `day` antes de salvar.
+  - OCR ficou disponivel via botao `Cupom`; ainda precisa validacao manual com imagem real de cupom.
+- Suporte a DANFE/NF-e:
+  - OCR agora detecta documentos `DANFE`/`NF-e` e trata diferente de cupom simples.
+  - Parser tenta extrair emitente, chave de acesso, data de emissao, valor total da nota e descricao do produto.
+  - Para NF-e de produto, a descricao principal do draft passa a ser o produto, nao o emitente.
+  - Dados fiscais estruturados entram em `fields.notes` para revisao/auditoria.
+  - Criado teste com NF-e/DANFE no formato de compra de marketplace, cobrindo produto, emitente, chave, data e total.
+- Correcao de captura por arquivo:
+  - Upload de cupom agora aceita `.xml`, `.pdf`, `.txt` e imagens.
+  - XML NF-e/NFC-e passou a ser lido por tags fiscais (`emit`, `xProd`, `vNF`, `dhEmi`, `chNFe`), sem depender de OCR.
+  - PDF textual passou a ser lido com `pdfjs-dist`; PDF escaneado sem texto ainda informa erro claro e deve ir por imagem/XML.
+  - DANFE/TXT ficou mais defensivo: prioriza `VALOR TOTAL DA NOTA`, aceita valor em linhas vizinhas, extrai emitente de `RECEBEMOS DE...` e produto generico sem depender de palavras como mouse/teclado.
+  - `QuickCaptureBar` agora exibe erro especifico quando o arquivo nao gera draft, em vez de mascarar tudo como `Revisao necessaria`.
+  - `receiptParser.test.ts` cobre XML NF-e e DANFE/TXT com total/produto em linhas reais.
+  - Validado: teste completo (`39` arquivos, `306` testes) e build passaram.
+- Ajuste de valor/data em DANFE:
+  - Corrigido parser monetario para ignorar dimensoes de produto como `49x42x4mm`.
+  - Drafts gerados por DANFE/XML/PDF agora recebem `fields.amount`, `fields.day` e `fields.date` a partir dos dados estruturados do documento, sem depender da releitura textual do nome.
+  - Extracao de `VALOR TOTAL DA NOTA` e `DATA DA EMISSAO` ficou mais robusta para PDFs que chegam com texto compactado em uma unica linha.
+  - Testes focados passaram: `receiptParser.test.ts` e `captureParsers.test.ts`; build passou.
+- Ajuste de status em despesas variaveis:
+  - A coluna `Status` de despesas variaveis deixou de ser apenas texto e virou toggle clicavel `Pendente/Pago`, alinhado com despesas fixas e parcelamentos.
+  - `ExpensesSection` passa `onToggleVariablePaid` e `FinanceApp` atualiza `VariableExpense.paid` diretamente via `updateVariableExpense`.
+  - Criado teste em `ExpensesSection.test.tsx` cobrindo o clique no status da despesa variavel.
+  - Validado: `npm test` passou com 39 arquivos e 308 testes; `npm run build` passou.
+- Ajuste de linguagem natural para parcelamentos:
+  - Corrigido parser de valor para nao interpretar codigos alfanumericos como `FH6` como valor `6`.
+  - `6x de 86,94` agora captura `amount: 86.94` e `totalInstallments: 6`.
+  - Datas como `dia 17 de maio` agora usam o mes escrito, nao apenas o mes selecionado.
+  - Descricao ignora termos de acao/mes (`comprei`, `de`, `maio`) e preserva o item (`FH6`).
+  - Criado teste para `FH6, comprei dia 17 de maio, 6x de 86,94`.
+  - Validado: `npm test` passou com 39 arquivos e 309 testes; `npm run build` passou.
+- Interpretacao semantica de valores em parcelamento:
+  - `installmentParser` passou a distinguir `amountRole`: `installmentValue` para padroes fortes como `6x de 86,94` e `totalAmount` para `521,64 em 6x`.
+  - `parser.ts` preserva esse papel no draft, e `executor.ts` usa o papel para nao dividir valor de parcela novamente.
+  - Preview de parcelamento mostra `6x de R$ 86,94` quando o valor foi interpretado como parcela.
+  - Descricao remove mais termos de acao/conexao (`o`, `no`, `fiz`) para evitar nomes como `FH6 fiz no`.
+  - Coberto por testes para o input `comprei o FH6 dia 17 de maio, fiz em 6x de 86,94 no cartao Santander`.
+  - Validado: `npm test` passou com 39 arquivos e 309 testes; `npm run build` passou.
+- Texto de progresso em parcelamentos:
+  - Cards de parcelamento agora mostram o valor pago junto do total da compra: `R$ 86,94 de R$ 521,64 pagos`.
+  - Isso substitui o antigo `R$ 86,94 pago` e deixa claro o tamanho total do compromisso sem adicionar outra linha ao card.
+  - Criado teste em `InstallmentsSection.test.tsx` para o texto de progresso.
+  - Validado: `npm test` passou com 39 arquivos e 310 testes; `npm run build` passou.
+- Ajuste para modelos com numero em captura:
+  - Corrigido caso `iphone 16 pro, dia 1, 18x de 400, no cartao santander`.
+  - Numeros entre palavras de modelo (`iphone 16 pro`) nao viram valor, mas continuam na descricao.
+  - Valores inteiros em padroes fortes (`18x de 400`) agora sao aceitos como valor da parcela.
+  - Palavras de contexto como bancos/metodos (`itau`, `santander`, `boleto`, `pix`) evitam que entradas antigas como `notebook 2400 itau` sejam tratadas como modelo.
+  - Validado: `npm test` passou com 39 arquivos e 311 testes; `npm run build` passou.
+- Ajuste de prioridade em parcelamentos com data:
+  - Corrigido caso `Fonte Pichau comprado em 25 de fevereiro, parcela 3x de 304,20`.
+  - O valor do padrao forte `3x de 304,20` agora tem prioridade sobre numeros soltos anteriores, como o dia `25`.
+  - Descricoes ignoram termos como `comprado`, `parcela` e variacoes para manter o nome limpo (`Fonte Pichau`).
+  - Parcelamentos criados pela captura usam o mes da data capturada como base e, quando o cartao tem vencimento, inferem a virada da fatura como `dueDay - 6` para definir o primeiro mes da parcela.
+- Ajuste de datas historicas na captura:
+  - Corrigido caso `Geladeira, 10x de 320,89, comprado em 5 de Julho de 2025, Santander`.
+  - Parser de data agora respeita ano explicito depois do mes (`5 de julho de 2025`) em vez de trocar pelo ano do mes selecionado.
+  - Executor de parcelamento preserva o inicio historico e aplica a regra de virada do cartao quando houver vencimento cadastrado.
+- Filtros de parcelamentos:
+  - Aba de parcelamentos ganhou controle de visualizacao com `Recentes`, `Perto de quitar`, `Maior parcela`, `Maior total` e `Menor restante`.
+  - `Recentes` virou a ordenacao padrao para deixar o ultimo parcelamento cadastrado no topo da lista.
+  - `Perto de quitar` filtra itens com progresso a partir de 75%; os demais modos ordenam a lista pelos criterios financeiros mais relevantes.
+  - Estado vazio do filtro ganhou mensagem propria para orientar troca de filtro.
+  - Criados testes para ordenacao padrao por recentes, filtro de quase quitados e ordenacao por valor total.
+- CTA pos-captura:
+  - Botao `Abrir em ...` agora aparece apenas quando a captura foi salva em uma aba diferente da aba atual.
+  - Isso remove ruido quando o usuario ja esta no destino util, como salvar um parcelamento enquanto esta em `Cartoes`.

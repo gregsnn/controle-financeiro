@@ -6,26 +6,32 @@ interface OverrideIdentity {
   monthKey: string;
 }
 
+interface OverrideMatch {
+  type?: OverrideType;
+  itemId?: string;
+  monthKey?: string;
+}
+
+export function matchOverride(override: MonthOverride, identity: OverrideMatch): boolean {
+  if (identity.type !== undefined && override.type !== identity.type) return false;
+  if (identity.itemId !== undefined && override.itemId !== identity.itemId) return false;
+  if (identity.monthKey !== undefined && override.monthKey !== identity.monthKey) return false;
+  return true;
+}
+
 export function filterByMonthAndType(
   monthOverrides: MonthOverride[],
   monthKey: string,
   type: OverrideType
 ): MonthOverride[] {
-  return (monthOverrides || []).filter(
-    (override) => override.type === type && override.monthKey === monthKey
-  );
+  return (monthOverrides || []).filter((override) => matchOverride(override, { type, monthKey }));
 }
 
 export function findOverride(
   monthOverrides: MonthOverride[],
   identity: OverrideIdentity
 ): MonthOverride | undefined {
-  return monthOverrides.find(
-    (override) =>
-      override.type === identity.type &&
-      override.itemId === identity.itemId &&
-      override.monthKey === identity.monthKey
-  );
+  return monthOverrides.find((override) => matchOverride(override, identity));
 }
 
 export function toAmountRecord(

@@ -1,72 +1,94 @@
 .month-nav {
   display: grid;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-background-primary);
-  margin-bottom: 12px;
+  gap: var(--layout-gap);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  margin-bottom: 0;
 }
 
 .month-nav-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-width: 0;
+  display: none;
 }
 
-.month-stepper {
-  display: inline-grid;
-  grid-template-columns: auto minmax(0, auto) auto;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.month-stepper h2 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.month-nav-legacy-hidden {
+  display: none;
 }
 
 .month-step-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 6px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-background-primary);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border-color: transparent;
+}
+
+.month-step-btn:hover {
   color: var(--color-text-primary);
-  cursor: pointer;
+  background: color-mix(in srgb, var(--color-background-secondary) 58%, transparent);
 }
 
 .month-step-btn--icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
 }
 
-.theme-btn {
+.card-bill-panel {
+  display: grid;
+  gap: 20px;
+  min-height: 208px;
+  padding: 18px 18px 22px;
+  width: 100%;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-xl);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-surface);
+}
+
+.export-link-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 500;
-  padding: 5px 8px;
+  justify-content: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 7px 14px;
   border: 0.5px solid var(--color-border-secondary);
-  border-radius: var(--border-radius-md);
-  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  border-radius: 999px;
+  background: var(--color-background-primary);
   color: var(--color-text-primary);
-  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.export-link-btn:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 48%, var(--color-border-secondary));
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+}
+
+.theme-btn {
+  gap: 5px;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  font-weight: 500;
+  min-height: 32px;
+  padding: 5px 10px;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+
+.theme-btn:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-border-secondary));
+  background: var(--color-background-hover);
 }
 
 .theme-btn-label {
@@ -74,112 +96,52 @@
 }
 
 .theme-btn-icon {
-  line-height: 1;
-}
-
-.card-bill-panel {
-  display: grid;
-  gap: 4px;
-  padding: 7px 8px;
-  width: 100%;
-  border: 0.5px solid var(--color-border-secondary);
-  border-radius: var(--border-radius-md);
-  background: color-mix(in srgb, var(--color-background-secondary) 42%, transparent);
+  display: block;
+  width: 14px;
+  height: 14px;
+  color: var(--color-semantic-warning);
 }
 
 .card-bill-panel-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 8px;
+  min-height: 32px;
 }
 
 .card-bill-title {
-  margin: 0;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--color-text-tertiary);
+  margin: 2px 0 0;
+  --label-xs-color: var(--color-text-secondary);
+  --label-xs-letter-spacing: 0.08em;
 }
 
 .card-bill-add-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border-secondary);
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
-  font-size: 10px;
-  font-weight: 600;
-  cursor: pointer;
+  gap: 6px;
+  margin-left: auto;
+  min-height: 36px;
+  padding: 8px 18px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 82%, var(--color-border-secondary));
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.card-bill-add-btn:hover {
+  border-color: color-mix(in srgb, var(--color-accent-strong) 86%, var(--color-border));
+  background: var(--color-accent-strong);
 }
 
 .card-bill-add-form {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.icon-selector {
-  display: flex;
-  gap: 2px;
-  padding: 4px;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 6px;
-  background: var(--color-background-primary);
-}
-
-.icon-option {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  transition: all 0.15s ease;
-}
-
-.icon-option:hover {
-  background: var(--color-background-secondary);
-}
-
-.icon-option.selected {
-  border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
-}
-
-.color-picker {
-  width: 32px;
-  height: 32px;
-  padding: 2px;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 6px;
-  background: var(--color-background-primary);
-  cursor: pointer;
-}
-
-.color-picker::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-.color-picker::-webkit-color-swatch {
-  border: none;
-  border-radius: 2px;
-}
-
-.color-picker-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
 }
 
 .color-detection-info {
@@ -201,34 +163,10 @@
 }
 
 .color-preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
   flex-shrink: 0;
-}
-
-.color-picker-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.color-picker-wrapper label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  white-space: nowrap;
-  margin: 0;
-}
-
-.color-custom-label {
-  font-size: 10px;
-  color: var(--color-text-tertiary);
-  margin-left: 4px;
 }
 
 .card-bill-group {
@@ -239,86 +177,214 @@
 
 .card-bill-grid {
   display: flex;
-  gap: 8px;
+  gap: 18px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding-bottom: 2px;
 }
 
-/* Novas classes para o card com ícone e cor */
+/* Cards de fatura */
 .bill-card {
+  --bill-card-color: #1c66c7;
   display: grid;
-  gap: 8px;
-  min-width: 135px;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-background-primary);
-  cursor: pointer;
-  flex: 1 1 150px;
-  max-width: 170px;
-  transition: 0.2s;
-  transform: scale(1);
+  gap: 10px;
+  width: 238px;
+  min-width: 228px;
+  min-height: 132px;
+  max-width: 100%;
+  max-height: none;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--bill-card-color) 68%, #ffffff 20%);
+  border-radius: var(--border-radius-lg);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bill-card-color) 78%, #0d1117 22%) 0%,
+    color-mix(in srgb, var(--bill-card-color) 92%, #0d1117 18%) 100%
+  );
+  color: #ffffff;
+  cursor: default;
+  flex: 0 0 auto;
+  box-shadow: 0 16px 26px -22px color-mix(in srgb, var(--bill-card-color) 68%, #020617 32%);
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.bill-card-ident {
+.bill-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px -22px color-mix(in srgb, var(--bill-card-color) 78%, #000000 22%);
+}
+
+.bill-card--empty {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bill-card-color) 66%, #0d1117 34%) 0%,
+    color-mix(in srgb, var(--bill-card-color) 82%, #0d1117 24%) 100%
+  );
+}
+
+.bill-card--locked {
+  box-shadow:
+    0 14px 26px -20px color-mix(in srgb, var(--bill-card-color) 70%, #000000 30%),
+    inset 0 0 0 1px color-mix(in srgb, #ffffff 12%, transparent);
+}
+
+.bill-card-top {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 12px;
   min-width: 0;
 }
 
-.bill-card-icon {
-  font-size: 18px;
-  line-height: 1;
-  flex-shrink: 0;
+.bill-card-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.bill-card-name-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: calc(100% - 74px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bill-card-name-btn svg {
+  flex: 0 0 auto;
+  opacity: 0.56;
+  transition: opacity 0.2s ease;
+}
+
+.bill-card-name-btn:hover svg,
+.bill-card-name-btn:focus-visible svg {
+  opacity: 1;
+}
+
+.bill-card-name-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, #ffffff 62%, transparent);
+  outline-offset: 3px;
+  border-radius: 999px;
 }
 
 .bill-card-name {
-  font-size: 12px;
-  color: var(--color-text-secondary);
-  font-weight: 500;
+  margin: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1;
-  min-width: 0;
+  letter-spacing: 0.014em;
+}
+
+.bill-card-label {
+  --label-xs-size: 9px;
+  --label-xs-color: color-mix(in srgb, #ffffff 68%, transparent);
+  --label-xs-letter-spacing: 0.08em;
+}
+
+.bill-card-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  color: #ffffff;
+  background: color-mix(in srgb, #ffffff 18%, transparent);
+  border: 1px solid color-mix(in srgb, #ffffff 28%, transparent);
+}
+
+.bill-card-divider {
+  height: 1px;
+  background: color-mix(in srgb, #ffffff 24%, transparent);
+}
+
+.bill-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bill-card-due {
+  color: color-mix(in srgb, #ffffff 68%, transparent);
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .bill-card-value {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 0.014em;
+  transition: opacity 0.3s ease;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bill-card-add-value {
   display: inline-flex;
   align-items: center;
-  padding: 3px 6px;
-  border: 0.5px solid var(--color-text-tertiary);
-  border-radius: var(--border-radius-md);
-  background: color-mix(in srgb, var(--color-text-tertiary) 8%, transparent);
-  color: var(--color-text-secondary);
-  font-size: 9px;
-  font-weight: 500;
+  justify-content: center;
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 7px 12px;
+  border: 1px solid color-mix(in srgb, #ffffff 50%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #ffffff 12%, transparent);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: opacity 0.3s ease;
+  pointer-events: auto;
 }
 
 .bill-card-add-value:hover {
-  color: var(--color-text-primary);
-  border-color: var(--color-text-secondary);
+  border-color: color-mix(in srgb, #ffffff 72%, transparent);
+  background: color-mix(in srgb, #ffffff 18%, transparent);
 }
 
 .bill-card-input {
   width: 100%;
-  font-size: 14px;
-  font-weight: 600;
+  min-width: 0;
+  box-sizing: border-box;
+  font-size: 20px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  text-align: right;
-  padding: 4px 6px 4px 0;
+  text-align: left;
+  padding: 1px 3px 1px 0;
   border: 0;
   background: transparent;
-  color: var(--color-text-primary);
+  color: #ffffff;
 }
 
 .bill-card-input:focus {
@@ -326,32 +392,121 @@
 }
 
 .bill-card-input::placeholder {
-  color: var(--color-text-tertiary);
+  color: color-mix(in srgb, #ffffff 70%, transparent);
   font-weight: 400;
 }
 
-.card-bill-add-input {
-  flex: 1;
+.bill-display {
+  display: flex;
+  align-items: center;
+  width: 100%;
   min-width: 0;
-  padding: 8px 10px;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 6px;
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
+  height: 36px;
+  position: relative;
+  overflow: hidden;
 }
 
-.card-bill-add-confirm {
+.bill-currency {
+  width: 0;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border-secondary);
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
-  font-size: 11px;
+  align-items: baseline;
+  opacity: 0;
+  overflow: hidden;
+  margin-right: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 20px;
   font-weight: 600;
-  cursor: pointer;
+  color: #ffffff;
+  letter-spacing: 0.03em;
+  transition:
+    width 0.3s ease,
+    opacity 0.3s ease,
+    margin-right 0.3s ease;
+}
+
+.bill-input-shell {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  transform: translate(-100%, -50%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.bill-display.editing .bill-currency {
+  width: 32px;
+  opacity: 1;
+}
+
+.bill-card-value,
+.bill-card-add-value {
+  transition: opacity 0.3s ease;
+}
+
+.bill-display.editing .bill-card-value,
+.bill-display.editing .bill-card-add-value {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  pointer-events: none;
+}
+
+.bill-input-shell.visible {
+  transform: translate(0, -50%);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.bill-display.editing .bill-input-shell {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.bill-card-value {
+  transition: none;
+}
+
+.card-bill-add-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  font-size: 13px;
+}
+
+.card-bill-add-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
+}
+
+.card-bill-add-hint {
+  margin: -2px 0 2px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .card-bill-empty {
@@ -360,10 +515,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 16px;
+  padding: var(--layout-gap-section);
   border-radius: 8px;
-  background-color: var(--color-background-secondary);
-  border: 1px dashed var(--color-card-border);
+  background-color: color-mix(in srgb, var(--color-background-secondary) 58%, transparent);
+  border: 1px dashed var(--color-border-secondary);
   text-align: center;
 }
 
@@ -395,19 +550,20 @@
 }
 
 .card-bill-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   margin-top: 2px;
   padding: 5px 10px;
-  border-radius: 6px;
   border: 1px solid var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
-  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
   font-size: 10px;
   font-weight: 600;
-  cursor: pointer;
 }
 
 .card-bill-empty-btn:hover {
-  background: color-mix(in srgb, var(--color-accent) 32%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
 }
 
 .card-bill-field {
@@ -420,22 +576,6 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-}
-
-.card-bill-icon {
-  width: 12px;
-  text-align: center;
-  line-height: 1;
-  font-size: 10px;
-  color: var(--color-accent-strong);
-}
-
-.card-bill-field--santander .card-bill-icon {
-  color: #d62d36;
-}
-
-.card-bill-field--nubank .card-bill-icon {
-  color: #7c3aed;
 }
 
 .card-bill-label {
@@ -457,38 +597,9 @@
   min-width: 0;
 }
 
-.bill-input-shell {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 6px;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: 6px;
-  background: var(--color-background-primary);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.bill-input-shell {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 8px;
-  border: 0.5px solid var(--color-border-secondary);
-  border-radius: var(--border-radius-md);
-  background: var(--color-background-primary);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
 .bill-input-shell:focus-within {
   border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border-secondary));
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 16%, transparent);
-}
-
-.bill-currency {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-text-tertiary);
-  letter-spacing: 0.03em;
 }
 
 .bill-input::placeholder {
@@ -500,17 +611,63 @@
 }
 
 .bill-card-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   flex-shrink: 0;
-  padding: 2px 6px;
-  border: 0.5px solid var(--color-text-tertiary);
-  border-radius: var(--border-radius-md);
-  background: color-mix(in srgb, var(--color-text-tertiary) 8%, transparent);
-  color: var(--color-text-secondary);
-  font-size: 9px;
-  font-weight: 500;
+  padding: 5px 10px 5px 9px;
+  border: 1px solid color-mix(in srgb, #ffffff 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, #ffffff 10%, transparent);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
-  margin-left: auto;
+}
+
+.bill-card-delete::before {
+  display: none;
+}
+
+.bill-card-delete:hover {
+  border-color: color-mix(in srgb, #ffffff 72%, transparent);
+  background: color-mix(in srgb, #ffffff 20%, transparent);
+}
+
+.bill-card .bill-input-shell {
+  position: static;
+  display: inline-flex;
+  align-items: baseline;
+  flex: 1 1 auto;
+  max-width: 0;
+  min-width: 0;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  transform: none;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: none;
+  transition:
+    max-width 0s ease,
+    opacity 0s ease,
+    visibility 0.3s ease;
+}
+
+.bill-card .bill-input-shell.visible {
+  max-width: calc(100% - 25px);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.bill-card .bill-input-shell:focus-within {
+  border: 0;
+  box-shadow: none;
 }
 
 .bill-card-delete:disabled {
@@ -519,15 +676,19 @@
 }
 
 .bill-card-delete:hover:not(:disabled) {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  border-color: color-mix(in srgb, #ffffff 72%, transparent);
+  background: color-mix(in srgb, #ffffff 20%, transparent);
 }
 
 @media (max-width: 900px) {
+  .bill-card {
+    min-width: 100%;
+    max-width: none;
+  }
+
   .month-nav-top {
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
   }
 
   .month-stepper {
@@ -537,6 +698,18 @@
 
   .month-stepper h2 {
     font-size: 16px;
+  }
+
+  .month-nav-actions {
+    width: 100%;
+  }
+
+  .export-link-btn {
+    flex: 1;
+  }
+
+  .card-bill-grid {
+    justify-content: stretch;
   }
 
   .card-bill-add-form {

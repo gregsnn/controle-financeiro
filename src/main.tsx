@@ -1,3 +1,5 @@
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import 'overlayscrollbars/overlayscrollbars.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -15,9 +17,22 @@ ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <I18nProvider initialLocale="pt-BR">
-        <FinanceProvider>
-          <App />
-        </FinanceProvider>
+        <OverlayScrollbarsComponent
+          className="app-scroll-shell"
+          options={{
+            overflow: { x: 'hidden', y: 'scroll' },
+            scrollbars: {
+              theme: 'os-theme-ios',
+              visibility: 'auto',
+              autoHide: 'scroll',
+              autoHideDelay: 650,
+            },
+          }}
+        >
+          <FinanceProvider>
+            <App />
+          </FinanceProvider>
+        </OverlayScrollbarsComponent>
       </I18nProvider>
     </ErrorBoundary>
   </React.StrictMode>

@@ -3,12 +3,18 @@ export const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 });
 
+export const moneyInputFormatter = new Intl.NumberFormat('pt-BR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export function formatCurrency(value: unknown): string {
   return currencyFormatter.format(Number(value || 0));
 }
 
 export default {
   currencyFormatter,
+  moneyInputFormatter,
   formatCurrency,
 };
 

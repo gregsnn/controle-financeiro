@@ -1,5 +1,7 @@
-import { formatMoney } from '../utils.js';
+import { PAID_COLOR } from '../../domain/constants.js';
 import type { MonthView } from '../../domain/types.js';
+import { formatMoney } from '../utils.js';
+import { CHART_AXIS_COLOR, CHART_FONT, CHART_GRID_COLOR } from './chartTheme.js';
 
 export function hasInstallmentBarData(monthView: MonthView): boolean {
   return buildInstallmentBarConfig(monthView) !== null;
@@ -11,16 +13,7 @@ export function buildInstallmentBarConfig(monthView: MonthView) {
   }
 
   const labels = monthView.installments.map((item) => item.name);
-  const paidValues = monthView.installments.map((item) => {
-    const v = Number(item.installmentValue);
-    const done = Math.max(0, item.currentInstallment - 1);
-    return done * v;
-  });
-  const remainingValues = monthView.installments.map((item) => {
-    const v = Number(item.installmentValue);
-    const left = Math.max(0, item.totalInstallments - item.currentInstallment);
-    return left * v;
-  });
+  const monthValues = monthView.installments.map((item) => Number(item.installmentValue || 0));
 
   return {
     type: 'bar',
@@ -28,15 +21,9 @@ export function buildInstallmentBarConfig(monthView: MonthView) {
       labels,
       datasets: [
         {
-          label: 'Já pago (acumulado)',
-          data: paidValues,
-          backgroundColor: '#1D9E75',
-          borderRadius: 4,
-        },
-        {
-          label: 'Falta pagar',
-          data: remainingValues,
-          backgroundColor: '#B5D4F4',
+          label: 'Parcela deste mes',
+          data: monthValues,
+          backgroundColor: PAID_COLOR,
           borderRadius: 4,
         },
       ],
@@ -57,10 +44,18 @@ export function buildInstallmentBarConfig(monthView: MonthView) {
       scales: {
         x: {
           stacked: true,
-          ticks: { callback: (v: number) => `R$${v}`, font: { size: 10 } },
-          grid: { color: 'rgba(0,0,0,.04)' },
+          ticks: {
+            callback: (v: number) => `R$${v}`,
+            color: CHART_AXIS_COLOR,
+            font: CHART_FONT,
+          },
+          grid: { color: CHART_GRID_COLOR },
         },
-        y: { stacked: true, ticks: { font: { size: 10 } } },
+        y: {
+          stacked: true,
+          ticks: { color: CHART_AXIS_COLOR, font: CHART_FONT },
+          grid: { color: CHART_GRID_COLOR },
+        },
       },
     },
   };

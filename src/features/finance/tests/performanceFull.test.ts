@@ -10,7 +10,7 @@ import { createFinanceId } from '../lib/ids';
 import { formatMoneyInput } from '../lib/moneyInput';
 import { emptyFinanceState, type MonthView } from '../lib/schema';
 import { clone, isMonthInRange, monthKey } from '../lib/utils';
-import { selectMonthCardBills } from '../selectors/monthOverrideSelectors';
+import { selectMonthCardBillAmounts } from '../selectors/monthOverrideSelectors';
 
 describe('performanceFull.ts - All modules stress test', () => {
   beforeEach(() => {
@@ -222,7 +222,7 @@ describe('performanceFull.ts - All modules stress test', () => {
     });
   });
 
-  describe('monthOverrideSelectors - selectMonthCardBills', () => {
+  describe('monthOverrideSelectors - selectMonthCardBillAmounts', () => {
     it('handles large override array', () => {
       const overrides = Array.from({ length: 100 }, (_, i) => ({
         id: `o${i}`,
@@ -234,7 +234,7 @@ describe('performanceFull.ts - All modules stress test', () => {
 
       const start = performance.now();
       for (let i = 0; i < 1000; i++) {
-        selectMonthCardBills(overrides, '2026-04');
+        selectMonthCardBillAmounts(overrides, '2026-04');
       }
       const duration = performance.now() - start;
       expect(duration).toBeLessThan(100);

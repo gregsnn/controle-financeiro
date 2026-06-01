@@ -7,10 +7,10 @@ export function useSummaryMetrics(monthView: MonthView, pieMode: PieMode) {
   return useMemo(() => {
     const pieTitle =
       pieMode === 'cards'
-        ? 'DESPESAS POR CARTAO'
+        ? 'GASTOS POR CARTAO'
         : pieMode === 'cardsStatus'
-          ? 'PAGO X PENDENTE (RASTREADO)'
-          : 'DISTRIBUICAO DE DESPESAS';
+          ? 'PAGO E PENDENTE'
+          : 'PARA ONDE O DINHEIRO VAI';
 
     const pieAriaLabel =
       pieMode === 'cards'

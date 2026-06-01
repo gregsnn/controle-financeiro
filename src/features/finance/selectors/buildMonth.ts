@@ -7,7 +7,9 @@ import type {
   MonthView,
   MonthViewFixedExpense,
   MonthViewInstallment,
+  MonthViewVariableExpense,
   Revenue,
+  VariableExpense,
 } from '../domain/types.js';
 import { isMonthInRange, monthKey } from '../lib/utils.js';
 
@@ -57,6 +59,7 @@ function calculateCurrentInstallment(
 
 interface BuildMonthParams {
   fixedExpenses: FixedExpense[];
+  variableExpenses?: VariableExpense[];
   installments: Installment[];
   revenues: Revenue[];
   monthOverrides: MonthOverride[];
@@ -86,12 +89,19 @@ export function buildMonthView(
   const fixedExpenses: MonthViewFixedExpense[] = [];
   let despesasFixasTotal = 0;
   let despesasFixasPagasTotal = 0;
+  const variableExpenses: MonthViewVariableExpense[] = [];
+  let despesasVariaveisTotal = 0;
+  let despesasVariaveisPagasTotal = 0;
 
   // Single pass: combine all filters into one loop
   for (const item of state.fixedExpenses) {
     // Check all conditions in one pass
     if (item.active === false) continue;
-    if (!isMonthInRange(currentMonthKey, item.startMonth, item.endMonth)) continue;
+    if (item.recurring === false) {
+      if (item.startMonth !== currentMonthKey) continue;
+    } else if (!isMonthInRange(currentMonthKey, item.startMonth, item.endMonth)) {
+      continue;
+    }
 
     const overridden = applyOverride(
       item,
@@ -108,6 +118,18 @@ export function buildMonthView(
     }
   }
 
+  for (const item of state.variableExpenses || []) {
+    if (item.monthKey !== currentMonthKey) continue;
+    const finalItem: MonthViewVariableExpense = {
+      ...item,
+      amount: Number(item.amount || 0),
+      paid: item.paid === true,
+    };
+    variableExpenses.push(finalItem);
+    despesasVariaveisTotal += Number(finalItem.amount || 0);
+    despesasVariaveisPagasTotal += finalItem.paid ? Number(finalItem.amount || 0) : 0;
+  }
+
   const revenues: typeof state.revenues = [];
   let receitasTotal = 0;
 
@@ -115,15 +137,29 @@ export function buildMonthView(
   for (const item of state.revenues) {
     // Check all conditions in one pass
     if (item.active === false) continue;
-    if (!isMonthInRange(currentMonthKey, item.startMonth, item.endMonth)) continue;
+    if (item.recurring === false) {
+      if (item.startMonth !== currentMonthKey) continue;
+    } else if (!isMonthInRange(currentMonthKey, item.startMonth, item.endMonth)) {
+      continue;
+    }
+
+    // Apply full revenue override (name/hidden/etc) if present, similar to fixed expenses
+    const overridden = applyOverride(
+      item,
+      overridesMap[OVERRIDE_TYPES.REVENUE]?.get(item.id) as OverrideWithHidden | undefined
+    );
 
     const revenueAmount = monthRevenueAmounts?.[item.id];
     const final = {
-      ...item,
+      ...overridden,
       amount: revenueAmount !== undefined ? revenueAmount : item.baseAmount,
-    };
-    revenues.push(final);
-    receitasTotal += Number(final.amount || 0);
+    } as any;
+
+    // Skip hidden revenue items (but apply overrides to others)
+    if (!(final as Revenue & { hidden?: boolean }).hidden) {
+      revenues.push(final);
+      receitasTotal += Number(final.amount || 0);
+    }
   }
 
   const installments: MonthViewInstallment[] = [];
@@ -163,16 +199,19 @@ export function buildMonthView(
   const totals = {
     receitas: receitasTotal,
     despesasFixas: despesasFixasTotal,
+    despesasVariaveis: despesasVariaveisTotal,
     installments: installmentsTotal,
     fixedExpensesPaid: despesasFixasPagasTotal,
+    variableExpensesPaid: despesasVariaveisPagasTotal,
     installmentsPaid: installmentsPaidTotal,
-    despesasPaid: despesasFixasPagasTotal + installmentsPaidTotal,
-    despesas: despesasFixasTotal + installmentsTotal,
-    saldo: receitasTotal - despesasFixasTotal - installmentsTotal,
+    despesasPaid: despesasFixasPagasTotal + despesasVariaveisPagasTotal + installmentsPaidTotal,
+    despesas: despesasFixasTotal + despesasVariaveisTotal + installmentsTotal,
+    saldo: receitasTotal - despesasFixasTotal - despesasVariaveisTotal - installmentsTotal,
   };
 
   return {
     fixedExpenses,
+    variableExpenses,
     revenues,
     installments,
     totals,

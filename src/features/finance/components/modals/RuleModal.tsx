@@ -1,4 +1,5 @@
 import { FormEvent, ReactNode } from 'react';
+import { ModalShell } from './ModalShell';
 
 interface RuleModalProps {
   open: boolean;
@@ -17,25 +18,19 @@ export function RuleModal({
   submitLabel,
   children,
 }: RuleModalProps) {
-  if (!open) return null;
-
   return (
-    <div className="modal-bg open">
-      <div className="modal-fg" onClick={onClose}></div>
-      <div className="modal-box">
-        <p className="modal-title">{title}</p>
-        <form onSubmit={onSubmit} style={{ display: 'grid', gap: '10px' }}>
-          {children}
-          <div className="factions" style={{ marginTop: 4 }}>
-            <button className="btn-save" type="submit">
-              {submitLabel}
-            </button>
-            <button className="btn-cancel" type="button" onClick={onClose}>
-              Cancelar
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <ModalShell open={open} title={title} onClose={onClose}>
+      <form className="modal-form" onSubmit={onSubmit}>
+        {children}
+        <div className="factions">
+          <button className="btn-save" type="submit">
+            {submitLabel}
+          </button>
+          <button className="btn-cancel" type="button" onClick={onClose}>
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </ModalShell>
   );
 }

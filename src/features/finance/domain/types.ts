@@ -25,14 +25,38 @@ export interface Installment {
   closedAt: string | null;
 }
 
+export interface InstallmentItem {
+  id: string;
+  name: string;
+  installmentValue: number;
+  totalInstallments: number;
+  startMonth: string;
+  card: string;
+  currentInstallment: number;
+}
+
 export interface Revenue {
   id: string;
   name: string;
   baseAmount: number;
   active: boolean;
   startMonth: string;
+  paymentDay?: number | null;
+  recurring?: boolean;
   endMonth: string | null;
+  notes: string;
+}
+
+export interface VariableExpense {
+  id: string;
+  name: string;
+  amount: number;
+  date: string;
+  monthKey: string;
   category: string;
+  paymentMethod: string;
+  card?: string | null;
+  paid: boolean;
   notes: string;
 }
 
@@ -68,6 +92,7 @@ export interface Meta {
 export interface FinanceState {
   currentDate: Date;
   fixedExpenses: FixedExpense[];
+  variableExpenses: VariableExpense[];
   installments: Installment[];
   revenues: Revenue[];
   monthOverrides: MonthOverride[];
@@ -83,22 +108,26 @@ export interface MonthViewInstallment extends Installment {
   paid: boolean;
 }
 
+export interface MonthViewVariableExpense extends VariableExpense {}
+
 export interface MonthView {
   fixedExpenses: MonthViewFixedExpense[];
+  variableExpenses: MonthViewVariableExpense[];
   installments: MonthViewInstallment[];
   revenues: Revenue[];
   totals: {
     despesasFixas: number;
+    despesasVariaveis: number;
     receitas: number;
     installments: number;
   };
 }
 
-export type FinanceIdPrefix = 'fixed' | 'rev' | 'inst' | 'ovr' | 'test';
+export type FinanceIdPrefix = 'fixed' | 'var' | 'rev' | 'inst' | 'ovr' | 'test';
 
 export interface CardBillItem {
   id: string;
   name: string;
-  icon?: string;
   color?: string;
+  dueDay?: number | null;
 }

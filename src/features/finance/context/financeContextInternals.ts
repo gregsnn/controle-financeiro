@@ -5,8 +5,16 @@ import {
   normalizeFixedExpense,
   normalizeInstallment,
   normalizeRevenue,
+  normalizeVariableExpense,
 } from '../domain/actions';
-import type { FinanceState, FixedExpense, Installment, MonthView, Revenue } from '../domain/types';
+import type {
+  FinanceState,
+  FixedExpense,
+  Installment,
+  MonthView,
+  Revenue,
+  VariableExpense,
+} from '../domain/types';
 import { emptyFinanceState } from '../lib/schema';
 import { financeRepository } from '../lib/storage';
 import { monthKey } from '../lib/utils';
@@ -14,9 +22,10 @@ import { buildMonthView } from '../selectors/buildMonth';
 
 export const EMPTY_MONTH_VIEW: MonthView = {
   fixedExpenses: [],
+  variableExpenses: [],
   installments: [],
   revenues: [],
-  totals: { receitas: 0, despesasFixas: 0, installments: 0 },
+  totals: { receitas: 0, despesasFixas: 0, despesasVariaveis: 0, installments: 0 },
 };
 
 export function useHydrateFinanceState(
@@ -40,6 +49,9 @@ export function useHydrateFinanceState(
               ...loadedState,
               fixedExpenses: (loadedState.fixedExpenses || []).map((item: FixedExpense) =>
                 normalizeFixedExpense(item as unknown as Record<string, unknown>)
+              ),
+              variableExpenses: (loadedState.variableExpenses || []).map((item: VariableExpense) =>
+                normalizeVariableExpense(item as unknown as Record<string, unknown>)
               ),
               installments: (loadedState.installments || []).map((item: Installment) =>
                 normalizeInstallment(item as unknown as Record<string, unknown>)
@@ -141,6 +153,7 @@ export function useDerivedFinanceState(state: FinanceState | null) {
     if (!state) {
       return {
         fixedExpenses: [],
+        variableExpenses: [],
         installments: [],
         revenues: [],
         monthOverrides: [],
@@ -149,6 +162,7 @@ export function useDerivedFinanceState(state: FinanceState | null) {
     }
     return {
       fixedExpenses: state.fixedExpenses,
+      variableExpenses: state.variableExpenses || [],
       installments: state.installments,
       revenues: state.revenues,
       monthOverrides: state.monthOverrides,

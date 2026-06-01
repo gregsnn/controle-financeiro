@@ -6,8 +6,12 @@
   flex-shrink: 0;
 }
 
-.dot-ok { background: var(--color-semantic-success); }
-.dot-pend { background: var(--color-semantic-warning); }
+.dot-ok {
+  background: var(--color-semantic-success);
+}
+.dot-pend {
+  background: var(--color-semantic-warning);
+}
 
 .progress-cell {
   display: flex;
@@ -49,4 +53,287 @@
   color: #fff;
   font-weight: 500;
   white-space: nowrap;
+}
+
+.installment-card-list {
+  display: grid;
+  gap: 18px;
+}
+
+.installment-filter-bar {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 999px;
+  background: var(--color-background-primary);
+  overflow-x: auto;
+}
+
+.installment-filter-bar button {
+  min-height: 30px;
+  padding: 7px 13px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.installment-filter-bar button:hover {
+  color: var(--color-text-primary);
+}
+
+.installment-filter-bar button.active {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  box-shadow: var(--shadow-soft);
+}
+
+.installment-card {
+  display: grid;
+  gap: 20px;
+  min-height: 136px;
+  padding: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-xl);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-surface);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.installment-card:hover {
+  background: var(--color-background-hover);
+  border-color: var(--color-border-secondary);
+  transform: translateY(-1px);
+}
+
+.installment-card-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--layout-gap-section);
+  min-width: 0;
+}
+
+.installment-card-copy {
+  min-width: 0;
+}
+
+.installment-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--layout-gap-sm);
+  min-width: 0;
+}
+
+.installment-card-title-row h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.installment-card-copy p {
+  margin: 4px 0 0;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.installment-card-amount {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  text-align: right;
+}
+
+.installment-card-amount strong {
+  color: var(--color-text-primary);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.installment-card-amount strong span {
+  margin-left: 2px;
+  color: var(--color-text-tertiary);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.installment-card-amount small {
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+}
+
+.installment-card-progress {
+  display: grid;
+  gap: 7px;
+}
+
+.installment-card-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--layout-gap);
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+}
+
+.installment-progress-track {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--color-border-tertiary);
+  overflow: hidden;
+}
+
+.installment-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-strong));
+  transition: width 0.3s ease;
+}
+
+.installment-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--layout-gap-section);
+  min-width: 0;
+}
+
+.installment-card-footer .row-actions {
+  opacity: 1;
+}
+
+.installment-paid-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 7px 12px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.installment-paid-toggle.paid {
+  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border-secondary));
+  background: var(--color-accent-muted);
+  color: var(--color-accent-strong);
+}
+
+.installment-paid-toggle.pending {
+  border-color: color-mix(
+    in srgb,
+    var(--color-semantic-warning) 32%,
+    var(--color-border-secondary)
+  );
+  background: color-mix(in srgb, var(--color-semantic-warning) 10%, transparent);
+  color: var(--color-semantic-warning);
+}
+
+.installment-card-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.installment-card-actions button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 10px;
+}
+
+.installment-card-actions button:hover {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+}
+
+.installment-card-actions button.danger:hover {
+  background: color-mix(in srgb, var(--color-semantic-danger) 12%, transparent);
+  color: var(--color-semantic-danger);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+
+.status-badge--ok {
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-border-secondary));
+  background: var(--color-accent-muted);
+  color: var(--color-accent-strong);
+}
+
+.installments-empty {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 150px;
+  padding: var(--layout-gap-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-xl);
+  background: var(--color-background-primary);
+  text-align: center;
+  box-shadow: var(--shadow-surface);
+}
+
+.installments-empty p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.installments-empty span {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .installment-card-main,
+  .installment-card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .installment-card-amount {
+    justify-items: start;
+    text-align: left;
+  }
 }

@@ -2,7 +2,13 @@ import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { applyMoneyMask } from '../../../lib/moneyInput';
 import { Input } from '../../inputs';
 
-export type RevenueFormState = { name: string; amount: string; startMonth: string };
+export type RevenueFormState = {
+  name: string;
+  amount: string;
+  startMonth: string;
+  paymentDay: string;
+  recurring: boolean;
+};
 
 interface RevenueFormProps {
   form: RevenueFormState;
@@ -19,7 +25,7 @@ export function RevenueForm({ form, setForm }: RevenueFormProps) {
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
             setForm((prev) => ({ ...prev, name: e.target.value }))
           }
-          placeholder="Salário, extra, bônus..."
+          placeholder="Salario, extra, bonus..."
         />
         <Input
           label="Valor"
@@ -33,15 +39,31 @@ export function RevenueForm({ form, setForm }: RevenueFormProps) {
           placeholder="0,00"
         />
       </div>
-      <Input
-        label="Mês de início"
-        type="month"
-        value={form.startMonth}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          setForm((prev) => ({ ...prev, startMonth: e.target.value }))
-        }
-        placeholder=""
-      />
+      <div className="form-grid">
+        <Input
+          label="Dia de recebimento"
+          type="number"
+          min="1"
+          max="31"
+          value={form.paymentDay}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setForm((prev) => ({ ...prev, paymentDay: e.target.value }))
+          }
+          placeholder="Ex.: 5"
+        />
+        <label className="field checkbox-field">
+          <span>Recorrente</span>
+          <select
+            value={form.recurring ? 'sim' : 'nao'}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setForm((prev) => ({ ...prev, recurring: e.target.value === 'sim' }))
+            }
+          >
+            <option value="sim">Sim</option>
+            <option value="nao">Nao, apenas este mes</option>
+          </select>
+        </label>
+      </div>
     </>
   );
 }

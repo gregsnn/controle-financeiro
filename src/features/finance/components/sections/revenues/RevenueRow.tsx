@@ -1,6 +1,5 @@
 import type { Revenue } from '../../../domain/types';
 import { formatMoneyInput } from '../../../lib/moneyInput';
-import { formatStartMonth } from '../../../lib/utils';
 import { RowActions } from '../shared/RowActions';
 
 interface RevenueRowProps {
@@ -31,12 +30,14 @@ export function RevenueRow({
   return (
     <tr>
       <td>{item.name}</td>
+      <td>{item.paymentDay ? `Dia ${item.paymentDay}` : '-'}</td>
+      <td>{item.recurring === false ? 'Nao' : 'Sim'}</td>
       <td>
         <div className="month-amount-cell">
           <input
             type="text"
             className={`month-amount-input ${hasOverride ? 'has-override' : ''}`}
-            value={tempValue || formatMoneyInput(displayAmount)}
+            value={tempValue !== undefined ? tempValue : formatMoneyInput(displayAmount)}
             onChange={(e) => onMonthAmountInput(item.id, e.target.value)}
             onBlur={() => onMonthAmountBlur(item)}
             inputMode="numeric"
@@ -50,12 +51,11 @@ export function RevenueRow({
               onClick={() => onMonthAmountChange(item.id, null)}
               title="Restaurar valor original"
             >
-              ×
+              x
             </button>
           )}
         </div>
       </td>
-      <td>{formatStartMonth(item.startMonth)}</td>
       <td>
         <RowActions onEdit={onEdit} onDelete={onDelete} />
       </td>

@@ -1,21 +1,15 @@
-export const INSTALLMENT_LABELS = {
+import { createSectionLabels } from '../shared/createSectionLabels';
+
+export const INSTALLMENT_LABELS = createSectionLabels({
   title: 'PARCELAMENTOS',
   description: 'Cada parcela aparece enquanto ainda estiver ativa e some quando o total terminar.',
   addLabel: '+ Novo parcelamento',
   emptyText: 'Nenhum parcelamento cadastrado ainda.',
-  columns: ['Nome', 'Parcela', 'Cartão', 'Desde', 'Progresso', 'Pago', 'Ações'] as const,
-  modal: {
-    create: {
-      title: 'Novo parcelamento',
-      submitLabel: 'Adicionar parcelamento',
-    },
-    edit: {
-      title: 'Editar parcelamento',
-      submitLabel: 'Salvar alterações',
-    },
-  },
-  delete: {
-    title: 'Confirmar exclusão',
-    message: (name: string) => `Tem certeza que deseja apagar o parcelamento "${name}"?`,
-  },
-} as const;
+  columns: ['Nome', 'Parcela', 'Cartao', 'Desde', 'Progresso', 'Pago', 'Acoes'] as const,
+  createTitle: 'Novo parcelamento',
+  createSubmitLabel: 'Adicionar parcelamento',
+  editTitle: 'Editar parcelamento',
+  editSubmitLabel: 'Salvar alteracoes',
+  deleteTitle: 'Confirmar exclusao',
+  deleteMessage: (name: string) => `Tem certeza que deseja apagar o parcelamento "${name}"?`,
+});

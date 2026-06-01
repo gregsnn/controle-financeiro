@@ -1,23 +1,33 @@
+import { ALLOWED_PAYMENT_METHODS, DEFAULT_CARD_ID } from '../../../domain/constants';
 import type { CardBillItem, FixedExpense } from '../../../domain/types';
 import { parseMoneyInput } from '../../../lib/moneyInput';
+import { resolvePaymentMethod } from '../../../lib/utils';
+import { createFormHelpers } from '../shared/createFormHelpers';
 import type { FixedExpenseFormState } from './FixedExpenseForm';
 
-const SPECIAL_PAYMENT_METHODS = ['boleto', 'pix', 'debito', 'cartao'] as const;
-
-function resolvePaymentMethod(item: FixedExpense) {
-  if (item.paymentMethod === 'cartao' && item.card) return item.card;
-  return item.paymentMethod || 'boleto';
-}
+type FixedExpensePayload = {
+  name: string;
+  amount: number;
+  dueDay: number | null;
+  startMonth: string;
+  paymentMethod: string;
+  card: string | null;
+  category: string;
+};
 
 function isSpecialPaymentMethod(value: string) {
-  return SPECIAL_PAYMENT_METHODS.includes(value as (typeof SPECIAL_PAYMENT_METHODS)[number]);
+  return ALLOWED_PAYMENT_METHODS.includes(value as (typeof ALLOWED_PAYMENT_METHODS)[number]);
 }
 
-export function createFixedExpenseEmptyForm(
-  currentMonthKey: string,
-  defaultCardId = ''
-): FixedExpenseFormState {
-  return {
+const fixedExpenseFormHelpers = createFormHelpers<
+  FixedExpenseFormState,
+  FixedExpense,
+  FixedExpensePayload,
+  [currentMonthKey: string, defaultCardId?: string],
+  [currentMonthKey: string],
+  [cards: CardBillItem[]]
+>({
+  createEmptyForm: (currentMonthKey, defaultCardId = '') => ({
     name: '',
     amount: '',
     dueDay: '',
@@ -25,14 +35,8 @@ export function createFixedExpenseEmptyForm(
     paymentMethod: defaultCardId || 'boleto',
     card: defaultCardId,
     category: 'outro',
-  };
-}
-
-export function createFixedExpenseEditForm(
-  item: FixedExpense,
-  currentMonthKey: string
-): FixedExpenseFormState {
-  return {
+  }),
+  createEditForm: (item, currentMonthKey) => ({
     name: item.name || '',
     amount: item.amount.toFixed(2).replace('.', ','),
     dueDay: item.dueDay ? String(item.dueDay) : '',
@@ -41,42 +45,34 @@ export function createFixedExpenseEditForm(
       item.paymentMethod === 'cartao' ? item.card || 'cartao' : resolvePaymentMethod(item),
     card: item.card || '',
     category: item.category || 'outro',
-  };
-}
+  }),
+  buildPayload: (currentForm, cards) => {
+    const amount = parseMoneyInput(currentForm.amount);
+    if (amount === null) return null;
 
-export function buildFixedExpensePayload(
-  currentForm: FixedExpenseFormState,
-  cards: CardBillItem[]
-): {
-  name: string;
-  amount: number;
-  dueDay: number | null;
-  startMonth: string;
-  paymentMethod: string;
-  card: string | null;
-  category: string;
-} | null {
-  const amount = parseMoneyInput(currentForm.amount);
-  if (amount === null) return null;
+    const selectedCard = cards.find((card) => card.id === currentForm.paymentMethod);
+    const legacyCard = !isSpecialPaymentMethod(currentForm.paymentMethod)
+      ? currentForm.paymentMethod
+      : null;
 
-  const selectedCard = cards.find((card) => card.id === currentForm.paymentMethod);
-  const legacyCard = !isSpecialPaymentMethod(currentForm.paymentMethod)
-    ? currentForm.paymentMethod
-    : null;
+    return {
+      name: currentForm.name,
+      amount,
+      dueDay: currentForm.dueDay ? Number(currentForm.dueDay) : null,
+      startMonth: currentForm.startMonth,
+      paymentMethod: selectedCard || legacyCard ? 'cartao' : currentForm.paymentMethod,
+      card: selectedCard
+        ? selectedCard.id
+        : legacyCard
+          ? legacyCard
+          : currentForm.paymentMethod === 'cartao'
+            ? currentForm.card || cards[0]?.id || DEFAULT_CARD_ID
+            : null,
+      category: currentForm.category,
+    };
+  },
+});
 
-  return {
-    name: currentForm.name,
-    amount,
-    dueDay: currentForm.dueDay ? Number(currentForm.dueDay) : null,
-    startMonth: currentForm.startMonth,
-    paymentMethod: selectedCard || legacyCard ? 'cartao' : currentForm.paymentMethod,
-    card: selectedCard
-      ? selectedCard.id
-      : legacyCard
-        ? legacyCard
-        : currentForm.paymentMethod === 'cartao'
-          ? currentForm.card || cards[0]?.id || 'outro'
-          : null,
-    category: currentForm.category,
-  };
-}
+export const createFixedExpenseEmptyForm = fixedExpenseFormHelpers.createEmptyForm;
+export const createFixedExpenseEditForm = fixedExpenseFormHelpers.createEditForm;
+export const buildFixedExpensePayload = fixedExpenseFormHelpers.buildPayload;

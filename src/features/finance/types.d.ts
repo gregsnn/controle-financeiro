@@ -1,20 +1,20 @@
 declare module '*.css';
 
-declare module '../../../lib/exportData' {
+declare module 'src/features/finance/lib/exportData' {
   export function downloadJSON(): Promise<void>;
   export function exportAllData(): Promise<unknown>;
   export function buildFinanceStateFromBackup(input: unknown): unknown;
   export function importFinanceBackupFile(file: File): Promise<unknown>;
 }
 
-declare module '../lib/chartLoader.ts' {
+declare module 'src/features/finance/lib/chartLoader' {
   export function loadChartModule(): Promise<unknown>;
   export function prefetchChartModule(options?: unknown): boolean;
   export function shouldPrefetchChart(connection?: unknown): boolean;
   export function __resetChartLoaderForTests(): void;
 }
 
-declare module '../lib/chartSeries' {
+declare module 'src/features/finance/lib/chartSeries' {
   export const CHART_COLORS: string[];
   export function buildCategorySeries(monthView: unknown): { labels: string[]; values: number[] };
   export function buildCardSeries(monthView: unknown): { labels: string[]; values: number[] };
@@ -26,8 +26,8 @@ declare module '../lib/chartSeries' {
   export function buildDonutTooltipLabel(context: unknown): string;
 }
 
-declare module '../context/FinanceContext' {
-  import type { ReactNode } from 'react';
+declare module 'src/features/finance/context/FinanceContext' {
+  import type { JSX, ReactNode } from 'react';
   export interface FinanceContextValue {
     isReady: boolean;
     currentDate: Date;

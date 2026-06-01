@@ -1,8 +1,7 @@
 import type { Revenue } from '../../domain/types';
 import { useActiveRevenues } from '../../hooks/useActiveRevenues';
-import RuleSection from '../RuleSection';
-import { ConfirmModal, RuleModal } from '../modals';
-import { RevenueForm } from './revenues/RevenueForm';
+import { formatMoney } from '../../lib/utils';
+import { RevenueForm, type RevenueFormState } from './revenues/RevenueForm';
 import { RevenueRow } from './revenues/RevenueRow';
 import {
   buildRevenuePayload,
@@ -11,12 +10,17 @@ import {
 } from './revenues/revenueFormHelpers';
 import { REVENUE_LABELS } from './revenues/revenueSectionLabels';
 import { useRevenueCrudState } from './revenues/useRevenueCrudState';
+import { CrudSection } from './shared/CrudSection';
 import type { CrudSectionCommonProps } from './shared/types';
-import { useCrudFormFlow } from './shared/useCrudFormFlow';
-import { useCrudModalState } from './shared/useCrudModalState';
 import { useRevenueMonthAmountInput } from './shared/useRevenueMonthAmountInput';
 
-type RevenuePayload = { name: string; amount: number; startMonth: string };
+type RevenuePayload = {
+  name: string;
+  amount: number;
+  startMonth: string;
+  paymentDay: number | null;
+  recurring: boolean;
+};
 type RevenuesSectionProps = CrudSectionCommonProps<Revenue, RevenuePayload> & {
   currentMonthKey: string;
   monthRevenueAmounts: Record<string, number>;
@@ -39,39 +43,33 @@ export function RevenuesSection({
     }
   );
 
-  const {
-    modal,
-    confirm,
-    closeModal,
-    openCreateModal: openCreateBase,
-    openEditModal: openEditBase,
-    openDeleteConfirm,
-    closeDeleteConfirm,
-  } = useCrudModalState<Revenue>();
-
   const activeItems = useActiveRevenues(items, currentMonthKey);
+  const totalRevenue = activeItems.reduce((sum, item) => {
+    const amount =
+      monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined
+        ? monthRevenueAmounts[item.id]
+        : item.baseAmount;
+    return sum + Number(amount || 0);
+  }, 0);
+  const today = new Date();
+  const [currentYear, currentMonth] = currentMonthKey.split('-').map(Number);
+  const selectedMonthIndex = new Date(currentYear, currentMonth - 1, 1).getTime();
+  const realMonthIndex = new Date(today.getFullYear(), today.getMonth(), 1).getTime();
+  const receivedTotal = activeItems.reduce((sum, item) => {
+    const amount =
+      monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined
+        ? monthRevenueAmounts[item.id]
+        : item.baseAmount;
+    const paymentDay = item.paymentDay || 1;
+    const received =
+      selectedMonthIndex < realMonthIndex ||
+      (selectedMonthIndex === realMonthIndex && paymentDay <= today.getDate());
+    return received ? sum + Number(amount || 0) : sum;
+  }, 0);
+  const pendingTotal = Math.max(0, totalRevenue - receivedTotal);
 
-  const buildPayload = (currentForm: any) => buildRevenuePayload(currentForm);
-
-  const handleSubmit = useCrudFormFlow({
-    modal,
-    form,
-    canSubmit,
-    closeModal,
-    resetForm,
-    buildPayload,
-    onAdd: (payload) => {
-      return onAdd(toRevenueCreateItem(payload!));
-    },
-    onEdit: (id, payload) => {
-      return onEdit(id, toRevenueEditItem(payload!));
-    },
-  });
-
-  const openCreateModal = () => {
-    openCreateForm();
-    openCreateBase();
-  };
+  const buildPayload = (currentForm: RevenueFormState) =>
+    buildRevenuePayload(currentForm, currentMonthKey);
 
   const {
     tempInputValues,
@@ -81,69 +79,55 @@ export function RevenuesSection({
   } = useRevenueMonthAmountInput(onMonthRevenueAmount);
 
   return (
-    <>
-      <RuleSection
-        title={REVENUE_LABELS.title}
-        description={REVENUE_LABELS.description}
-        addLabel={REVENUE_LABELS.addLabel}
-        onAddClick={openCreateModal}
-        items={activeItems as any}
-        emptyText={REVENUE_LABELS.emptyText}
-        sortBy="value-desc"
-        columns={[...REVENUE_LABELS.columns]}
-        renderItem={(item: any, money: (value: number) => string) => {
-          const hasOverride = monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined;
+    <CrudSection
+      className="revenues-section"
+      labels={REVENUE_LABELS}
+      items={activeItems}
+      form={form}
+      canSubmit={canSubmit}
+      resetForm={resetForm}
+      openCreateForm={openCreateForm}
+      openEditForm={openEditForm}
+      buildPayload={buildPayload}
+      onAdd={(payload) => onAdd(toRevenueCreateItem(payload!))}
+      onEdit={(id, payload) => onEdit(id, toRevenueEditItem(payload!))}
+      onDelete={onDelete}
+      topContent={
+        <section className="revenue-summary-row" aria-label="Resumo de receitas">
+          <div className="mcard">
+            <p className="mcard-label">TOTAL DO MES</p>
+            <p className="mcard-val pos">{formatMoney(totalRevenue)}</p>
+          </div>
+          <div className="mcard">
+            <p className="mcard-label">JA RECEBIDO</p>
+            <p className="mcard-val">{formatMoney(receivedTotal)}</p>
+          </div>
+          <div className="mcard">
+            <p className="mcard-label">A RECEBER</p>
+            <p className="mcard-val info">{formatMoney(pendingTotal)}</p>
+          </div>
+        </section>
+      }
+      renderForm={() => <RevenueForm form={form} setForm={setForm} />}
+      renderItem={(item, money, { openEdit, openDelete }) => {
+        const hasOverride = monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined;
 
-          return (
-            <RevenueRow
-              key={item.id}
-              item={item}
-              money={money}
-              displayAmount={hasOverride ? monthRevenueAmounts[item.id] : item.baseAmount}
-              tempValue={tempInputValues[item.id]}
-              hasOverride={hasOverride}
-              onMonthAmountInput={handleMonthAmountInput}
-              onMonthAmountBlur={handleMonthAmountBlur}
-              onMonthAmountChange={handleMonthAmountChange}
-              onEdit={() => {
-                openEditForm(item);
-                openEditBase(item.id);
-              }}
-              onDelete={() => openDeleteConfirm(item)}
-            />
-          );
-        }}
-      />
-
-      <ConfirmModal
-        open={confirm.open}
-        title={REVENUE_LABELS.delete.title}
-        message={REVENUE_LABELS.delete.message((confirm.item as Revenue | null)?.name || '')}
-        onConfirm={async () => {
-          const item = confirm.item as Revenue | null;
-          if (item) await onDelete(item.id);
-          closeDeleteConfirm();
-        }}
-        onCancel={closeDeleteConfirm}
-      />
-
-      <RuleModal
-        open={modal.open}
-        title={
-          modal.mode === 'edit'
-            ? REVENUE_LABELS.modal.edit.title
-            : REVENUE_LABELS.modal.create.title
-        }
-        onClose={closeModal}
-        onSubmit={handleSubmit}
-        submitLabel={
-          modal.mode === 'edit'
-            ? REVENUE_LABELS.modal.edit.submitLabel
-            : REVENUE_LABELS.modal.create.submitLabel
-        }
-      >
-        <RevenueForm form={form} setForm={setForm} />
-      </RuleModal>
-    </>
+        return (
+          <RevenueRow
+            key={item.id}
+            item={item}
+            money={money}
+            displayAmount={hasOverride ? monthRevenueAmounts[item.id] : item.baseAmount}
+            tempValue={tempInputValues[item.id]}
+            hasOverride={hasOverride}
+            onMonthAmountInput={handleMonthAmountInput}
+            onMonthAmountBlur={handleMonthAmountBlur}
+            onMonthAmountChange={handleMonthAmountChange}
+            onEdit={() => openEdit(item)}
+            onDelete={() => openDelete(item)}
+          />
+        );
+      }}
+    />
   );
 }

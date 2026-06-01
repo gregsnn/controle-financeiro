@@ -1,24 +1,29 @@
 .del,
 .edit {
   background: none;
-  border: none;
+  border: 1px solid transparent;
   color: var(--color-text-tertiary);
   cursor: pointer;
-  padding: 2px 5px;
-  border-radius: 4px;
+  padding: 5px 8px;
+  border-radius: 999px;
   line-height: 1;
+  font-size: 11px;
+  font-weight: 800;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
-
-.del { font-size: 16px; }
-.edit { font-size: 14px; }
 
 .del:hover {
   background: var(--color-background-danger);
+  border-color: color-mix(in srgb, var(--color-semantic-danger) 28%, transparent);
   color: var(--color-semantic-danger);
 }
 
 .edit:hover {
   background: var(--color-background-secondary);
+  border-color: var(--color-border-secondary);
   color: var(--color-text-primary);
 }
 
@@ -27,33 +32,55 @@
   flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-end;
+  opacity: 0.72;
+  transition: opacity 0.15s ease;
+}
+
+tr:hover .row-actions {
+  opacity: 1;
 }
 
 .month-amount-cell {
   display: flex;
   align-items: center;
   gap: 4px;
+  min-width: 0;
 }
 
 .month-amount-input {
-  width: 100px;
-  padding: 4px 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  font-size: 14px;
+  width: 118px;
+  padding: 7px 9px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  font-size: 13px;
+  font-weight: 800;
   text-align: right;
   background: var(--color-background-primary);
   color: var(--color-text-primary);
 }
 
+.expense-content-section .month-amount-input {
+  color: var(--color-semantic-danger);
+}
+
+.revenues-section .month-amount-input {
+  color: var(--color-semantic-success);
+}
+
+.variable-expense-value {
+  color: var(--color-semantic-danger);
+  font-weight: 800;
+}
+
 .month-amount-input:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
 }
 
 .month-amount-input.has-override {
   border-color: var(--color-semantic-info);
-  background: var(--color-background-highlight);
+  background: color-mix(in srgb, var(--color-semantic-info) 10%, var(--color-background-secondary));
 }
 
 .clear-override {
@@ -70,4 +97,39 @@
 .clear-override:hover {
   background: var(--color-background-danger);
   color: var(--color-semantic-danger);
+}
+
+.table-status-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.table-status-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.table-status-toggle.paid {
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-border-secondary));
+  background: var(--color-accent-muted);
+  color: var(--color-semantic-success);
+}
+
+.table-status-toggle.pending {
+  border-color: color-mix(
+    in srgb,
+    var(--color-semantic-warning) 30%,
+    var(--color-border-secondary)
+  );
+  background: color-mix(in srgb, var(--color-semantic-warning) 10%, transparent);
+  color: #b45309;
 }

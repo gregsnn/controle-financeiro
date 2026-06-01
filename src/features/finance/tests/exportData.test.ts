@@ -39,7 +39,7 @@ describe('exportData.ts - buildFinanceStateFromBackup', () => {
         monthOverrides: [],
         settings: {
           theme: 'premium',
-          cardBills: [{ id: 'amex', name: 'Amex', icon: '💠' }],
+          cardBills: [{ id: 'amex', name: 'Amex', color: '#123456' }],
           currentMonthKey: '2026-04',
         },
         meta: {
@@ -52,7 +52,7 @@ describe('exportData.ts - buildFinanceStateFromBackup', () => {
 
     expect(state.currentDate.toISOString().startsWith('2026-04-01')).toBe(true);
     expect(state.settings.theme).toBe('premium');
-    expect(state.settings.cardBills).toEqual([{ id: 'amex', name: 'Amex', icon: '💠' }]);
+    expect(state.settings.cardBills).toEqual([{ id: 'amex', name: 'Amex', color: '#123456' }]);
     expect(state.fixedExpenses[0].paymentMethod).toBe('cartao');
     expect(state.fixedExpenses[0].card).toBe('nubank');
     expect(state.installments[0].card).toBe('santander');
@@ -320,14 +320,14 @@ describe('exportData.ts - buildFinanceStateFromBackup', () => {
         monthOverrides: [],
         settings: {
           theme: 'dark',
-          cardBills: [{ id: 'itau', name: 'Itaú', icon: '🟧' }],
+          cardBills: [{ id: 'itau', name: 'Itaú' }],
         },
         meta: {},
       },
     });
 
     expect(state.settings.theme).toBe('dark');
-    expect(state.settings.cardBills).toEqual([{ id: 'itau', name: 'Itaú', icon: '🟧' }]);
+    expect(state.settings.cardBills).toEqual([{ id: 'itau', name: 'Itaú' }]);
   });
 });
 

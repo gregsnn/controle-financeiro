@@ -3,6 +3,7 @@ import {
   normalizeFixedExpense,
   normalizeInstallment,
   normalizeRevenue,
+  normalizeVariableExpense,
 } from '../domain/actions';
 import type { FinanceState } from '../domain/types';
 import { emptyFinanceState, financeSchemaVersion } from './schema';
@@ -13,6 +14,7 @@ export interface ExportData {
   exportedAt: string;
   data: {
     fixedExpenses: unknown[];
+    variableExpenses: unknown[];
     installments: unknown[];
     revenues: unknown[];
     monthOverrides: unknown[];
@@ -54,6 +56,7 @@ function normalizeBackupData(input: unknown): ExportData['data'] {
 
   return {
     fixedExpenses: toArray(root.fixedExpenses),
+    variableExpenses: toArray(root.variableExpenses),
     installments: toArray(root.installments),
     revenues: toArray(root.revenues),
     monthOverrides: toArray(root.monthOverrides),
@@ -81,6 +84,9 @@ export function buildFinanceStateFromBackup(input: unknown): FinanceState {
     currentDate,
     fixedExpenses: data.fixedExpenses.map((item) =>
       normalizeFixedExpense(item as Record<string, unknown>)
+    ),
+    variableExpenses: data.variableExpenses.map((item) =>
+      normalizeVariableExpense(item as Record<string, unknown>)
     ),
     installments: data.installments.map((item) =>
       normalizeInstallment(item as Record<string, unknown>)
@@ -118,6 +124,7 @@ async function exportAllData(): Promise<ExportData> {
     exportedAt: new Date().toISOString(),
     data: {
       fixedExpenses: state.fixedExpenses,
+      variableExpenses: state.variableExpenses,
       installments: state.installments,
       revenues: state.revenues,
       monthOverrides: state.monthOverrides,
@@ -157,6 +164,7 @@ async function generateExportLink(): Promise<string> {
     exportedAt: new Date().toISOString(),
     data: {
       fixedExpenses: state.fixedExpenses,
+      variableExpenses: state.variableExpenses,
       installments: state.installments,
       revenues: state.revenues,
       monthOverrides: state.monthOverrides,

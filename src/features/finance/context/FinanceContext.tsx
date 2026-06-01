@@ -18,6 +18,7 @@ import type {
   OverrideType,
   Revenue,
   Settings,
+  VariableExpense,
 } from '../domain/types';
 import {
   useDerivedFinanceState,
@@ -28,6 +29,7 @@ import {
 
 interface FinanceStateValue {
   fixedExpenses: FixedExpense[];
+  variableExpenses: VariableExpense[];
   installments: Installment[];
   revenues: Revenue[];
   monthOverrides: MonthOverride[];
@@ -49,10 +51,13 @@ interface FinanceActionsValue {
   setTheme: (theme: 'default' | 'premium') => void;
   setCardBills: (cardBills: Settings['cardBills']) => void;
   addFixedExpense: (data: Partial<FixedExpense>) => void;
+  addVariableExpense: (data: Partial<VariableExpense>) => void;
   addRevenue: (data: Partial<Revenue>) => void;
   addInstallment: (data: Partial<Installment>) => void;
   updateFixedExpense: (id: string, updates: Partial<FixedExpense>) => void;
+  updateVariableExpense: (id: string, updates: Partial<VariableExpense>) => void;
   removeFixedExpense: (id: string) => void;
+  removeVariableExpense: (id: string) => void;
   updateRevenue: (id: string, updates: Partial<Revenue>) => void;
   removeRevenue: (id: string) => void;
   updateInstallment: (id: string, updates: Partial<Installment>) => void;
@@ -104,11 +109,12 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
   const defaultState = useMemo<FinanceStateValue>(
     () => ({
       fixedExpenses: [],
+      variableExpenses: [],
       installments: [],
       revenues: [],
       monthOverrides: [],
       settings: { theme: 'default' },
-      meta: { schemaVersion: 4, createdAt: new Date(), lastResetAt: null },
+      meta: { schemaVersion: 5, createdAt: new Date(), lastResetAt: null },
     }),
     []
   );
@@ -121,10 +127,13 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       setTheme: () => {},
       setCardBills: () => {},
       addFixedExpense: () => {},
+      addVariableExpense: () => {},
       addRevenue: () => {},
       addInstallment: () => {},
       updateFixedExpense: () => {},
+      updateVariableExpense: () => {},
       removeFixedExpense: () => {},
+      removeVariableExpense: () => {},
       updateRevenue: () => {},
       removeRevenue: () => {},
       updateInstallment: () => {},
@@ -140,6 +149,7 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
     if (!state) return defaultState;
     return {
       fixedExpenses: state.fixedExpenses,
+      variableExpenses: state.variableExpenses || [],
       installments: state.installments,
       revenues: state.revenues,
       monthOverrides: state.monthOverrides,
@@ -166,10 +176,13 @@ export function FinanceProvider({ children }: FinanceProviderProps) {
       setTheme: actions.setTheme,
       setCardBills: actions.setCardBills,
       addFixedExpense: actions.addFixedExpense,
+      addVariableExpense: actions.addVariableExpense,
       addRevenue: actions.addRevenue,
       addInstallment: actions.addInstallment,
       updateFixedExpense: actions.updateFixedExpense,
+      updateVariableExpense: actions.updateVariableExpense,
       removeFixedExpense: actions.removeFixedExpense,
+      removeVariableExpense: actions.removeVariableExpense,
       updateRevenue: actions.updateRevenue,
       removeRevenue: actions.removeRevenue,
       updateInstallment: actions.updateInstallment,

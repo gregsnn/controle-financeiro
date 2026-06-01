@@ -7,6 +7,7 @@ import {
   parseLegacyCardBill,
 } from '../domain/actions';
 import { OVERRIDE_TYPES } from '../domain/constants';
+import { markBillAsPaid } from '../selectors/summarySelectors';
 
 function createTestState() {
   return {
@@ -320,6 +321,52 @@ describe('actions.ts', () => {
 
       // State should remain unchanged for non-existent items
       expect(state.fixedExpenses).toHaveLength(1);
+    });
+  });
+
+  describe('markBillAsPaid', () => {
+    it('should mark fixed expenses and installments as paid for a given card', () => {
+      const cardKey = 'card1';
+      const cardBills = { card1: 1000 };
+      const fixedExpenses = [
+        { id: 'f1', name: 'Internet', amount: 120, paid: false, card: 'card1' },
+      ];
+      const installments = [{ id: 'i1', card: 'card1', installmentValue: 500, paid: false }];
+      const billPaymentMap = { card1: false };
+
+      markBillAsPaid(
+        cardKey,
+        cardBills,
+        fixedExpenses as any as import('../domain/types').MonthViewFixedExpense[],
+        installments as any as import('../domain/types').MonthViewInstallment[],
+        billPaymentMap
+      );
+
+      expect(fixedExpenses[0].paid).toBe(true);
+      expect(installments[0].paid).toBe(true);
+      expect(billPaymentMap[cardKey]).toBe(true);
+    });
+
+    it('should not mark already paid items again', () => {
+      const cardKey = 'card1';
+      const cardBills = { card1: 1000 };
+      const fixedExpenses = [
+        { id: 'f1', name: 'Internet', amount: 120, paid: true, card: 'card1' },
+      ];
+      const installments = [{ id: 'i1', card: 'card1', installmentValue: 500, paid: true }];
+      const billPaymentMap = { card1: false };
+
+      markBillAsPaid(
+        cardKey,
+        cardBills,
+        fixedExpenses as any as import('../domain/types').MonthViewFixedExpense[],
+        installments as any as import('../domain/types').MonthViewInstallment[],
+        billPaymentMap
+      );
+
+      expect(fixedExpenses[0].paid).toBe(true);
+      expect(installments[0].paid).toBe(true);
+      expect(billPaymentMap[cardKey]).toBe(true);
     });
   });
 });

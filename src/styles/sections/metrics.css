@@ -1,8 +1,8 @@
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--layout-gap);
-  margin-bottom: var(--layout-gap-section);
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .metrics--triplet {
@@ -13,55 +13,225 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.metrics--support {
+  align-items: stretch;
+}
+
 .mcard {
+  position: relative;
   background: var(--color-background-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 14px 16px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-xl);
+  padding: 18px;
   min-width: 0;
+  box-shadow: var(--shadow-surface);
+}
+
+.mcard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--layout-gap);
+  margin-bottom: 8px;
+}
+
+.mcard-head .mcard-label {
+  margin-bottom: 0;
+}
+
+.mcard-icon {
+  flex: 0 0 auto;
+}
+
+.mcard--summary {
+  min-height: 118px;
+  padding: 20px;
+}
+
+.summary-support .mcard {
+  background: var(--color-background-primary);
+}
+
+.summary-support .mcard-val {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.summary-support .mcard-sub {
+  color: var(--color-text-tertiary);
+}
+
+.metrics--support .mcard {
+  min-height: 116px;
+}
+
+.mcard--mini {
+  padding: 20px;
+}
+
+.mcard--mini .mcard-head {
+  margin-bottom: 10px;
+}
+
+.mcard--mini .mcard-head svg {
+  color: var(--color-text-tertiary);
+}
+
+.mcard--mini::after {
+  display: none;
+}
+
+.mcard--fixed::after {
+  color: var(--color-semantic-info);
+}
+
+.mcard--installments-month::after {
+  color: var(--color-accent-strong);
+  border-radius: 999px;
+}
+
+.mcard--future::after {
+  color: var(--color-semantic-warning);
+  transform: rotate(45deg);
+}
+
+.mcard--almost::after {
+  color: var(--color-accent-strong);
+  border-radius: 999px 999px 2px 2px;
+}
+
+.revenue-summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--layout-gap-section);
+  margin: 0 0 16px;
 }
 
 .mcard-label {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin-bottom: 4px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  --label-xs-size: 10px;
+  --label-xs-letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  padding-right: 28px;
 }
 
 .mcard-val {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 800;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
+.mcard-val.info {
+  color: var(--color-semantic-info);
+}
+
 .mcard-sub {
-  font-size: 10px;
-  color: var(--color-text-secondary);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
   margin-top: 4px;
   overflow-wrap: anywhere;
 }
 
+.mcard-guidance {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  margin: 0;
+  max-width: 128px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-semantic-danger) 18%, var(--color-border));
+  background: color-mix(in srgb, var(--color-semantic-danger) 7%, transparent);
+  color: color-mix(in srgb, var(--color-semantic-danger) 72%, var(--color-text-secondary));
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .bill-metrics {
-  /* allow the bill cards to flow responsively: aim for 3-4 cards per row depending on viewport */
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--layout-gap);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.bill-summary-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 92px;
+  border-color: var(--color-border-secondary);
+}
+
+.bill-summary-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 24px;
+}
+
+.bill-summary-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.bill-summary-title svg,
+.bill-summary-empty svg {
+  flex: 0 0 auto;
+  color: var(--color-text-tertiary);
+}
+
+.bill-summary-lines {
+  display: grid;
+  gap: 2px;
+}
+
+.bill-summary-lines .mcard-sub {
+  margin-top: 0;
+}
+
+.bill-summary-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.bill-summary-card--empty {
+  align-content: start;
+}
+
+.bill-summary-card--empty .bill-summary-empty {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-background-secondary) 62%, transparent);
+  color: var(--color-text-secondary);
+  font-size: 12px;
 }
 
 .bill-pay-btn {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 4px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-background-primary);
-  color: var(--color-text-primary);
-  font-size: 11px;
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  font-size: 10px;
   font-weight: 600;
-  cursor: pointer;
   transition: all 0.15s ease;
+}
+
+.revenue-summary-row .mcard-val {
+  font-size: 28px;
+}
+
+.revenue-summary-row .mcard {
+  min-height: 104px;
 }
 
 .bill-pay-btn:hover {
@@ -69,21 +239,25 @@
 }
 
 .bill-pay-btn.paid {
-  background: #e6f9e6;
-  color: #2d8a2d;
-  border-color: #b3e6b3;
+  background: var(--color-accent-muted);
+  color: var(--color-accent-strong);
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-border-secondary));
 }
 
 .bill-pay-btn.paid:hover {
-  background: #d9f2d9;
+  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 
 .bill-pay-btn.unpaid {
-  background: #fff3e6;
-  color: #cc7a00;
-  border-color: #ffe0b3;
+  background: color-mix(in srgb, var(--color-semantic-warning) 12%, transparent);
+  color: var(--color-semantic-warning);
+  border-color: color-mix(
+    in srgb,
+    var(--color-semantic-warning) 30%,
+    var(--color-border-secondary)
+  );
 }
 
 .bill-pay-btn.unpaid:hover {
-  background: #ffecd1;
+  background: var(--color-background-secondary);
 }

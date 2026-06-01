@@ -1,20 +1,25 @@
-import { CARD_LABELS, CATEGORY_LABELS } from '../ui/constants.js';
-import type { MonthView, MonthViewFixedExpense } from '../domain/types.js';
+import { DEFAULT_CARD_ID } from '../domain/constants.js';
+import type {
+  MonthView,
+  MonthViewFixedExpense,
+  MonthViewVariableExpense,
+} from '../domain/types.js';
 import { getExpenseCard } from '../selectors/summarySelectors.js';
+import { CARD_LABELS, CATEGORY_LABELS } from '../ui/constants.js';
 import { formatMoney } from './utils.js';
 
 // Chart color palette
 export const CHART_COLORS = [
-  '#b8860b', // Gold accent
-  '#9f1239', // Danger
-  '#5b21b6', // Purple
-  '#047857', // Success
-  '#b45309', // Warning
-  '#1e40af', // Blue
-  '#a16207', // Bronze
-  '#6b21a8', // Dark purple
-  '#0369a1', // Sky blue
-  '#7c3aed', // Violet
+  '#10b981',
+  '#38bdf8',
+  '#fbbf24',
+  '#fb7185',
+  '#8b5cf6',
+  '#14b8a6',
+  '#f97316',
+  '#60a5fa',
+  '#a3e635',
+  '#f472b6',
 ];
 
 function sortEntriesByValue<K>(entries: Array<[K, number]>): Array<[K, number]> {
@@ -25,6 +30,11 @@ export function buildCategorySeries(monthView: MonthView) {
   const categoryMap = new Map<string, number>();
 
   monthView.fixedExpenses.forEach((item) => {
+    const cat = item.category || 'outro';
+    categoryMap.set(cat, (categoryMap.get(cat) || 0) + Number(item.amount || 0));
+  });
+
+  (monthView.variableExpenses || []).forEach((item) => {
     const cat = item.category || 'outro';
     categoryMap.set(cat, (categoryMap.get(cat) || 0) + Number(item.amount || 0));
   });
@@ -41,7 +51,7 @@ export function buildCategorySeries(monthView: MonthView) {
 
 export function buildCardSeries(monthView: MonthView) {
   const cardMap = new Map<string, number>();
-  cardMap.set('outro', 0);
+  cardMap.set(DEFAULT_CARD_ID, 0);
 
   monthView.fixedExpenses.forEach((item) => {
     const card = getExpenseCard(item as MonthViewFixedExpense);
@@ -49,8 +59,14 @@ export function buildCardSeries(monthView: MonthView) {
     cardMap.set(card, (cardMap.get(card) || 0) + Number(item.amount || 0));
   });
 
+  (monthView.variableExpenses || []).forEach((item) => {
+    const card = getExpenseCard(item as MonthViewVariableExpense);
+    if (!card) return;
+    cardMap.set(card, (cardMap.get(card) || 0) + Number(item.amount || 0));
+  });
+
   monthView.installments.forEach((item) => {
-    const card = (item.card || 'outro') as string;
+    const card = (item.card || DEFAULT_CARD_ID) as string;
     cardMap.set(card, (cardMap.get(card) || 0) + Number(item.installmentValue || 0));
   });
 
@@ -65,7 +81,7 @@ export function buildCardSeries(monthView: MonthView) {
 
 export function buildCardStatusSeries(monthView: MonthView) {
   const cardMap = new Map<string, { total: number; paid: number }>();
-  cardMap.set('outro', { total: 0, paid: 0 });
+  cardMap.set(DEFAULT_CARD_ID, { total: 0, paid: 0 });
 
   monthView.fixedExpenses.forEach((item) => {
     const card = getExpenseCard(item as MonthViewFixedExpense);
@@ -77,8 +93,18 @@ export function buildCardStatusSeries(monthView: MonthView) {
     cardMap.set(card, current);
   });
 
+  (monthView.variableExpenses || []).forEach((item) => {
+    const card = getExpenseCard(item as MonthViewVariableExpense);
+    if (!card) return;
+    const amount = Number(item.amount || 0);
+    const current = cardMap.get(card) || { total: 0, paid: 0 };
+    current.total += amount;
+    if (item.paid === true) current.paid += amount;
+    cardMap.set(card, current);
+  });
+
   monthView.installments.forEach((item) => {
-    const card = (item.card || 'outro') as string;
+    const card = (item.card || DEFAULT_CARD_ID) as string;
     const amount = Number(item.installmentValue || 0);
     const current = cardMap.get(card) || { total: 0, paid: 0 };
     current.total += amount;

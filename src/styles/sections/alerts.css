@@ -1,7 +1,8 @@
 .alert-bar {
   background: var(--color-alert-bg);
-  border: 0.5px solid var(--color-semantic-warning);
-  border-radius: var(--border-radius-md);
+  border: 1px solid
+    color-mix(in srgb, var(--color-semantic-warning) 36%, var(--color-border-secondary));
+  border-radius: 10px;
   padding: 10px 14px;
   font-size: 12px;
   color: var(--color-alert-text);
@@ -9,4 +10,14 @@
   display: flex;
   align-items: center;
   gap: var(--layout-gap-sm);
+}
+
+.alert-bar--guidance {
+  background: var(--color-alert-guidance-bg);
+  border-color: color-mix(
+    in srgb,
+    var(--color-alert-guidance-border) 54%,
+    var(--color-border-secondary)
+  );
+  color: var(--color-alert-text);
 }

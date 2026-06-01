@@ -3,8 +3,8 @@ import { createContext, useCallback, useContext, useState } from 'react';
 const translations = {
   'pt-BR': {
     'tabs.resumo': 'Resumo',
-    'tabs.gastos': 'Gastos Fixos',
-    'tabs.parcelas': 'Parcelamentos',
+    'tabs.gastos': 'Despesas',
+    'tabs.parcelas': 'Cartoes',
     'tabs.receitas': 'Receitas',
     'month.prev': 'Mês anterior',
     'month.next': 'Próximo mês',
@@ -14,6 +14,17 @@ const translations = {
     'card.bills': 'Faturas do mês',
     'card.santander': 'Santander',
     'card.nubank': 'Nubank',
+    'card.itau': 'Itaú',
+    'card.bradesco': 'Bradesco',
+    'card.caixa': 'CAIXA',
+    'card.bb': 'Banco do Brasil',
+    'card.banrisul': 'Banrisul',
+    'card.sicredi': 'Sicredi',
+    'card.inter': 'Inter',
+    'card.c6': 'C6 Bank',
+    'card.votorantim': 'BV',
+    'card.safra': 'Safra',
+    'card.hsbc': 'HSBC',
     'summary.balance': 'Saldo previsto',
     'summary.income': 'Receitas',
     'summary.expenses': 'Despesas',
@@ -39,13 +50,13 @@ const translations = {
     'metrics.totalRemaining': 'TOTAL RESTANTE',
     'metrics.almostDone': 'QUASE NO FIM',
     'metrics.almostDoneSub': 'acima de 75% pagas',
-    'section.fixedExpenses': 'GASTOS FIXOS',
+    'section.fixedExpenses': 'DESPESAS',
     'section.revenues': 'RECEITAS',
-    'section.installments': 'PARCELAMENTOS',
-    'empty.noFixedExpenses': 'Nenhum gasto fixo cadastrado ainda.',
+    'section.installments': 'CARTOES',
+    'empty.noFixedExpenses': 'Nenhuma despesa fixa cadastrada ainda.',
     'empty.noRevenues': 'Nenhuma receita cadastrada ainda.',
     'empty.noInstallments': 'Nenhum parcelamento cadastrado ainda.',
-    'add.newFixedExpense': '+ Novo gasto fixo',
+    'add.newFixedExpense': '+ Nova despesa fixa',
     'add.newRevenue': '+ Nova receita',
     'add.newInstallment': '+ Novo parcelamento',
     'form.name': 'Nome',
@@ -64,15 +75,15 @@ const translations = {
     delete: 'Excluir',
     edit: 'Editar',
     'confirm.delete': 'Confirmar exclusão',
-    'confirm.deleteFixedExpense': 'Tem certeza que deseja apagar o gasto fixo',
+    'confirm.deleteFixedExpense': 'Tem certeza que deseja apagar a despesa fixa',
     'confirm.deleteRevenue': 'Tem certeza que deseja apagar a receita',
     'confirm.deleteInstallment': 'Tem certeza que deseja apagar o parcelamento',
     loading: 'Carregando...',
   },
   'en-US': {
     'tabs.resumo': 'Summary',
-    'tabs.gastos': 'Fixed Expenses',
-    'tabs.parcelas': 'Installments',
+    'tabs.gastos': 'Expenses',
+    'tabs.parcelas': 'Cards',
     'tabs.receitas': 'Income',
     'month.prev': 'Previous month',
     'month.next': 'Next month',
@@ -82,6 +93,17 @@ const translations = {
     'card.bills': 'Card bills',
     'card.santander': 'Santander',
     'card.nubank': 'Nubank',
+    'card.itau': 'Itaú',
+    'card.bradesco': 'Bradesco',
+    'card.caixa': 'CAIXA',
+    'card.bb': 'Banco do Brasil',
+    'card.banrisul': 'Banrisul',
+    'card.sicredi': 'Sicredi',
+    'card.inter': 'Inter',
+    'card.c6': 'C6 Bank',
+    'card.votorantim': 'BV',
+    'card.safra': 'Safra',
+    'card.hsbc': 'HSBC',
     'summary.balance': 'Projected balance',
     'summary.income': 'Income',
     'summary.expenses': 'Expenses',
@@ -107,9 +129,9 @@ const translations = {
     'metrics.totalRemaining': 'REMAINING TOTAL',
     'metrics.almostDone': 'ALMOST DONE',
     'metrics.almostDoneSub': '75%+ paid',
-    'section.fixedExpenses': 'FIXED EXPENSES',
+    'section.fixedExpenses': 'EXPENSES',
     'section.revenues': 'INCOME',
-    'section.installments': 'INSTALLMENTS',
+    'section.installments': 'CARDS',
     'empty.noFixedExpenses': 'No fixed expenses registered yet.',
     'empty.noRevenues': 'No income registered yet.',
     'empty.noInstallments': 'No installments registered yet.',
@@ -139,9 +161,58 @@ const translations = {
   },
 };
 
+const CARD_NAME_ALIASES: Record<string, string> = {
+  nubank: 'card.nubank',
+  'nubank credito': 'card.nubank',
+  'nubank crédito': 'card.nubank',
+  'nu cartao': 'card.nubank',
+  'nu cartão': 'card.nubank',
+  santander: 'card.santander',
+  'banco santander': 'card.santander',
+  bradesco: 'card.bradesco',
+  'banco bradesco': 'card.bradesco',
+  itau: 'card.itau',
+  itaú: 'card.itau',
+  'itau unibanco': 'card.itau',
+  'itaú unibanco': 'card.itau',
+  'banco itau': 'card.itau',
+  'banco itaú': 'card.itau',
+  caixa: 'card.caixa',
+  'caixa economica': 'card.caixa',
+  'caixa econômica': 'card.caixa',
+  'banco do brasil': 'card.bb',
+  'bb cartao': 'card.bb',
+  'bb cartão': 'card.bb',
+  banrisul: 'card.banrisul',
+  'banco banrisul': 'card.banrisul',
+  sicredi: 'card.sicredi',
+  'banco sicredi': 'card.sicredi',
+  inter: 'card.inter',
+  'banco inter': 'card.inter',
+  c6: 'card.c6',
+  'c6 bank': 'card.c6',
+  votorantim: 'card.votorantim',
+  bv: 'card.votorantim',
+  'banco votorantim': 'card.votorantim',
+  'banco bv': 'card.votorantim',
+  safra: 'card.safra',
+  'banco safra': 'card.safra',
+  hsbc: 'card.hsbc',
+  'banco hsbc': 'card.hsbc',
+};
+
+function normalizeText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
 interface I18nContextType {
   locale: string;
   t: (key: string) => string;
+  normalizeCardName: (name: string) => string;
   changeLocale: (newLocale: string) => void;
   availableLocales: string[];
 }
@@ -170,13 +241,29 @@ export function I18nProvider({
     [locale]
   );
 
+  const normalizeCardName = useCallback(
+    (name: string) => {
+      const normalized = normalizeText(name || '');
+      const translationKey = CARD_NAME_ALIASES[normalized];
+      if (!translationKey) return name;
+      return t(translationKey);
+    },
+    [t]
+  );
+
   const changeLocale = useCallback((newLocale: string) => {
     if (translations[newLocale as keyof typeof translations]) {
       setLocale(newLocale);
     }
   }, []);
 
-  const value = { locale, t, changeLocale, availableLocales: Object.keys(translations) } as const;
+  const value = {
+    locale,
+    t,
+    normalizeCardName,
+    changeLocale,
+    availableLocales: Object.keys(translations),
+  } as const;
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
@@ -187,6 +274,7 @@ export function useI18n() {
     return {
       locale: 'pt-BR',
       t: (key: string) => key,
+      normalizeCardName: (name: string) => name,
       changeLocale: () => {},
       availableLocales: ['pt-BR', 'en-US'],
     };

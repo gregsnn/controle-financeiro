@@ -51,6 +51,8 @@ export function createOverrideMutations(currentKey: string, actions: OverrideAct
   };
 
   return {
+    setFixedExpenseAmount: (fixedExpenseId: string, amount: number | null) =>
+      setAmount(OVERRIDE_TYPES.FIXED_EXPENSE, fixedExpenseId, amount),
     setCardBill: (card: string, amount: number | null) =>
       setAmount(OVERRIDE_TYPES.CARD_BILL_AMOUNT, card, amount),
     setRevenueAmount: (revenueId: string, amount: number | null) =>

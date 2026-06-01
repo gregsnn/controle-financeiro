@@ -1,8 +1,22 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
+const suppressExpectedErrorEvent = (event: ErrorEvent) => {
+  event.preventDefault();
+};
+
 describe('ErrorBoundary.tsx', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    window.addEventListener('error', suppressExpectedErrorEvent);
+  });
+
+  afterEach(() => {
+    window.removeEventListener('error', suppressExpectedErrorEvent);
+    vi.restoreAllMocks();
+  });
+
   it('renders children when there is no error', () => {
     render(
       <ErrorBoundary>

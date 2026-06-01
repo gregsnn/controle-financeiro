@@ -1,5 +1,6 @@
 import type { CardBillItem } from '../../../domain/types';
 import { formatMoneyInput, parseMoneyInput } from '../../../lib/moneyInput';
+import { createFormHelpers } from '../shared/createFormHelpers';
 import type { InstallmentFormState } from './InstallmentForm';
 
 export type InstallmentItemLike = {
@@ -11,44 +12,51 @@ export type InstallmentItemLike = {
   card: string;
 };
 
-export function createInstallmentEmptyForm(defaultCardId = ''): InstallmentFormState {
-  return {
-    name: '',
-    installmentValue: '',
-    totalInstallments: '',
-    startMonth: '',
-    card: defaultCardId,
-  };
-}
-
-export function createInstallmentEditForm(item: InstallmentItemLike): InstallmentFormState {
-  return {
-    name: item.name || '',
-    installmentValue: formatMoneyInput(item.installmentValue),
-    totalInstallments: String(item.totalInstallments || ''),
-    startMonth: item.startMonth || '',
-    card: item.card || '',
-  };
-}
-
-export function buildInstallmentPayload(currentForm: InstallmentFormState): {
+type InstallmentPayload = {
   name: string;
   installmentValue: number;
   totalInstallments: number;
   startMonth: string;
   card: string;
-} | null {
-  const installmentValue = parseMoneyInput(currentForm.installmentValue);
-  if (installmentValue === null) return null;
+};
 
-  return {
-    name: currentForm.name,
-    installmentValue,
-    totalInstallments: Number(currentForm.totalInstallments),
-    startMonth: currentForm.startMonth,
-    card: currentForm.card,
-  };
-}
+const installmentFormHelpers = createFormHelpers<
+  InstallmentFormState,
+  InstallmentItemLike,
+  InstallmentPayload,
+  [defaultCardId?: string]
+>({
+  createEmptyForm: (defaultCardId = '') => ({
+    name: '',
+    installmentValue: '',
+    totalInstallments: '',
+    startMonth: '',
+    card: defaultCardId,
+  }),
+  createEditForm: (item) => ({
+    name: item.name || '',
+    installmentValue: formatMoneyInput(item.installmentValue),
+    totalInstallments: String(item.totalInstallments || ''),
+    startMonth: item.startMonth || '',
+    card: item.card || '',
+  }),
+  buildPayload: (currentForm) => {
+    const installmentValue = parseMoneyInput(currentForm.installmentValue);
+    if (installmentValue === null) return null;
+
+    return {
+      name: currentForm.name,
+      installmentValue,
+      totalInstallments: Number(currentForm.totalInstallments),
+      startMonth: currentForm.startMonth,
+      card: currentForm.card,
+    };
+  },
+});
+
+export const createInstallmentEmptyForm = installmentFormHelpers.createEmptyForm;
+export const createInstallmentEditForm = installmentFormHelpers.createEditForm;
+export const buildInstallmentPayload = installmentFormHelpers.buildPayload;
 
 export function buildInstallmentCardList(cards: CardBillItem[], selectedCard: string) {
   const options = cards.map((card) => ({ value: card.id, label: card.name }));

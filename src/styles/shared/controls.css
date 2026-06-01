@@ -1,0 +1,30 @@
+.label-xs,
+.sec-title,
+.mcard-label,
+.saldo-label,
+.card-bill-title,
+.bill-card-label {
+  font-size: var(--label-xs-size, 9px);
+  font-weight: 600;
+  color: var(--label-xs-color, var(--color-text-secondary));
+  text-transform: uppercase;
+  letter-spacing: var(--label-xs-letter-spacing, 0.05em);
+}
+
+:where(
+  .add-btn,
+  .month-step-btn,
+  .theme-btn,
+  .card-bill-add-btn,
+  .card-bill-empty-btn,
+  .bill-pay-btn
+) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}

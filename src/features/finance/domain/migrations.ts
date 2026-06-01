@@ -1,7 +1,7 @@
 import { createFinanceId } from '../lib/ids';
 import { monthKey } from '../lib/utils';
 import { OVERRIDE_TYPES } from './constants';
-import type { FinanceState } from './types';
+import type { CardBillItem, FinanceState } from './types';
 
 export function parseLegacyCardBill(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null;
@@ -25,21 +25,44 @@ function createEmptyFinanceState(): FinanceState {
   return {
     currentDate: new Date(),
     fixedExpenses: [],
+    variableExpenses: [],
     installments: [],
     revenues: [],
     monthOverrides: [],
     settings: { theme: 'default' },
     meta: {
-      schemaVersion: 3,
+      schemaVersion: 5,
       createdAt: new Date(),
       lastResetAt: null,
     },
   };
 }
 
+function normalizeCardBills(value: unknown): CardBillItem[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+
+  return value.flatMap((card) => {
+    if (!card || typeof card !== 'object') return [];
+    const record = card as Record<string, unknown>;
+    const id = typeof record.id === 'string' ? record.id.trim() : '';
+    const name = typeof record.name === 'string' ? record.name.trim() : '';
+    if (!id || !name) return [];
+
+    const normalized: CardBillItem = { id, name };
+    if (typeof record.color === 'string' && record.color.trim()) {
+      normalized.color = record.color.trim();
+    }
+    if (typeof record.dueDay === 'number' && Number.isFinite(record.dueDay)) {
+      normalized.dueDay = record.dueDay;
+    }
+    return [normalized];
+  });
+}
+
 export function migrateLegacyCardBills(loadedState: Record<string, unknown>): FinanceState {
   const settings = loadedState?.settings as Record<string, unknown> | undefined;
   const rawCardBills = settings?.cardBills;
+  const normalizedCardBills = normalizeCardBills(rawCardBills);
   const legacyCardBills =
     rawCardBills && !Array.isArray(rawCardBills) ? (rawCardBills as Record<string, unknown>) : {};
   const legacyTheme = settings?.theme;
@@ -60,7 +83,7 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
       ...loadedState,
       settings: {
         ...normalizedSettings,
-        ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+        ...(normalizedCardBills ? { cardBills: normalizedCardBills } : {}),
       },
     };
   }
@@ -78,7 +101,7 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
       ...loadedState,
       settings: {
         ...normalizedSettings,
-        ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+        ...(normalizedCardBills ? { cardBills: normalizedCardBills } : {}),
       },
     };
   }
@@ -96,7 +119,7 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
       ...loadedState,
       settings: {
         ...normalizedSettings,
-        ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+        ...(normalizedCardBills ? { cardBills: normalizedCardBills } : {}),
       },
     };
   }
@@ -116,7 +139,7 @@ export function migrateLegacyCardBills(loadedState: Record<string, unknown>): Fi
     ],
     settings: {
       ...normalizedSettings,
-      ...(Array.isArray(rawCardBills) ? { cardBills: rawCardBills } : {}),
+      ...(normalizedCardBills ? { cardBills: normalizedCardBills } : {}),
     },
   };
 }

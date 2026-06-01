@@ -1,10 +1,6 @@
 import type { FormEvent } from 'react';
 import { useCallback } from 'react';
-
-interface CrudModalState {
-  mode: 'create' | 'edit';
-  itemId: string | null;
-}
+import type { CrudModalState } from './useCrudModalState';
 
 interface UseCrudFormFlowParams<TForm, TPayload> {
   modal: CrudModalState;

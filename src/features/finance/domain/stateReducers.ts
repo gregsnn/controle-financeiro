@@ -1,7 +1,22 @@
 import { createFinanceId } from '../lib/ids';
-import { previousMonthKey } from '../lib/utils';
+import { softDeleteItem } from '../lib/utils';
 import { OVERRIDE_TYPES } from './constants';
-import type { FinanceState, FixedExpense, Installment, OverrideType, Revenue } from './types';
+import {
+  createDefaultFixedExpense,
+  createDefaultInstallment,
+  createDefaultRevenue,
+  createDefaultVariableExpense,
+} from './factories';
+import { matchOverride } from './overrides/repository';
+import type {
+  CardBillItem,
+  FinanceState,
+  FixedExpense,
+  Installment,
+  OverrideType,
+  Revenue,
+  VariableExpense,
+} from './types';
 
 export function changeMonth(state: FinanceState, step: number): FinanceState {
   const next = new Date(state.currentDate);
@@ -25,54 +40,57 @@ export function setCardBills(
   state: FinanceState,
   cardBills: FinanceState['settings']['cardBills']
 ): FinanceState {
-  return { ...state, settings: { ...state.settings, cardBills } };
+  const normalizedCardBills = (cardBills || []).map((card) => {
+    const normalized: CardBillItem = { id: card.id, name: card.name };
+    if (card.color) normalized.color = card.color;
+    if (card.dueDay !== undefined) normalized.dueDay = card.dueDay;
+    return normalized;
+  });
+
+  return { ...state, settings: { ...state.settings, cardBills: normalizedCardBills } };
 }
 
 export function addFixedExpense(state: FinanceState, data: Partial<FixedExpense>): FinanceState {
   return {
     ...state,
-    fixedExpenses: [
-      ...state.fixedExpenses,
-      {
-        id: createFinanceId('fixed'),
-        active: true,
-        notes: '',
-        endMonth: null,
-        ...data,
-      } as FixedExpense,
-    ],
+    fixedExpenses: [...state.fixedExpenses, createDefaultFixedExpense(data)],
   };
 }
 
 export function addRevenue(state: FinanceState, data: Partial<Revenue>): FinanceState {
   return {
     ...state,
-    revenues: [
-      ...state.revenues,
-      {
-        id: createFinanceId('rev'),
-        active: true,
-        notes: '',
-        endMonth: null,
-        ...data,
-      } as Revenue,
-    ],
+    revenues: [...state.revenues, createDefaultRevenue(data)],
+  };
+}
+
+export function addVariableExpense(
+  state: FinanceState,
+  data: Partial<VariableExpense>
+): FinanceState {
+  return {
+    ...state,
+    variableExpenses: [...(state.variableExpenses || []), createDefaultVariableExpense(data)],
   };
 }
 
 export function addInstallment(state: FinanceState, data: Partial<Installment>): FinanceState {
   return {
     ...state,
-    installments: [
-      ...state.installments,
-      {
-        id: createFinanceId('inst'),
-        active: true,
-        closedAt: null,
-        currentInstallment: 1,
-        ...data,
-      } as Installment,
-    ],
+    installments: [...state.installments, createDefaultInstallment(data)],
+  };
+}
+
+export function updateVariableExpense(
+  state: FinanceState,
+  id: string,
+  updates: Partial<VariableExpense>
+): FinanceState {
+  return {
+    ...state,
+    variableExpenses: (state.variableExpenses || []).map((item) =>
+      item.id === id ? { ...item, ...updates } : item
+    ),
   };
 }
 
@@ -89,17 +107,18 @@ export function updateFixedExpense(
   };
 }
 
+export function removeVariableExpense(state: FinanceState, id: string): FinanceState {
+  return {
+    ...state,
+    variableExpenses: (state.variableExpenses || []).filter((item) => item.id !== id),
+  };
+}
+
 export function removeFixedExpense(state: FinanceState, id: string): FinanceState {
-  const closingMonth = previousMonthKey(new Date(state.currentDate).toISOString().slice(0, 7));
   return {
     ...state,
     fixedExpenses: state.fixedExpenses.map((item) =>
-      item.id === id
-        ? {
-            ...item,
-            endMonth: item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
-          }
-        : item
+      item.id === id ? softDeleteItem(item, state.currentDate) : item
     ),
   };
 }
@@ -116,16 +135,10 @@ export function updateRevenue(
 }
 
 export function removeRevenue(state: FinanceState, id: string): FinanceState {
-  const closingMonth = previousMonthKey(new Date(state.currentDate).toISOString().slice(0, 7));
   return {
     ...state,
     revenues: state.revenues.map((item) =>
-      item.id === id
-        ? {
-            ...item,
-            endMonth: item.endMonth && item.endMonth < closingMonth ? item.endMonth : closingMonth,
-          }
-        : item
+      item.id === id ? softDeleteItem(item, state.currentDate) : item
     ),
   };
 }
@@ -144,21 +157,14 @@ export function updateInstallment(
 }
 
 export function removeInstallment(state: FinanceState, id: string): FinanceState {
-  const currentMonthKey = new Date(state.currentDate).toISOString().slice(0, 7);
-  const closingMonth = previousMonthKey(currentMonthKey);
   return {
     ...state,
     installments: state.installments.map((item) =>
-      item.id === id
-        ? {
-            ...item,
-            closedAt: item.closedAt && item.closedAt < closingMonth ? item.closedAt : closingMonth,
-          }
-        : item
+      item.id === id ? softDeleteItem(item, state.currentDate, 'closedAt') : item
     ),
     monthOverrides: state.monthOverrides.filter(
       (override) =>
-        !(override.type === OVERRIDE_TYPES.INSTALLMENT_PAYMENT && override.itemId === id)
+        !matchOverride(override, { type: OVERRIDE_TYPES.INSTALLMENT_PAYMENT, itemId: id })
     ),
   };
 }
@@ -179,9 +185,8 @@ export function upsertMonthOverride(
 ): FinanceState {
   const { type, itemId, monthKey: overrideMonthKey, amount, name, hidden, paid } = params;
 
-  const idx = state.monthOverrides.findIndex(
-    (override) =>
-      override.type === type && override.itemId === itemId && override.monthKey === overrideMonthKey
+  const idx = state.monthOverrides.findIndex((override) =>
+    matchOverride(override, { type, itemId, monthKey: overrideMonthKey })
   );
 
   const cleaned = {
@@ -220,12 +225,7 @@ export function clearMonthOverride(
   return {
     ...state,
     monthOverrides: state.monthOverrides.filter(
-      (override) =>
-        !(
-          override.type === type &&
-          override.itemId === itemId &&
-          override.monthKey === overrideMonthKey
-        )
+      (override) => !matchOverride(override, { type, itemId, monthKey: overrideMonthKey })
     ),
   };
 }

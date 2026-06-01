@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-type CrudMode = 'create' | 'edit';
+export type CrudMode = 'create' | 'edit';
 
-interface ModalState {
+export interface CrudModalState {
   open: boolean;
   mode: CrudMode;
   itemId: string | null;
@@ -13,10 +13,10 @@ interface ConfirmState<T> {
   item: T | null;
 }
 
-const closedModalState: ModalState = { open: false, mode: 'create', itemId: null };
+const closedModalState: CrudModalState = { open: false, mode: 'create', itemId: null };
 
 export function useCrudModalState<T>() {
-  const [modal, setModal] = useState<ModalState>(closedModalState);
+  const [modal, setModal] = useState<CrudModalState>(closedModalState);
   const [confirm, setConfirm] = useState<ConfirmState<T>>({ open: false, item: null });
 
   const openCreateModal = () => setModal({ open: true, mode: 'create', itemId: null });

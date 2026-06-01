@@ -4,21 +4,31 @@ import {
   addFixedExpense as addFixedExpenseReducer,
   addInstallment as addInstallmentReducer,
   addRevenue as addRevenueReducer,
+  addVariableExpense as addVariableExpenseReducer,
   changeMonth as changeMonthReducer,
   clearMonthOverride as clearMonthOverrideReducer,
   importState as importStateReducer,
   removeFixedExpense as removeFixedExpenseReducer,
   removeInstallment as removeInstallmentReducer,
   removeRevenue as removeRevenueReducer,
+  removeVariableExpense as removeVariableExpenseReducer,
   resetDatabaseState,
   setCardBills as setCardBillsReducer,
   setTheme as setThemeReducer,
   updateFixedExpense as updateFixedExpenseReducer,
   updateInstallment as updateInstallmentReducer,
   updateRevenue as updateRevenueReducer,
+  updateVariableExpense as updateVariableExpenseReducer,
   upsertMonthOverride as upsertMonthOverrideReducer,
 } from './stateReducers';
-import type { FinanceState, FixedExpense, Installment, OverrideType, Revenue } from './types';
+import type {
+  FinanceState,
+  FixedExpense,
+  Installment,
+  OverrideType,
+  Revenue,
+  VariableExpense,
+} from './types';
 import type { UpsertOverrideParams } from './stateReducers';
 
 type SetStateFunc = Dispatch<SetStateAction<FinanceState | null>>;
@@ -51,6 +61,8 @@ export function createActions(_state: FinanceState, setState: SetStateFunc, _cur
       setState((prev) => withState(prev, (s) => addFixedExpenseReducer(s, data))),
     addRevenue: (data: Partial<Revenue>) =>
       setState((prev) => withState(prev, (s) => addRevenueReducer(s, data))),
+    addVariableExpense: (data: Partial<VariableExpense>) =>
+      setState((prev) => withState(prev, (s) => addVariableExpenseReducer(s, data))),
     addInstallment: (data: Partial<Installment>) =>
       setState((prev) => withState(prev, (s) => addInstallmentReducer(s, data))),
     updateFixedExpense: (id: string, updates: Partial<FixedExpense>) =>
@@ -59,8 +71,12 @@ export function createActions(_state: FinanceState, setState: SetStateFunc, _cur
       setState((prev) => withState(prev, (s) => removeFixedExpenseReducer(s, id))),
     updateRevenue: (id: string, updates: Partial<Revenue>) =>
       setState((prev) => withState(prev, (s) => updateRevenueReducer(s, id, updates))),
+    updateVariableExpense: (id: string, updates: Partial<VariableExpense>) =>
+      setState((prev) => withState(prev, (s) => updateVariableExpenseReducer(s, id, updates))),
     removeRevenue: (id: string) =>
       setState((prev) => withState(prev, (s) => removeRevenueReducer(s, id))),
+    removeVariableExpense: (id: string) =>
+      setState((prev) => withState(prev, (s) => removeVariableExpenseReducer(s, id))),
     updateInstallment: (id: string, updates: Partial<Installment>) =>
       setState((prev) => withState(prev, (s) => updateInstallmentReducer(s, id, updates))),
     removeInstallment: (id: string) =>
