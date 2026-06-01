@@ -1,4 +1,4 @@
-# Ledger Web
+# Controle-Financeiro
 
 Aplicacao React para controle financeiro pessoal mensal, com despesas fixas,
 despesas variaveis, parcelamentos, receitas, faturas de cartao e captura rapida
