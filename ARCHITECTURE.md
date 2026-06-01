@@ -1,4 +1,4 @@
-# Arquitetura - Ledger Web V1
+# Arquitetura - V1
 
 Este documento descreve a arquitetura atual do app web apos o roadmap de
 deduplicacao. Ele deve ser usado como referencia para manutencao, novas features
