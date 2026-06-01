@@ -11,6 +11,7 @@ export interface CapturePreferences {
   lastRecurringByText: Record<string, boolean>;
   lastGlobalPaymentMethod: string | null;
   lastGlobalCard: string | null;
+  lastVariableExpenseText: string | null;
 }
 
 export const EMPTY_CAPTURE_PREFERENCES: CapturePreferences = {
@@ -21,6 +22,7 @@ export const EMPTY_CAPTURE_PREFERENCES: CapturePreferences = {
   lastRecurringByText: {},
   lastGlobalPaymentMethod: null,
   lastGlobalCard: null,
+  lastVariableExpenseText: null,
 };
 
 type CaptureStorage = Pick<Storage, 'getItem' | 'setItem'>;
@@ -87,10 +89,31 @@ export function loadCapturePreferences(storage: CaptureStorage | null = getStora
         typeof parsed.lastGlobalCard === 'string'
           ? parsed.lastGlobalCard
           : EMPTY_CAPTURE_PREFERENCES.lastGlobalCard,
+      lastVariableExpenseText:
+        typeof parsed.lastVariableExpenseText === 'string'
+          ? parsed.lastVariableExpenseText
+          : EMPTY_CAPTURE_PREFERENCES.lastVariableExpenseText,
     };
   } catch {
     return EMPTY_CAPTURE_PREFERENCES;
   }
+}
+
+function formatRepeatAmount(value: CaptureFields[string]) {
+  const amount = Number(value || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return '';
+  return amount.toFixed(2).replace('.', ',');
+}
+
+function buildRepeatVariableExpenseText(draft: CaptureDraft) {
+  const description = String(draft.fields.description || '').trim();
+  const amount = formatRepeatAmount(draft.fields.amount);
+  if (!description || !amount) return null;
+
+  const paymentMethod = String(draft.fields.paymentMethod || '').trim();
+  const card = String(draft.fields.card || '').trim();
+
+  return [description, amount, paymentMethod, card].filter(Boolean).join(' ');
 }
 
 export function saveCapturePreferences(
@@ -170,6 +193,9 @@ export function rememberCaptureDraft(
   }
   if (typeof draft.fields.recurring === 'boolean') {
     nextPreferences.lastRecurringByText[key] = draft.fields.recurring;
+  }
+  if (draft.intent === 'variableExpense') {
+    nextPreferences.lastVariableExpenseText = buildRepeatVariableExpenseText(draft);
   }
 
   saveCapturePreferences(nextPreferences, storage);

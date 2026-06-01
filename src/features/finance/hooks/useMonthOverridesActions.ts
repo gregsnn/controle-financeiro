@@ -4,6 +4,7 @@ import {
   createOverrideMutations,
   getMonthCardBills,
   getMonthRevenueAmounts,
+  getMonthRevenuePayments,
 } from '../domain/overrides/facade.js';
 import type { MonthOverride, MonthView, OverrideType } from '../domain/types.js';
 import {
@@ -55,10 +56,11 @@ export function useMonthOverridesActions({
   clearMonthOverride,
 }: UseMonthOverridesActionsParams) {
   // Combine related computations into single useMemo to avoid multiple iterations
-  const { monthCardBills, monthRevenueAmounts } = useMemo(() => {
+  const { monthCardBills, monthRevenueAmounts, monthRevenuePayments } = useMemo(() => {
     return {
       monthCardBills: getMonthCardBills(monthOverrides, currentKey),
       monthRevenueAmounts: getMonthRevenueAmounts(monthOverrides, currentKey),
+      monthRevenuePayments: getMonthRevenuePayments(monthOverrides, currentKey),
     };
   }, [currentKey, monthOverrides]);
 
@@ -94,6 +96,13 @@ export function useMonthOverridesActions({
     [overrideMutations]
   );
 
+  const setMonthRevenueReceived = useCallback(
+    (revenueId: string, received: boolean) => {
+      overrideMutations.setRevenueReceived(revenueId, received);
+    },
+    [overrideMutations]
+  );
+
   const toggleMonthPaid = useCallback(
     (type: OverrideType, itemId: string, paid: boolean) => {
       // Always set the primary override
@@ -110,9 +119,11 @@ export function useMonthOverridesActions({
   return {
     monthCardBills: effectiveMonthCardBills,
     monthRevenueAmounts,
+    monthRevenuePayments,
     setMonthCardBill,
     setMonthFixedExpenseAmount,
     setMonthRevenueAmount,
+    setMonthRevenueReceived,
     toggleMonthPaid,
   };
 }

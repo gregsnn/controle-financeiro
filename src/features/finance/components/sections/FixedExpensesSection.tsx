@@ -59,15 +59,6 @@ export function FixedExpensesSection({
   );
 
   const activeItems = useActiveFixedExpenses(items, currentMonthKey);
-  const fixedTotal = activeItems.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const fixedLabels = useMemo(
-    () => ({
-      ...FIXED_EXPENSE_LABELS,
-      description: `${activeItems.length} lancamento${activeItems.length === 1 ? '' : 's'} - ${formatMoney(fixedTotal)}`,
-    }),
-    [activeItems.length, fixedTotal]
-  );
-
   const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } =
     useFixedExpenseCrudState({
       currentMonthKey,
@@ -83,6 +74,18 @@ export function FixedExpensesSection({
   const monthFixedExpenseAmounts = useMemo(
     () => selectMonthFixedExpenseAmounts(monthOverrides, currentMonthKey),
     [currentMonthKey, monthOverrides]
+  );
+
+  const fixedTotal = activeItems.reduce(
+    (sum, item) => sum + Number(monthFixedExpenseAmounts[item.id] ?? item.amount ?? 0),
+    0
+  );
+  const fixedLabels = useMemo(
+    () => ({
+      ...FIXED_EXPENSE_LABELS,
+      description: `${activeItems.length} lancamento${activeItems.length === 1 ? '' : 's'} - ${formatMoney(fixedTotal)}`,
+    }),
+    [activeItems.length, fixedTotal]
   );
 
   const buildPayload = (currentForm: FixedExpenseFormState) =>

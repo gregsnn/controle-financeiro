@@ -27,7 +27,7 @@ export default function FinanceApp() {
   const { t, normalizeCardName } = useI18n();
   const finance = useFinance();
   const { monthView, currentKey, currentDate } = finance;
-  const { fixedExpenses, revenues, monthOverrides } = finance;
+  const { fixedExpenses, monthOverrides } = finance;
   const settings = useFinanceSettings();
   const ThemeIcon = settings.theme === 'premium' ? Sun : Moon;
   const { isReady } = finance;
@@ -44,6 +44,7 @@ export default function FinanceApp() {
     setMonthCardBill,
     setMonthFixedExpenseAmount,
     setMonthRevenueAmount,
+    setMonthRevenueReceived,
     toggleMonthPaid,
   } = useMonthOverridesActions({
     monthOverrides,
@@ -83,12 +84,18 @@ export default function FinanceApp() {
           label: item.name,
           type: 'installment' as const,
         })),
+        ...monthView.revenues.map((item) => ({
+          id: item.id,
+          label: item.name,
+          type: 'revenue' as const,
+        })),
       ],
     }),
     [
       currentKey,
       monthView.fixedExpenses,
       monthView.installments,
+      monthView.revenues,
       normalizeCardName,
       settings.cardBills,
     ]
@@ -106,6 +113,7 @@ export default function FinanceApp() {
         toggleMonthPaid(OVERRIDE_TYPES.FIXED_EXPENSE_PAYMENT, itemId, paid),
       setInstallmentPaid: (itemId: string, paid: boolean) =>
         toggleMonthPaid(OVERRIDE_TYPES.INSTALLMENT_PAYMENT, itemId, paid),
+      setRevenueReceived: setMonthRevenueReceived,
     }),
     [
       actions.addFixedExpense,
@@ -113,6 +121,7 @@ export default function FinanceApp() {
       actions.addRevenue,
       actions.addVariableExpense,
       setMonthCardBill,
+      setMonthRevenueReceived,
       toggleMonthPaid,
     ]
   );
@@ -223,13 +232,14 @@ export default function FinanceApp() {
 
     return (
       <RevenuesSection
-        items={revenues}
+        items={monthView.revenues}
         currentMonthKey={currentKey}
         monthRevenueAmounts={monthRevenueAmounts}
         onAdd={actions.addRevenue}
         onEdit={actions.updateRevenue}
         onDelete={actions.removeRevenue}
         onMonthRevenueAmount={setMonthRevenueAmount}
+        onToggleReceived={setMonthRevenueReceived}
       />
     );
   };

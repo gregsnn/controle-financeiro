@@ -33,6 +33,14 @@ export function getMonthRevenueAmounts(monthOverrides: MonthOverride[], monthKey
   );
 }
 
+export function getMonthRevenuePayments(monthOverrides: MonthOverride[], monthKey: string) {
+  return new Map(
+    filterByMonthAndType(monthOverrides, monthKey, OVERRIDE_TYPES.REVENUE_PAYMENT).map(
+      (override) => [override.itemId, override]
+    )
+  );
+}
+
 export function createOverrideMutations(currentKey: string, actions: OverrideActions) {
   const setAmount = (type: OverrideType, itemId: string, amount: number | null) => {
     if (amount === null) {
@@ -57,6 +65,13 @@ export function createOverrideMutations(currentKey: string, actions: OverrideAct
       setAmount(OVERRIDE_TYPES.CARD_BILL_AMOUNT, card, amount),
     setRevenueAmount: (revenueId: string, amount: number | null) =>
       setAmount(OVERRIDE_TYPES.REVENUE_AMOUNT, revenueId, amount),
+    setRevenueReceived: (revenueId: string, received: boolean) =>
+      actions.upsertMonthOverride({
+        type: OVERRIDE_TYPES.REVENUE_PAYMENT,
+        itemId: revenueId,
+        monthKey: currentKey,
+        paid: received,
+      }),
     setPaid,
   };
 }

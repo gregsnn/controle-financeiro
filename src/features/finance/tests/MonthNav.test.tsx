@@ -203,7 +203,7 @@ describe('MonthNav.tsx', () => {
     fireEvent.click(screen.getByText('Novo cartao'));
     expect(screen.getByText('Adicionar cartao')).toBeInTheDocument();
     expect(
-      screen.getByText('Fatura e vencimento sao opcionais. Voce pode preencher depois.')
+      screen.getByText('Fatura, vencimento e fechamento sao opcionais. Voce pode preencher depois.')
     ).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Nome do cartao'), {
       target: { value: 'Cartao novo' },
@@ -245,7 +245,7 @@ describe('MonthNav.tsx', () => {
     expect(onSetCardBill).toHaveBeenCalledWith('cartao-novo', 2400);
   });
 
-  it('adds a new card with optional due day', () => {
+  it('adds a new card with optional due and closing days', () => {
     const onSetCardList = vi.fn();
     render(
       <MonthNav
@@ -262,20 +262,23 @@ describe('MonthNav.tsx', () => {
     fireEvent.change(screen.getByLabelText('Dia de vencimento'), {
       target: { value: '15' },
     });
+    fireEvent.change(screen.getByLabelText('Dia de fechamento'), {
+      target: { value: '9' },
+    });
     fireEvent.click(screen.getByText('Adicionar'));
 
     expect(onSetCardList).toHaveBeenCalledWith([
       { id: 'nubank', name: 'Nubank' },
-      { id: 'cartao-novo', name: 'Cartao novo', dueDay: 15 },
+      { id: 'cartao-novo', name: 'Cartao novo', dueDay: 15, closingDay: 9 },
     ]);
   });
 
-  it('edits card name and due day without changing card id', () => {
+  it('edits card name, due day and closing day without changing card id', () => {
     const onSetCardList = vi.fn();
     render(
       <MonthNav
         {...defaultProps}
-        cardList={[{ id: 'nubank', name: 'Nubank', dueDay: 10 }]}
+        cardList={[{ id: 'nubank', name: 'Nubank', dueDay: 10, closingDay: 4 }]}
         onSetCardList={onSetCardList}
       />
     );
@@ -287,10 +290,13 @@ describe('MonthNav.tsx', () => {
     fireEvent.change(screen.getByLabelText('Dia de vencimento'), {
       target: { value: '20' },
     });
+    fireEvent.change(screen.getByLabelText('Dia de fechamento'), {
+      target: { value: '14' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Salvar alteracoes' }));
 
     expect(onSetCardList).toHaveBeenCalledWith([
-      { id: 'nubank', name: 'Nubank PJ', dueDay: 20, color: '#820AD1' },
+      { id: 'nubank', name: 'Nubank PJ', dueDay: 20, closingDay: 14, color: '#820AD1' },
     ]);
   });
 

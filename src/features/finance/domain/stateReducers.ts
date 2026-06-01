@@ -44,6 +44,7 @@ export function setCardBills(
     const normalized: CardBillItem = { id: card.id, name: card.name };
     if (card.color) normalized.color = card.color;
     if (card.dueDay !== undefined) normalized.dueDay = card.dueDay;
+    if (card.closingDay !== undefined) normalized.closingDay = card.closingDay;
     return normalized;
   });
 

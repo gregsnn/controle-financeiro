@@ -30,6 +30,13 @@ function isAmbiguousCardAmount(input: string, draft: CaptureDraft) {
   return input.includes(' cartao ') && draft.fields.amount && !draft.fields.card;
 }
 
+function hasRevenueReceivedSignal(input: string, draft: CaptureDraft) {
+  return (
+    draft.fields.paymentTargetType === 'revenue' &&
+    /\b(recebi|recebido|recebida|caiu|entrou)\b/.test(input)
+  );
+}
+
 export function detectCaptureIntent(
   draft: CaptureDraft,
   _context: CaptureContext
@@ -47,7 +54,7 @@ export function detectCaptureIntent(
     };
   }
 
-  if (hasPaymentStatusSignal(normalized)) {
+  if (hasPaymentStatusSignal(normalized) || hasRevenueReceivedSignal(normalized, draft)) {
     const hasTarget = Boolean(draft.fields.card || draft.fields.paymentTarget);
     return {
       intent: 'markAsPaid',

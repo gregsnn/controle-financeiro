@@ -1,4 +1,4 @@
-import type { Revenue } from '../../domain/types';
+import type { MonthViewRevenue, Revenue } from '../../domain/types';
 import { useActiveRevenues } from '../../hooks/useActiveRevenues';
 import { formatMoney } from '../../lib/utils';
 import { RevenueForm, type RevenueFormState } from './revenues/RevenueForm';
@@ -25,6 +25,7 @@ type RevenuesSectionProps = CrudSectionCommonProps<Revenue, RevenuePayload> & {
   currentMonthKey: string;
   monthRevenueAmounts: Record<string, number>;
   onMonthRevenueAmount?: (itemId: string, amount: number | null) => void;
+  onToggleReceived?: (itemId: string, received: boolean) => void;
 };
 
 export function RevenuesSection({
@@ -35,6 +36,7 @@ export function RevenuesSection({
   onEdit,
   onDelete,
   onMonthRevenueAmount,
+  onToggleReceived,
 }: RevenuesSectionProps) {
   const { form, setForm, canSubmit, openCreateForm, openEditForm, resetForm } = useRevenueCrudState(
     {
@@ -43,7 +45,7 @@ export function RevenuesSection({
     }
   );
 
-  const activeItems = useActiveRevenues(items, currentMonthKey);
+  const activeItems = useActiveRevenues(items, currentMonthKey) as MonthViewRevenue[];
   const totalRevenue = activeItems.reduce((sum, item) => {
     const amount =
       monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined
@@ -51,20 +53,12 @@ export function RevenuesSection({
         : item.baseAmount;
     return sum + Number(amount || 0);
   }, 0);
-  const today = new Date();
-  const [currentYear, currentMonth] = currentMonthKey.split('-').map(Number);
-  const selectedMonthIndex = new Date(currentYear, currentMonth - 1, 1).getTime();
-  const realMonthIndex = new Date(today.getFullYear(), today.getMonth(), 1).getTime();
   const receivedTotal = activeItems.reduce((sum, item) => {
     const amount =
       monthRevenueAmounts && monthRevenueAmounts[item.id] !== undefined
         ? monthRevenueAmounts[item.id]
         : item.baseAmount;
-    const paymentDay = item.paymentDay || 1;
-    const received =
-      selectedMonthIndex < realMonthIndex ||
-      (selectedMonthIndex === realMonthIndex && paymentDay <= today.getDate());
-    return received ? sum + Number(amount || 0) : sum;
+    return item.received === true ? sum + Number(amount || 0) : sum;
   }, 0);
   const pendingTotal = Math.max(0, totalRevenue - receivedTotal);
 
@@ -123,6 +117,7 @@ export function RevenuesSection({
             onMonthAmountInput={handleMonthAmountInput}
             onMonthAmountBlur={handleMonthAmountBlur}
             onMonthAmountChange={handleMonthAmountChange}
+            onToggleReceived={() => onToggleReceived?.(item.id, item.received !== true)}
             onEdit={() => openEdit(item)}
             onDelete={() => openDelete(item)}
           />

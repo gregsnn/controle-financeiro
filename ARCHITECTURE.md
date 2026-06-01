@@ -97,7 +97,8 @@ As sections especificas ainda preservam as diferencas de dominio:
 - `ExpensesSection`: composicao de Despesas; exibe `Fixas` e `Variaveis`.
 - `FixedExpensesSection`: despesas fixas, override mensal de valor, pago/no pago e cartao.
 - `VariableExpensesSection`: despesas variaveis do mes, cadastro rapido em linha, preferencias locais e CRUD.
-- `InstallmentsSection`: parcelamentos, cartao e pago/no pago dentro da aba Cartoes.
+- `InstallmentsSection`: parcelamentos, cartao, pago/no pago, progresso e filtros
+  de leitura dentro da aba Cartoes.
 
 O shell comum foi extraido para `sections/shared/CrudSection.tsx`, que cuida de:
 
@@ -113,7 +114,9 @@ suas rows. `ExpensesSection` e uma camada de composicao para a linguagem de
 produto de despesas, unindo fixas e variaveis. `InstallmentsSection` e a excecao
 visual principal: ela preserva os mesmos hooks, modais, payloads e acoes do CRUD,
 mas renderiza cards de progresso em vez da tabela generica porque parcelamentos
-se beneficiam de leitura temporal.
+se beneficiam de leitura temporal. A ordenacao padrao e `Recentes`, colocando o
+ultimo cadastro no topo; filtros intencionais permitem ver `Perto de quitar`,
+`Maior parcela`, `Maior total` e `Menor restante`.
 
 ### 3.3 Capture
 
@@ -139,6 +142,16 @@ Regras:
 - baixa/pagamento ambiguo exige revisao;
 - executor deve chamar hooks/actions existentes, nao reducers diretamente;
 - preferencias e metricas sao descartaveis e nao fazem parte do export/import financeiro.
+- parcelamentos devem preservar o significado do valor capturado:
+  `6x de 86,94` e valor de parcela; `521,64 em 6x` e valor total;
+- datas historicas com ano explicito devem ser respeitadas;
+- quando um parcelamento capturado tiver cartao com `closingDay`, o executor usa
+  esse dia para definir se a primeira parcela cai no mes da compra ou no mes
+  seguinte;
+- quando nao houver `closingDay`, o executor ainda usa a aproximacao `dueDay - 6`
+  como fallback para compatibilidade com cartoes antigos;
+- o CTA pos-captura `Abrir em ...` so aparece quando o destino salvo e diferente
+  da aba atual.
 
 ### 3.4 Domain
 
@@ -248,7 +261,27 @@ Campos principais:
 
 Remocao e soft-delete: a remocao define `closedAt` usando `softDeleteItem`.
 
-### 4.4 Despesas Variaveis
+### 4.4 Cartoes e Faturas
+
+`CardBillItem` representa um cartao cadastrado em `settings.cardBills`.
+
+Campos principais:
+
+- `id`
+- `name`
+- `color`
+- `dueDay`
+- `closingDay`
+
+`id` deve permanecer estavel ao editar nome ou vencimento, porque despesas fixas,
+despesas variaveis, parcelamentos e faturas referenciam cartoes por id.
+
+`dueDay` e `closingDay` sao opcionais. O vencimento aparece nos cards de fatura.
+O fechamento e usado pela captura de parcelamentos para inferir o primeiro mes
+da compra quando houver data capturada. Se `closingDay` nao existir, a captura
+mantem o fallback historico `dueDay - 6`.
+
+### 4.5 Despesas Variaveis
 
 `VariableExpense` representa uma despesa lancada em um mes especifico.
 
@@ -268,7 +301,7 @@ Campos principais:
 Despesas variaveis entram em `buildMonth`, resumo, graficos e regras de uso de
 cartao. Elas nao usam soft-delete; exclusao remove o item mensal.
 
-### 4.5 Receitas
+### 4.6 Receitas
 
 `Revenue` representa uma receita do mes, recorrente ou pontual.
 
@@ -287,9 +320,9 @@ Campos principais:
 `startMonth` e o mes de validade inicial no dominio. Na UI, o usuario informa o
 dia de recebimento (`paymentDay`) e se a receita e recorrente. Receitas nao
 recorrentes aparecem apenas no mes em que foram criadas. Receitas podem ter
-override mensal de valor.
+override mensal de valor e status mensal recebido/previsto.
 
-### 4.6 Overrides Mensais
+### 4.7 Overrides Mensais
 
 `MonthOverride` guarda excecoes de um mes especifico:
 
@@ -297,6 +330,7 @@ override mensal de valor.
 - valor mensal de receita;
 - pago/no pago de gasto fixo;
 - pago/no pago de parcela;
+- recebido/previsto de receita;
 - valor de fatura por cartao;
 - pago/no pago de fatura.
 
@@ -414,11 +448,11 @@ git diff --check
 
 Estado validado apos captura inteligente global:
 
-- `npm run lint`: passou.
-- `npm test`: passou, 294 testes.
-- `npm run build`: passou.
-- `tsc --noEmit --pretty false`: passou.
-- `git diff --check`: passou.
+- Durante a fase, `npm run lint`, `npm test`, `npm run build`,
+  `tsc --noEmit --pretty false` e `git diff --check` passaram.
+- Ultima suite completa registrada na fase: 39 arquivos, 311 testes.
+- Apos os ajustes finais, testes focados passaram para captura/parcelamentos e
+  `npm run build` passou.
 
 ---
 
@@ -570,10 +604,13 @@ O roadmap de deduplicacao foi concluido ate a Fase 6:
 - defaults de criacao centralizados em factories;
 - soft-delete centralizado em `softDeleteItem`.
 
-A V1 esta funcional pelos gates automatizados. Antes de publicar, recomenda-se:
+Depois disso, a fase de produto/captura inteligente tambem foi fechada:
 
-1. decidir se documentos de roadmap devem ser versionados;
-2. tratar warnings Vite/plugin React em uma mudanca isolada;
-3. fazer uma validacao visual manual dos principais fluxos em desktop;
-4. validar OCR em navegador real com imagens de cupom, pois testes cobrem parsing e
-   fallback sem executar reconhecimento visual pesado.
+- despesas variaveis entraram no dominio, resumo, graficos e aba Despesas;
+- cartoes ganharam `dueDay`, edicao e protecao de exclusao por uso;
+- captura global interpreta despesas, receitas, faturas, baixas e parcelamentos;
+- OCR/arquivos fiscais entram como fonte de captura revisavel;
+- parcelamentos ganharam cards de progresso, total pago/total da compra,
+  filtros e ordenacao padrao por recentes;
+- captura de parcelamento trata valor de parcela vs valor total, data historica
+  e virada inferida por vencimento do cartao.

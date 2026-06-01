@@ -1,17 +1,29 @@
-# Controle Financeiro Pessoal
+# Ledger Web
 
-Aplicação React para controle de finanças pessoais com gestão de despesas fixas, parcelas, receitas e faturas de cartão.
+Aplicacao React para controle financeiro pessoal mensal, com despesas fixas,
+despesas variaveis, parcelamentos, receitas, faturas de cartao e captura rapida
+por linguagem natural.
 
 ## Funcionalidades
 
-- **Despesas Fixas**: Cadastro e gestão de despesas recorrentes mensais
-- **Parcelas**: Acompanhamento de compras parceladas
-- **Receitas**: Registro de rendimentos com possível variação mensal
-- **Faturas de Cartão**: Controle de faturas
-- **Overrides Mensais**:personalização de valores por mês específico
-- **Gráficos**: Visualização de despesas por categoria, cartão e status de pagamento
-- **Tema Claro/Escuro**: Alternância de tema visual
-- **Exportação**: Backup dos dados em JSON
+- **Captura rapida global**: interpreta entradas como `mercado 123,45`,
+  `geladeira 10x de 320,89 santander`, `paguei nubank` e abre revisao quando
+  houver ambiguidade.
+- **OCR e arquivos fiscais**: aceita imagem, TXT, XML NF-e/NFC-e e PDF textual,
+  sempre com revisao antes de salvar.
+- **Despesas**: despesas fixas recorrentes e despesas variaveis mensais com
+  status pago/pendente.
+- **Cartoes**: faturas do mes, vencimento/fechamento opcionais do cartao,
+  edicao de cartao e parcelamentos.
+- **Parcelamentos**: cards com progresso, valor mensal, total pago/total da
+  compra e filtros por recentes, perto de quitar, maior parcela, maior total e
+  menor restante.
+- **Receitas**: receitas recorrentes ou pontuais, com dia de recebimento,
+  status recebido/previsto e overrides mensais de valor.
+- **Resumo e graficos**: saldo previsto, receitas, despesas, distribuicao e
+  parcelas em aberto.
+- **Tema claro/escuro**: visual inspirado no FinFlow, com tokens locais.
+- **Exportacao/importacao**: backup dos dados por JSON/link.
 
 ## Tech Stack
 
@@ -20,26 +32,32 @@ Aplicação React para controle de finanças pessoais com gestão de despesas fi
 - TypeScript (strict mode)
 - Chart.js (gráficos)
 - Dexie (IndexedDB)
+- Tesseract.js (OCR)
+- pdfjs-dist (PDF textual)
+- lucide-react (icones)
 - ESLint + Prettier
 
 ## Estrutura do Projeto
 
 ```
 src/
-├── App.jsx                    # Componente raiz
-├── main.jsx                   # Entry point
+├── App.tsx                    # Componente raiz
+├── main.tsx                   # Entry point
 ├── styles.css                 # Estilos globais
+├── styles/                    # Tokens, temas, secoes, forms e navegacao
 └── features/finance/
     ├── FinanceApp.tsx         # Componente principal
+    ├── capture/               # Parser, intent, preview, executor, OCR e metricas
     ├── domain/
     │   ├── constants.ts       # Constantes e configurações
     │   ├── types.ts           # Tipagens de domínio
-    │   └── actions.ts         # Lógica de negócio
+    │   ├── stateReducers.ts   # Reducers puros
+    │   └── factories.ts       # Defaults de criacao
     ├── context/
     │   └── FinanceContext.tsx # Provider de estado
     ├── components/
-    │   ├── Summary.tsx        # Resumo financeiro
-    │   ├── MonthNav.tsx       # Navegação de meses
+    │   ├── capture/           # QuickCaptureBar e CaptureReviewModal
+    │   ├── summary/           # Dashboard e graficos do resumo
     │   ├── ExportButton.tsx   # Botão de exportar
     │   ├── ErrorBoundary.tsx  # Tratamento de erros
     │   ├── RuleSection.tsx    # Seção genérica com tabela
@@ -60,8 +78,8 @@ src/
     │   ├── buildMonth.ts      # Construção da view mensal
     │   ├── summarySelectors.ts# Dados para o resumo
     │   └── monthOverrideSelectors.ts
-    ├── tests/                 # Testes automatizados (ts/tsx)
-    └── types.d.ts             # Declarações auxiliares
+    ├── tests/                 # Testes automatizados
+    └── ui/                    # Constantes de UI
 ```
 
 ## Comandos
@@ -92,52 +110,98 @@ O app segue o princípio: **o mês é derivado, não armazenado**.
 
 ### Despesas Fixas
 
-```js
-{
-  (id, name, amount, dueDay, category, paymentMethod, active, startMonth, endMonth, notes);
+```ts
+interface FixedExpense {
+  id: string;
+  name: string;
+  amount: number;
+  dueDay: number;
+  category: string;
+  paymentMethod: string;
+  card?: string | null;
+  active: boolean;
+  startMonth: string;
+  endMonth: string | null;
+  notes: string;
 }
 ```
 
-### Parcelas
+### Despesas Variaveis
 
-```js
-{
-  (id,
-    name,
-    totalInstallments,
-    currentInstallment,
-    installmentValue,
-    card,
-    category,
-    startMonth,
-    active,
-    closedAt);
+```ts
+interface VariableExpense {
+  id: string;
+  name: string;
+  amount: number;
+  date: string;
+  monthKey: string;
+  category: string;
+  paymentMethod: string;
+  card?: string | null;
+  paid: boolean;
+  notes: string;
+}
+```
+
+### Parcelamentos
+
+```ts
+interface Installment {
+  id: string;
+  name: string;
+  totalInstallments: number;
+  currentInstallment: number;
+  installmentValue: number;
+  card: string;
+  category: string;
+  startMonth: string;
+  active: boolean;
+  closedAt: string | null;
 }
 ```
 
 ### Receitas
 
-```js
-{
-  (id, name, baseAmount, active, startMonth, endMonth, category, notes);
+```ts
+interface Revenue {
+  id: string;
+  name: string;
+  baseAmount: number;
+  active: boolean;
+  startMonth: string;
+  paymentDay?: number | null;
+  recurring?: boolean;
+  endMonth: string | null;
+  notes: string;
 }
 ```
 
-### Overrides por Mês
+### Cartoes
 
-```js
-{
-  (id, type, itemId, monthKey, amount, paid);
+```ts
+interface CardBillItem {
+  id: string;
+  name: string;
+  color?: string;
+  dueDay?: number | null;
+  closingDay?: number | null;
 }
 ```
+
+### Overrides por Mes
+
+`MonthOverride` guarda excecoes mensais de valor e pago/pendente para despesas,
+receitas, parcelas e faturas.
 
 ## Arquitetura
 
 Consulte [ARCHITECTURE.md](./ARCHITECTURE.md) para detalhes completos sobre:
 
-- Regras de edição (global vs mensal)
-- Padrões de implementação
-- Regras para contribuidores
+- camadas e responsabilidades;
+- captura rapida e OCR;
+- regras de dados e month view derivada;
+- padroes de implementacao;
+- regras obrigatorias para IA/agentes automatizados.
 
 ## Licença
 

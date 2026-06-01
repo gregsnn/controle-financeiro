@@ -55,6 +55,9 @@ function normalizeCardBills(value: unknown): CardBillItem[] | undefined {
     if (typeof record.dueDay === 'number' && Number.isFinite(record.dueDay)) {
       normalized.dueDay = record.dueDay;
     }
+    if (typeof record.closingDay === 'number' && Number.isFinite(record.closingDay)) {
+      normalized.closingDay = record.closingDay;
+    }
     return [normalized];
   });
 }

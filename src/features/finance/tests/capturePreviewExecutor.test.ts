@@ -14,6 +14,7 @@ function actions(): CaptureExecutorActions {
     setCardBillPaid: vi.fn(),
     setFixedExpensePaid: vi.fn(),
     setInstallmentPaid: vi.fn(),
+    setRevenueReceived: vi.fn(),
   };
 }
 
@@ -132,6 +133,33 @@ describe('capture preview and executor', () => {
     );
 
     await executeCaptureDraft(
+      parseCaptureInput(
+        'Fonte Pichau comprado em 25 de fevereiro, parcela 3x de 304,20 no cartao Santander',
+        {
+          ...captureTestContext,
+          cards: [
+            ...captureTestContext.cards,
+            { id: 'santander', name: 'Santander', dueDay: 30, closingDay: 26 },
+          ],
+        }
+      ).draft,
+      {
+        currentMonthKey: '2026-05',
+        cards: [
+          ...captureTestContext.cards,
+          { id: 'santander', name: 'Santander', dueDay: 30, closingDay: 26 },
+        ],
+      },
+      mockedActions
+    );
+    expect(mockedActions.addInstallment).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        name: 'Fonte Pichau',
+        startMonth: '2026-02',
+      })
+    );
+
+    await executeCaptureDraft(
       parseCaptureInput('Geladeira, 10x de 320,89, comprado em 5 de Julho de 2025, Santander', {
         ...captureTestContext,
         cards: [...captureTestContext.cards, { id: 'santander', name: 'Santander', dueDay: 30 }],
@@ -183,6 +211,7 @@ describe('capture preview and executor', () => {
       paymentTargets: [
         { id: 'fixed_luz', label: 'luz', type: 'fixedExpense' as const },
         { id: 'inst_teclado', label: 'teclado', type: 'installment' as const },
+        { id: 'rev_salario', label: 'salario', type: 'revenue' as const },
       ],
     };
 
@@ -206,6 +235,13 @@ describe('capture preview and executor', () => {
       mockedActions
     );
     expect(mockedActions.setInstallmentPaid).toHaveBeenCalledWith('inst_teclado', true);
+
+    await executeCaptureDraft(
+      parseCaptureInput('recebi salario', contextWithTargets).draft,
+      { currentMonthKey: '2026-05' },
+      mockedActions
+    );
+    expect(mockedActions.setRevenueReceived).toHaveBeenCalledWith('rev_salario', true);
   });
 
   it('blocks execution when intent is unknown or fields are missing', async () => {

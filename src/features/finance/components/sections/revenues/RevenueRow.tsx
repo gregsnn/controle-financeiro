@@ -3,7 +3,7 @@ import { formatMoneyInput } from '../../../lib/moneyInput';
 import { RowActions } from '../shared/RowActions';
 
 interface RevenueRowProps {
-  item: Revenue;
+  item: Revenue & { received?: boolean };
   money: (value: number) => string;
   displayAmount: number;
   tempValue?: string;
@@ -11,6 +11,7 @@ interface RevenueRowProps {
   onMonthAmountInput: (itemId: string, value: string) => void;
   onMonthAmountBlur: (item: Pick<Revenue, 'id' | 'baseAmount'>) => void;
   onMonthAmountChange: (itemId: string, amount: string | null) => void;
+  onToggleReceived: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }
@@ -24,6 +25,7 @@ export function RevenueRow({
   onMonthAmountInput,
   onMonthAmountBlur,
   onMonthAmountChange,
+  onToggleReceived,
   onEdit,
   onDelete,
 }: RevenueRowProps) {
@@ -32,6 +34,16 @@ export function RevenueRow({
       <td>{item.name}</td>
       <td>{item.paymentDay ? `Dia ${item.paymentDay}` : '-'}</td>
       <td>{item.recurring === false ? 'Nao' : 'Sim'}</td>
+      <td>
+        <button
+          type="button"
+          className={`installment-paid-toggle ${item.received ? 'paid' : 'pending'}`}
+          onClick={onToggleReceived}
+          aria-pressed={item.received === true}
+        >
+          {item.received ? 'Recebido' : 'Previsto'}
+        </button>
+      </td>
       <td>
         <div className="month-amount-cell">
           <input

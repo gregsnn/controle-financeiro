@@ -5,7 +5,7 @@ export const REVENUE_LABELS = createSectionLabels({
   description: '',
   addLabel: '+ Nova receita',
   emptyText: 'Nenhuma receita cadastrada ainda.',
-  columns: ['Descricao', 'Recebimento', 'Recorrente', 'Valor', 'Acoes'] as const,
+  columns: ['Descricao', 'Recebimento', 'Recorrente', 'Status', 'Valor', 'Acoes'] as const,
   createTitle: 'Nova receita',
   createSubmitLabel: 'Adicionar receita',
   editTitle: 'Editar receita',

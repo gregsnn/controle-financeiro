@@ -26,7 +26,7 @@ export interface CaptureContext {
 export interface CapturePaymentTarget {
   id: string;
   label: string;
-  type: 'fixedExpense' | 'installment' | 'cardBill';
+  type: 'fixedExpense' | 'installment' | 'cardBill' | 'revenue';
 }
 
 export interface CaptureDraft {

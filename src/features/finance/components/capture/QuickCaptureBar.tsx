@@ -4,7 +4,7 @@ import type { CaptureContext, CaptureDraft } from '../../capture/types';
 import type { CaptureExecutorActions } from '../../capture/executor';
 import { executeCaptureDraft } from '../../capture/executor';
 import { parseCaptureInput } from '../../capture/parser';
-import { rememberCaptureDraft } from '../../capture/preferences';
+import { loadCapturePreferences, rememberCaptureDraft } from '../../capture/preferences';
 import { buildCapturePreview } from '../../capture/previewBuilder';
 import { buildCaptureSuggestions } from '../../capture/suggestions';
 import { parseReceiptCaptureSource, readReceiptFile } from '../../capture/ocr/receiptParser';
@@ -30,6 +30,9 @@ export function QuickCaptureBar({
   const [value, setValue] = useState('');
   const [status, setStatus] = useState<'idle' | 'saved' | 'blocked' | 'reading'>('idle');
   const [captureError, setCaptureError] = useState<string | null>(null);
+  const [repeatExpenseText, setRepeatExpenseText] = useState(
+    () => loadCapturePreferences().lastVariableExpenseText
+  );
   const result = useMemo(
     () => (value.trim() ? parseCaptureInput(value, captureContext) : null),
     [captureContext, value]
@@ -63,6 +66,7 @@ export function QuickCaptureBar({
     setValue('');
     setStatus('idle');
     setCaptureError(null);
+    setRepeatExpenseText(loadCapturePreferences().lastVariableExpenseText);
     inputRef.current?.focus();
   }, [resetSignal]);
 
@@ -85,6 +89,7 @@ export function QuickCaptureBar({
 
     if (execution.executed) {
       rememberCaptureDraft(result.draft);
+      setRepeatExpenseText(loadCapturePreferences().lastVariableExpenseText);
       recordCaptureMetric('saved', result.draft.intent);
       onSaved?.(result.draft);
       setValue('');
@@ -158,6 +163,19 @@ export function QuickCaptureBar({
         <button type="button" onClick={() => receiptInputRef.current?.click()}>
           Cupom
         </button>
+        {!value.trim() && repeatExpenseText ? (
+          <button
+            type="button"
+            onClick={() => {
+              setValue(repeatExpenseText);
+              setStatus('idle');
+              setCaptureError(null);
+              window.setTimeout(() => inputRef.current?.focus(), 0);
+            }}
+          >
+            Repetir gasto
+          </button>
+        ) : null}
         <input
           ref={receiptInputRef}
           className="sr-only"

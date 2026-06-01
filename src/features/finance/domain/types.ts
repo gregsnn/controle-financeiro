@@ -65,6 +65,7 @@ export type OverrideType =
   | 'fixedExpensePayment'
   | 'revenue'
   | 'revenueAmount'
+  | 'revenuePayment'
   | 'installmentPayment'
   | 'cardBillAmount'
   | 'cardBillPayment';
@@ -110,11 +111,15 @@ export interface MonthViewInstallment extends Installment {
 
 export interface MonthViewVariableExpense extends VariableExpense {}
 
+export interface MonthViewRevenue extends Revenue {
+  received: boolean;
+}
+
 export interface MonthView {
   fixedExpenses: MonthViewFixedExpense[];
   variableExpenses: MonthViewVariableExpense[];
   installments: MonthViewInstallment[];
-  revenues: Revenue[];
+  revenues: MonthViewRevenue[];
   totals: {
     despesasFixas: number;
     despesasVariaveis: number;
@@ -130,4 +135,5 @@ export interface CardBillItem {
   name: string;
   color?: string;
   dueDay?: number | null;
+  closingDay?: number | null;
 }

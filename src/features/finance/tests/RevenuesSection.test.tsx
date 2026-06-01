@@ -11,6 +11,7 @@ describe('RevenuesSection.tsx', () => {
     onEdit: vi.fn(),
     onDelete: vi.fn(),
     onMonthRevenueAmount: vi.fn(),
+    onToggleReceived: vi.fn(),
   };
 
   it('uses FinFlow-style revenue summary cards', () => {
@@ -60,5 +61,33 @@ describe('RevenuesSection.tsx', () => {
         startMonth: '2026-04',
       })
     );
+  });
+
+  it('toggles monthly received status', () => {
+    const onToggleReceived = vi.fn();
+    render(
+      <RevenuesSection
+        {...defaultProps}
+        onToggleReceived={onToggleReceived}
+        items={[
+          {
+            id: 'r1',
+            name: 'Salario',
+            baseAmount: 999.99,
+            paymentDay: 30,
+            recurring: true,
+            received: false,
+            active: true,
+            startMonth: '2026-01',
+            endMonth: null,
+            notes: '',
+          },
+        ]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previsto' }));
+
+    expect(onToggleReceived).toHaveBeenCalledWith('r1', true);
   });
 });

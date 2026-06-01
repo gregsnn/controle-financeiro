@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { QuickCaptureBar } from '../components/capture/QuickCaptureBar';
 import type { CaptureExecutorActions } from '../capture/executor';
+import { rememberCaptureDraft } from '../capture/preferences';
+import { parseCaptureInput } from '../capture/parser';
 import { captureTestContext } from './captureFixtures';
 
 function actions(): CaptureExecutorActions {
@@ -14,6 +16,7 @@ function actions(): CaptureExecutorActions {
     setCardBillPaid: vi.fn(),
     setFixedExpensePaid: vi.fn(),
     setInstallmentPaid: vi.fn(),
+    setRevenueReceived: vi.fn(),
   };
 }
 
@@ -136,5 +139,34 @@ describe('QuickCaptureBar', () => {
     );
 
     expect(screen.queryByText('Revisar lancamento')).not.toBeInTheDocument();
+  });
+
+  it('fills quick capture from the last variable expense', () => {
+    const store = new Map<string, string>();
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => store.set(key, value),
+        removeItem: (key: string) => store.delete(key),
+        clear: () => store.clear(),
+      },
+    });
+
+    rememberCaptureDraft(parseCaptureInput('mercado 123,45 pix', captureTestContext).draft);
+
+    render(
+      <QuickCaptureBar
+        captureContext={captureTestContext}
+        executorActions={actions()}
+        onReview={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Repetir gasto' }));
+
+    expect(screen.getByPlaceholderText('Adicionar: "mercado 123,45"')).toHaveValue(
+      'mercado 123,45 pix'
+    );
   });
 });

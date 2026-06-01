@@ -57,6 +57,7 @@ describe('capture preferences', () => {
       ...parseCaptureInput('mercado 50 pix itau', captureTestContext).draft,
       fields: {
         description: 'mercado',
+        amount: 50,
         category: 'telefone',
         paymentMethod: 'boleto',
         card: 'itau',
@@ -72,6 +73,7 @@ describe('capture preferences', () => {
     expect(preferences.lastPaymentByText.mercado).toBe('boleto');
     expect(preferences.lastCardByText.mercado).toBe('itau');
     expect(preferences.lastRecurringByText.mercado).toBe(false);
+    expect(preferences.lastVariableExpenseText).toBe('mercado 50,00 boleto itau');
   });
 
   it('lets parser use stored preferences before intent fallback finishes', () => {

@@ -133,6 +133,39 @@ describe('buildMonthView', () => {
     expect(result.totals.receitas).toBe(5000);
   });
 
+  it('applies monthly received status overrides to revenues', () => {
+    const state = {
+      ...emptyFinanceState(),
+      currentDate: new Date('2026-05-01'),
+      revenues: [
+        {
+          id: 'r1',
+          name: 'Salario',
+          baseAmount: 5000,
+          active: true,
+          startMonth: '2026-01',
+          paymentDay: 30,
+          recurring: true,
+          endMonth: null,
+          notes: '',
+        },
+      ],
+      monthOverrides: [
+        {
+          id: 'ovr-rev',
+          type: OVERRIDE_TYPES.REVENUE_PAYMENT,
+          itemId: 'r1',
+          monthKey: '2026-05',
+          paid: true,
+        },
+      ],
+    };
+
+    const result = buildMonthView(state);
+
+    expect(result.revenues[0].received).toBe(true);
+  });
+
   it('includes non-recurring revenue only in its start month', () => {
     const state = {
       ...emptyFinanceState(),

@@ -7,6 +7,7 @@ import type {
   MonthView,
   MonthViewFixedExpense,
   MonthViewInstallment,
+  MonthViewRevenue,
   MonthViewVariableExpense,
   Revenue,
   VariableExpense,
@@ -130,8 +131,12 @@ export function buildMonthView(
     despesasVariaveisPagasTotal += finalItem.paid ? Number(finalItem.amount || 0) : 0;
   }
 
-  const revenues: typeof state.revenues = [];
+  const revenues: MonthViewRevenue[] = [];
   let receitasTotal = 0;
+  const today = new Date();
+  const [currentYear, currentMonth] = currentMonthKey.split('-').map(Number);
+  const selectedMonthIndex = new Date(currentYear, currentMonth - 1, 1).getTime();
+  const realMonthIndex = new Date(today.getFullYear(), today.getMonth(), 1).getTime();
 
   // Single pass: combine all filters into one loop
   for (const item of state.revenues) {
@@ -150,13 +155,24 @@ export function buildMonthView(
     );
 
     const revenueAmount = monthRevenueAmounts?.[item.id];
+    const paymentDay = item.paymentDay || 1;
+    const defaultReceived =
+      selectedMonthIndex < realMonthIndex ||
+      (selectedMonthIndex === realMonthIndex && paymentDay <= today.getDate());
+    const paymentOverride = overridesMap[OVERRIDE_TYPES.REVENUE_PAYMENT]?.get(item.id);
+    const received =
+      paymentOverride && typeof paymentOverride.paid === 'boolean'
+        ? paymentOverride.paid
+        : defaultReceived;
+
     const final = {
       ...overridden,
       amount: revenueAmount !== undefined ? revenueAmount : item.baseAmount,
-    } as any;
+      received,
+    } as MonthViewRevenue & { hidden?: boolean };
 
     // Skip hidden revenue items (but apply overrides to others)
-    if (!(final as Revenue & { hidden?: boolean }).hidden) {
+    if (!final.hidden) {
       revenues.push(final);
       receitasTotal += Number(final.amount || 0);
     }

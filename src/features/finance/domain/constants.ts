@@ -3,6 +3,7 @@ export const OVERRIDE_TYPES = {
   FIXED_EXPENSE_PAYMENT: 'fixedExpensePayment',
   REVENUE: 'revenue',
   REVENUE_AMOUNT: 'revenueAmount',
+  REVENUE_PAYMENT: 'revenuePayment',
   INSTALLMENT_PAYMENT: 'installmentPayment',
   CARD_BILL_AMOUNT: 'cardBillAmount',
   CARD_BILL_PAYMENT: 'cardBillPayment',

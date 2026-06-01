@@ -21,4 +21,37 @@ describe('FixedExpensesSection.tsx', () => {
     const paymentSelect = screen.getByLabelText('Forma de pagamento') as HTMLSelectElement;
     expect(Array.from(paymentSelect.options).map((option) => option.textContent)).toContain('Amex');
   });
+
+  it('shows the month override amount in the section total', () => {
+    render(
+      <FixedExpensesSection
+        {...defaultProps}
+        items={[
+          {
+            id: 'luz',
+            name: 'Luz',
+            amount: 100,
+            dueDay: 10,
+            category: 'contas',
+            paymentMethod: 'pix',
+            active: true,
+            startMonth: '2026-01',
+            endMonth: null,
+            notes: '',
+          },
+        ]}
+        monthOverrides={[
+          {
+            id: 'ovr-1',
+            type: 'fixedExpense',
+            itemId: 'luz',
+            monthKey: '2026-04',
+            amount: 50,
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText(/1 lancamento/i)).toHaveTextContent('R$ 50,00');
+  });
 });

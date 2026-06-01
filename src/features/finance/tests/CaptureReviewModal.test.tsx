@@ -15,6 +15,7 @@ function actions(): CaptureExecutorActions {
     setCardBillPaid: vi.fn(),
     setFixedExpensePaid: vi.fn(),
     setInstallmentPaid: vi.fn(),
+    setRevenueReceived: vi.fn(),
   };
 }
 

@@ -10,6 +10,7 @@ export interface CaptureExecutorActions {
   setCardBillPaid: (cardId: string, paid: boolean) => void | Promise<void>;
   setFixedExpensePaid: (itemId: string, paid: boolean) => void | Promise<void>;
   setInstallmentPaid: (itemId: string, paid: boolean) => void | Promise<void>;
+  setRevenueReceived: (itemId: string, received: boolean) => void | Promise<void>;
 }
 
 export interface CaptureExecutionContext {
@@ -51,7 +52,8 @@ function installmentStartMonthFrom(draft: CaptureDraft, context: CaptureExecutio
   const cardId = String(draft.fields.card || '');
   const card = context.cards?.find((item) => item.id === cardId);
   const dueDay = Number(card?.dueDay || 0);
-  const inferredClosingDay = dueDay > 6 ? dueDay - 6 : 0;
+  const explicitClosingDay = Number(card?.closingDay || 0);
+  const inferredClosingDay = explicitClosingDay || (dueDay > 6 ? dueDay - 6 : 0);
 
   if (!purchaseDay || !inferredClosingDay) return purchaseMonth;
 
@@ -168,6 +170,10 @@ export async function executeCaptureDraft(
     }
     if (draft.fields.paymentTargetType === 'cardBill') {
       await actions.setCardBillPaid(targetId, true);
+      return { executed: true };
+    }
+    if (draft.fields.paymentTargetType === 'revenue') {
+      await actions.setRevenueReceived(targetId, true);
       return { executed: true };
     }
   }

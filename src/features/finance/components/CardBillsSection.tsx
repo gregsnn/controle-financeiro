@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { CardBillItem } from '../domain/types';
 import { useCardList } from '../hooks/useCardList';
 import { detectBankColor } from '../lib/bankColors';
@@ -134,9 +134,8 @@ function BillCard({
 
   return (
     <div
-      className={`bill-card ${hasValue ? 'bill-card--has-value' : 'bill-card--empty'} ${
-        deleteReason ? 'bill-card--locked' : ''
-      }`}
+      className={`bill-card ${hasValue ? 'bill-card--has-value' : 'bill-card--empty'} ${deleteReason ? 'bill-card--locked' : ''
+        }`}
       style={getCardStyle()}
     >
       <div className="bill-card-top">
@@ -178,7 +177,10 @@ function BillCard({
 
       <div className="bill-card-bottom">
         <span className="bill-card-label">FATURA</span>
-        {card.dueDay ? <span className="bill-card-due">Vence dia {card.dueDay}</span> : null}
+        {card.dueDay && !card.closingDay ? <span className="bill-card-due">Vence dia {card.dueDay}</span> : null}
+        {card.closingDay ? (
+          <span className="bill-card-due">Fecha dia {card.closingDay}</span>
+        ) : null}
       </div>
 
       <div className={`bill-display${isEditing ? ' editing' : ''}`}>
@@ -277,15 +279,18 @@ export function CardBillsSection({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newCardName, setNewCardName] = useState('');
   const [newCardDueDay, setNewCardDueDay] = useState('');
+  const [newCardClosingDay, setNewCardClosingDay] = useState('');
   const [newCardBillInput, setNewCardBillInput] = useState('');
   const [editTarget, setEditTarget] = useState<CardBillItem | null>(null);
   const [editCardName, setEditCardName] = useState('');
   const [editCardDueDay, setEditCardDueDay] = useState('');
+  const [editCardClosingDay, setEditCardClosingDay] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<CardBillItem | null>(null);
 
   const resetAddCardForm = () => {
     setNewCardName('');
     setNewCardDueDay('');
+    setNewCardClosingDay('');
     setNewCardBillInput('');
   };
 
@@ -307,6 +312,7 @@ export function CardBillsSection({
     const cardColor = detectBankColor(newCardName);
     const initialBill = parseMoneyInput(newCardBillInput, { allowZero: false });
     const dueDay = newCardDueDay ? Number(newCardDueDay) : null;
+    const closingDay = newCardClosingDay ? Number(newCardClosingDay) : null;
 
     const newCard: CardBillItem = {
       id,
@@ -317,6 +323,9 @@ export function CardBillsSection({
     }
     if (dueDay !== null) {
       newCard.dueDay = dueDay;
+    }
+    if (closingDay !== null) {
+      newCard.closingDay = closingDay;
     }
     const next = [...(cardList || []), newCard];
     onSetCardList(next);
@@ -337,12 +346,14 @@ export function CardBillsSection({
     setEditTarget(card);
     setEditCardName(card.name);
     setEditCardDueDay(card.dueDay ? String(card.dueDay) : '');
+    setEditCardClosingDay(card.closingDay ? String(card.closingDay) : '');
   };
 
   const closeEditCardModal = () => {
     setEditTarget(null);
     setEditCardName('');
     setEditCardDueDay('');
+    setEditCardClosingDay('');
   };
 
   const handleEditCard = () => {
@@ -350,6 +361,7 @@ export function CardBillsSection({
     const name = editCardName.trim();
     if (!name) return;
     const dueDay = editCardDueDay ? Number(editCardDueDay) : null;
+    const closingDay = editCardClosingDay ? Number(editCardClosingDay) : null;
     const detectedColor = detectBankColor(name);
     onSetCardList(
       (cardList || []).map((card) => {
@@ -358,6 +370,7 @@ export function CardBillsSection({
           ...card,
           name,
           dueDay,
+          closingDay,
         };
         if (!card.color && detectedColor) {
           nextCard.color = detectedColor;
@@ -373,6 +386,8 @@ export function CardBillsSection({
       setIsAddModalOpen(false);
       setNewCardName('');
       setNewCardBillInput('');
+      setNewCardDueDay('');
+      setNewCardClosingDay('');
     }
   }, [hasCards]);
 
@@ -457,8 +472,21 @@ export function CardBillsSection({
               autoComplete="off"
             />
           </label>
+          <label className="field card-bill-add-field">
+            <span>Dia de fechamento</span>
+            <input
+              className="card-bill-add-input"
+              type="number"
+              min="1"
+              max="31"
+              placeholder="Opcional"
+              value={newCardClosingDay}
+              onChange={(e) => setNewCardClosingDay(e.target.value)}
+              autoComplete="off"
+            />
+          </label>
           <p className="card-bill-add-hint">
-            Fatura e vencimento sao opcionais. Voce pode preencher depois.
+            Fatura, vencimento e fechamento sao opcionais. Voce pode preencher depois.
           </p>
           {newCardName && detectBankColor(newCardName) ? (
             <div className="color-detection-info">
@@ -510,6 +538,19 @@ export function CardBillsSection({
               placeholder="Opcional"
               value={editCardDueDay}
               onChange={(e) => setEditCardDueDay(e.target.value)}
+              autoComplete="off"
+            />
+          </label>
+          <label className="field card-bill-add-field">
+            <span>Dia de fechamento</span>
+            <input
+              className="card-bill-add-input"
+              type="number"
+              min="1"
+              max="31"
+              placeholder="Opcional"
+              value={editCardClosingDay}
+              onChange={(e) => setEditCardClosingDay(e.target.value)}
               autoComplete="off"
             />
           </label>
