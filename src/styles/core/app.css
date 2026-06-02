@@ -112,6 +112,29 @@ body[data-theme='premium'] .os-theme-ios {
   min-width: 0;
 }
 
+.capture-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 999px;
+  background: var(--color-background-primary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: var(--shadow-surface);
+}
+
+.capture-toggle-btn:hover,
+.capture-toggle-btn.active {
+  border-color: color-mix(in srgb, var(--color-accent) 46%, var(--color-border));
+  color: var(--color-accent-strong);
+  background: color-mix(in srgb, var(--color-accent-muted) 46%, var(--color-background-primary));
+}
+
 .dashboard-shell {
   width: min(var(--app-max-width), calc(100vw - 56px));
   margin: 0 auto;

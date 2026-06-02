@@ -37,9 +37,9 @@ describe('capture contracts', () => {
     const result = parseCaptureInput('   ', captureTestContext);
 
     expect(result.executable).toBe(false);
-    expect(result.destinationLabel).toBe('Revisar lancamento');
+    expect(result.destinationLabel).toBe('Revisar lançamento');
     expect(result.draft.missingFields).toEqual(['rawText']);
-    expect(result.draft.warnings).toContain('Informe uma descricao para capturar.');
+    expect(result.draft.warnings).toContain('Informe uma descrição para capturar.');
   });
 
   it('parses every matrix example into the base CaptureResult contract', () => {

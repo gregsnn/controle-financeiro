@@ -21,11 +21,11 @@ interface CaptureReviewModalProps {
 }
 
 const INTENT_OPTIONS: Array<{ value: CaptureIntent; label: string }> = [
-  { value: 'variableExpense', label: 'Despesa variavel' },
+  { value: 'variableExpense', label: 'Despesa variável' },
   { value: 'fixedExpense', label: 'Despesa fixa' },
   { value: 'installment', label: 'Parcelamento' },
   { value: 'revenue', label: 'Receita' },
-  { value: 'cardBill', label: 'Fatura de cartao' },
+  { value: 'cardBill', label: 'Fatura de cartão' },
   { value: 'markAsPaid', label: 'Marcar como pago' },
 ];
 
@@ -87,7 +87,7 @@ export function CaptureReviewModal({
       intent,
       fields: normalizedFields,
       missingFields,
-      warnings: missingFields.length ? ['Revise os campos obrigatorios antes de salvar.'] : [],
+      warnings: missingFields.length ? ['Revise os campos obrigatórios antes de salvar.'] : [],
     };
   }, [draft, fields, intent]);
   const preview = editedDraft ? buildCapturePreview(editedDraft) : null;
@@ -133,7 +133,7 @@ export function CaptureReviewModal({
     );
 
     if (!result.executed) {
-      setError(result.reason || 'Nao foi possivel salvar.');
+      setError(result.reason || 'Não foi possível salvar.');
       return;
     }
 
@@ -175,7 +175,7 @@ export function CaptureReviewModal({
             </select>
           </label>
           <label className="field">
-            <span>Descricao</span>
+            <span>Descrição</span>
             <input
               value={String(fields.description || '')}
               onChange={(event) => updateField('description', event.target.value)}
@@ -243,7 +243,7 @@ export function CaptureReviewModal({
             </select>
           </label>
           <label className="field">
-            <span>Cartao</span>
+            <span>Cartão</span>
             <select
               value={String(fields.card || '')}
               onChange={(event) => updateField('card', event.target.value)}
@@ -287,7 +287,7 @@ export function CaptureReviewModal({
 
         {editedDraft?.missingFields.length ? (
           <p className="capture-review-error">
-            Campos obrigatorios: {editedDraft.missingFields.join(', ')}
+            Campos obrigatórios: {editedDraft.missingFields.join(', ')}
           </p>
         ) : null}
         {error ? <p className="capture-review-error">{error}</p> : null}

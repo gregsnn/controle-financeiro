@@ -4,6 +4,23 @@ import type { FixedExpense } from '../domain/types';
 
 import { currencyFormatter, formatCurrency } from './currency';
 
+declare global {
+  interface String {
+    toCapitalized(): string;
+  }
+}
+
+String.prototype.toCapitalized = function (): string {
+  if (this.length === 0) return '';
+  return this.split(' ')
+    .map((part) => {
+      if (part.length === 0) return '';
+      if (part.length === 1) return part.toUpperCase();
+      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+    })
+    .join(' ');
+};
+
 export const currency = currencyFormatter;
 
 export function formatMoney(value: unknown): string {
@@ -23,7 +40,7 @@ export function monthKey(date?: Date | null): string {
 }
 
 export function monthLabel(date: Date): string {
-  return date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+  return date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).toCapitalized();
 }
 
 export function previousMonthKey(key: string): string {

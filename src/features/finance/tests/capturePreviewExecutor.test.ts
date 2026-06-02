@@ -23,7 +23,7 @@ describe('capture preview and executor', () => {
     const draft = parseCaptureInput('mercado 123,45', captureTestContext).draft;
     const preview = buildCapturePreview(draft);
 
-    expect(preview.title).toBe('Despesa variavel');
+    expect(preview.title).toBe('Despesa variável');
     expect(preview.summary.replace(/\s/g, ' ')).toBe('mercado - R$ 123,45');
     expect(preview.canExecute).toBe(true);
     expect(preview.fields.map((item) => item.key)).toContain('amount');

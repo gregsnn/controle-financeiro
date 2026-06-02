@@ -50,7 +50,7 @@ export function detectCaptureIntent(
       confidence: 'low',
       alternatives: [],
       missingFields: ['rawText'],
-      warnings: ['Informe uma descricao para capturar.'],
+      warnings: ['Informe uma descrição para capturar.'],
     };
   }
 
@@ -71,7 +71,7 @@ export function detectCaptureIntent(
       confidence: 'low',
       alternatives: ['variableExpense', 'cardBill'],
       missingFields: ['card'],
-      warnings: ['Cartao ambiguo: escolha o cartao antes de salvar.'],
+      warnings: ['Cartão ambíguo: escolha o cartão antes de salvar.'],
     };
   }
 
@@ -81,7 +81,7 @@ export function detectCaptureIntent(
       confidence: draft.fields.card ? 'high' : 'medium',
       alternatives: ['variableExpense'],
       missingFields: draft.fields.card ? [] : ['card'],
-      warnings: draft.fields.card ? [] : ['Parcelamento sem cartao detectado.'],
+      warnings: draft.fields.card ? [] : ['Parcelamento sem cartão detectado.'],
     };
   }
 
@@ -133,6 +133,6 @@ export function detectCaptureIntent(
     confidence: 'low',
     alternatives: [],
     missingFields: ['amount'],
-    warnings: ['Valor nao detectado.'],
+    warnings: ['Valor não detectado.'],
   };
 }

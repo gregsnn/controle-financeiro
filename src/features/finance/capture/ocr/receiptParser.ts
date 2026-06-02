@@ -353,10 +353,10 @@ function draftFromReceipt(source: ReceiptCaptureSource, context: CaptureContext)
       warnings: [
         ...draft.warnings,
         nfeXml
-          ? 'Captura de XML NF-e/NFC-e exige revisao antes de salvar.'
+          ? 'Captura de XML NF-e/NFC-e exige revisão antes de salvar.'
           : danfe
-            ? 'Captura de NF-e/DANFE exige revisao antes de salvar.'
-            : 'Captura por OCR exige revisao antes de salvar.',
+            ? 'Captura de NF-e/DANFE exige revisão antes de salvar.'
+            : 'Captura por OCR exige revisão antes de salvar.',
         source.confidence !== null ? `Confianca OCR: ${Math.round(source.confidence)}%.` : '',
       ].filter(Boolean),
     },
@@ -410,7 +410,7 @@ export function parseReceiptCaptureSource(
     accessKey,
     productDescription,
     drafts,
-    warnings: drafts.length ? [] : ['Nao foi possivel encontrar o total do documento.'],
+    warnings: drafts.length ? [] : ['Não foi possível encontrar o total do documento.'],
   };
 }
 
@@ -470,7 +470,7 @@ export async function readReceiptFile(file: File): Promise<ReceiptCaptureSource>
     const pdf = await extractTextFromReceiptPdf(file);
     if (!pdf.text.trim()) {
       throw new Error(
-        'PDF sem texto extraivel. Envie o XML da NF-e ou uma imagem nitida do DANFE.'
+        'PDF sem texto extraível. Envie o XML da NF-e ou uma imagem nítida do DANFE.'
       );
     }
 

@@ -458,8 +458,6 @@ Estado validado apos captura inteligente global:
 
 ## 9. Git, Hooks e Configuracao
 
-O app vive dentro da pasta `web`, mas o repositorio Git esta na raiz `ledger`.
-
 Configuracao relevante:
 
 - `web/.husky/pre-commit` entra em `web` e roda lint/test.

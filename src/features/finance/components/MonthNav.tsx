@@ -37,12 +37,12 @@ export default function MonthNav({
   return (
     <div className="month-nav">
       <div className="month-nav-top">
-        <div className="month-stepper" role="group" aria-label="Navegacao de meses">
+        <div className="month-stepper" role="group" aria-label="Navegação de meses">
           <button
             className="month-step-btn month-step-btn--icon"
             type="button"
             onClick={onPrev}
-            aria-label="Mes anterior"
+            aria-label="Mês anterior"
           >
             &lt;
           </button>
@@ -51,7 +51,7 @@ export default function MonthNav({
             className="month-step-btn month-step-btn--icon"
             type="button"
             onClick={onNext}
-            aria-label="Proximo mes"
+            aria-label="Próximo mês"
           >
             &gt;
           </button>

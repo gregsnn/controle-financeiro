@@ -23,7 +23,7 @@ export function InstallmentRow({
     <tr>
       <td>{item.name}</td>
       <td>{money(item.installmentValue)}</td>
-      <td>{item.card || 'Sem cartao'}</td>
+      <td>{item.card || 'Sem cartão'}</td>
       <td>{formatStartMonth(item.startMonth)}</td>
       <td>
         <div

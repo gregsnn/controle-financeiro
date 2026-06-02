@@ -1,7 +1,53 @@
 .quick-capture {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: var(--layout-gap-section);
+  padding: 12px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-xl);
+  background: color-mix(in srgb, var(--color-background-primary) 88%, transparent);
+  box-shadow: var(--shadow-surface);
+}
+
+.quick-capture-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--layout-gap);
+}
+
+.quick-capture-head p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.quick-capture-head span {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.quick-capture-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 999px;
+  background: var(--color-background-secondary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.quick-capture-close:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 36%, var(--color-border));
+  color: var(--color-accent-strong);
 }
 
 .quick-capture-form {
@@ -12,7 +58,6 @@
   border: 1px solid var(--color-border-secondary);
   border-radius: 999px;
   background: var(--color-background-primary);
-  box-shadow: var(--shadow-surface);
 }
 
 .quick-capture-field {

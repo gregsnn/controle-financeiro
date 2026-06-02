@@ -1,5 +1,9 @@
 import { useCallback, useState } from 'react';
-import { applyMoneyMask, parseMoneyInput } from '../../../lib/moneyInput';
+import {
+  applyMoneyMask,
+  applyMoneyMaskPreservingCaret,
+  parseMoneyInput,
+} from '../../../lib/moneyInput';
 
 interface MonthAmountItem {
   id: string;
@@ -37,8 +41,9 @@ export function useMonthAmountInput(
     [clearTempValue, onMonthAmount]
   );
 
-  const handleMonthAmountInput = useCallback((itemId: string, value: string) => {
-    const masked = applyMoneyMask(value);
+  const handleMonthAmountInput = useCallback((itemId: string, value: string | HTMLInputElement) => {
+    const masked =
+      typeof value === 'string' ? applyMoneyMask(value) : applyMoneyMaskPreservingCaret(value);
     setTempInputValues((prev) => ({ ...prev, [itemId]: masked }));
   }, []);
 

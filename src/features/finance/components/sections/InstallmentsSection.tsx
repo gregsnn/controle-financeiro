@@ -148,7 +148,7 @@ export function InstallmentsSection({
             <p className="sec-title">{INSTALLMENT_LABELS.title}</p>
             <p className="sec-description">
               {items.length} ativo{items.length === 1 ? '' : 's'} -{' '}
-              <span>{formatMoney(totalAllMonth)}/mes</span>
+              <span>{formatMoney(totalAllMonth)}/mês</span>
             </p>
           </div>
           <div className="sec-actions">
@@ -180,9 +180,10 @@ export function InstallmentsSection({
               const paid = monthPaymentMap.get(item.id)?.paid === true;
               const progress = progressOf(item);
               const isNearEnd = progress >= 75;
-              const cardLabel = cardLabelMap[item.card] || item.card || 'Sem cartao';
+              const cardLabel = cardLabelMap[item.card] || item.card || 'Sem cartão';
               const paidAmount = paidAmountOf(item);
               const totalAmount = totalAmountOf(item);
+              const remainingAmount = remainingAmountOf(item);
 
               return (
                 <article className="installment-card" key={item.id}>
@@ -201,7 +202,7 @@ export function InstallmentsSection({
                     <div className="installment-card-amount">
                       <strong>
                         {formatMoney(item.installmentValue)}
-                        <span>/mes</span>
+                        <span>/mês</span>
                       </strong>
                       <small>
                         {item.currentInstallment}/{item.totalInstallments} parcelas
@@ -235,6 +236,51 @@ export function InstallmentsSection({
                       onDelete={() => openDeleteConfirm(item)}
                     />
                   </div>
+
+                  <details className="mobile-installment-details">
+                    <summary>Detalhes</summary>
+                    <dl>
+                      <div>
+                        <dt>Cartão</dt>
+                        <dd>{cardLabel}</dd>
+                      </div>
+                      <div>
+                        <dt>Início</dt>
+                        <dd>{formatStartMonth(item.startMonth)}</dd>
+                      </div>
+                      <div>
+                        <dt>Total pago</dt>
+                        <dd>{formatMoney(paidAmount)}</dd>
+                      </div>
+                      <div>
+                        <dt>Total da compra</dt>
+                        <dd>{formatMoney(totalAmount)}</dd>
+                      </div>
+                      <div>
+                        <dt>Restante</dt>
+                        <dd>{formatMoney(remainingAmount)}</dd>
+                      </div>
+                      <div>
+                        <dt>Status do mês</dt>
+                        <dd>
+                          <button
+                            type="button"
+                            className={`installment-paid-toggle ${paid ? 'paid' : 'pending'}`}
+                            onClick={() => onTogglePaid(item.id, !paid)}
+                            aria-pressed={paid}
+                            aria-label={`${paid ? 'Pago' : 'Pendente'} ${item.name} pelo card mobile`}
+                          >
+                            {paid ? 'Pago' : 'Pendente'}
+                          </button>
+                        </dd>
+                      </div>
+                    </dl>
+                    <RowActions
+                      onEdit={() => openEdit(item)}
+                      onDelete={() => openDeleteConfirm(item)}
+                      ariaContext={`${item.name} pelo card mobile`}
+                    />
+                  </details>
                 </article>
               );
             })}
@@ -245,7 +291,7 @@ export function InstallmentsSection({
             <span>
               {items.length
                 ? 'Troque o filtro para ver outros parcelamentos.'
-                : 'Compras parceladas aparecem aqui quando houver impacto neste mes.'}
+                : 'Compras parceladas aparecem aqui quando houver impacto neste mês.'}
             </span>
           </div>
         )}

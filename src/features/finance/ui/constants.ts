@@ -35,12 +35,12 @@ export const BILL_CARD_KEYS: string[] = [];
 export const CARD_ORDER = [DEFAULT_CARD_ID] as const;
 
 export const CATEGORY_LABELS: Record<string, string> = {
-  debito: 'DEBITO',
-  credito: 'CREDITO',
+  debito: 'DÉBITO',
+  credito: 'CRÉDITO',
   casa: 'CASA',
   telefone: 'TELEFONE',
   aluguel: 'ALUGUEL',
-  cartao: 'CARTAO',
+  cartao: 'CARTÃO',
   streaming: 'STREAMING',
   seguro: 'SEGURO',
   investimento: 'INVESTIMENTO',

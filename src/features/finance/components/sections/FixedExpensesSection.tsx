@@ -83,7 +83,7 @@ export function FixedExpensesSection({
   const fixedLabels = useMemo(
     () => ({
       ...FIXED_EXPENSE_LABELS,
-      description: `${activeItems.length} lancamento${activeItems.length === 1 ? '' : 's'} - ${formatMoney(fixedTotal)}`,
+      description: `${activeItems.length} lançamento${activeItems.length === 1 ? '' : 's'} - ${formatMoney(fixedTotal)}`,
     }),
     [activeItems.length, fixedTotal]
   );

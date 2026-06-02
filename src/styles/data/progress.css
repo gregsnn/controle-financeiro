@@ -223,6 +223,10 @@
   opacity: 1;
 }
 
+.mobile-installment-details {
+  display: none;
+}
+
 .installment-paid-toggle {
   display: inline-flex;
   align-items: center;
@@ -246,9 +250,11 @@
 }
 
 .installment-paid-toggle.pending {
-  border-color: color-mix(in srgb,
-      var(--color-semantic-warning) 32%,
-      var(--color-border-secondary));
+  border-color: color-mix(
+    in srgb,
+    var(--color-semantic-warning) 32%,
+    var(--color-border-secondary)
+  );
   background: color-mix(in srgb, var(--color-semantic-warning) 10%, transparent);
   color: var(--color-semantic-warning);
 }
@@ -325,7 +331,6 @@
 }
 
 @media (max-width: 720px) {
-
   .installment-card-main,
   .installment-card-footer {
     align-items: flex-start;

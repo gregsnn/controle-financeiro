@@ -52,6 +52,6 @@ describe('FixedExpensesSection.tsx', () => {
       />
     );
 
-    expect(screen.getByText(/1 lancamento/i)).toHaveTextContent('R$ 50,00');
+    expect(screen.getByText(/1 lançamento/i)).toHaveTextContent('R$ 50,00');
   });
 });

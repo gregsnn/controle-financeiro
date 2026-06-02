@@ -34,7 +34,7 @@ describe('QuickCaptureBar', () => {
     fireEvent.change(screen.getByPlaceholderText('Adicionar: "mercado 123,45"'), {
       target: { value: 'mercado 123,45' },
     });
-    expect(screen.getByText('Despesa variavel')).toBeInTheDocument();
+    expect(screen.getByText('Despesa variável')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Capturar' }));
 
@@ -60,7 +60,7 @@ describe('QuickCaptureBar', () => {
 
     await waitFor(() => expect(onReview).toHaveBeenCalledTimes(1));
     expect(executorActions.addVariableExpense).not.toHaveBeenCalled();
-    expect(screen.getByText('Revisao necessaria')).toBeInTheDocument();
+    expect(screen.getByText('Revisão necessária')).toBeInTheDocument();
   });
 
   it('opens review with a suggested draft when a suggestion is selected', async () => {
@@ -107,12 +107,12 @@ describe('QuickCaptureBar', () => {
 
     const input = screen.getByPlaceholderText('Adicionar: "mercado 123,45"');
     fireEvent.change(input, { target: { value: 'mercado 123' } });
-    expect(screen.getByText('Despesa variavel')).toBeInTheDocument();
+    expect(screen.getByText('Despesa variável')).toBeInTheDocument();
 
     input.focus();
     fireEvent.keyDown(window, { key: 'Escape' });
 
-    expect(screen.queryByText('Despesa variavel')).not.toBeInTheDocument();
+    expect(screen.queryByText('Despesa variável')).not.toBeInTheDocument();
   });
 
   it('clears the current value when the reset signal changes', () => {
@@ -127,7 +127,7 @@ describe('QuickCaptureBar', () => {
 
     const input = screen.getByPlaceholderText('Adicionar: "mercado 123,45"');
     fireEvent.change(input, { target: { value: 'cartao 200' } });
-    expect(screen.getByText('Revisar lancamento')).toBeInTheDocument();
+    expect(screen.getByText('Revisar lançamento')).toBeInTheDocument();
 
     rerender(
       <QuickCaptureBar
@@ -138,7 +138,7 @@ describe('QuickCaptureBar', () => {
       />
     );
 
-    expect(screen.queryByText('Revisar lancamento')).not.toBeInTheDocument();
+    expect(screen.queryByText('Revisar lançamento')).not.toBeInTheDocument();
   });
 
   it('fills quick capture from the last variable expense', () => {

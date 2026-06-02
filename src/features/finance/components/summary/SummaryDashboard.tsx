@@ -95,7 +95,7 @@ export function SummaryDashboard({
     const share = total > 0 ? Math.round((main.value / total) * 100) : 0;
 
     if (openInstallments.length === 1 || share >= 70) {
-      return `${main.name} concentra a maior parte das parcelas deste mes.`;
+      return `${main.name} concentra a maior parte das parcelas deste mês.`;
     }
 
     return 'Poucas parcelas em aberto. Acompanhe o impacto mensal sem comparar barras.';
@@ -162,7 +162,7 @@ export function SummaryDashboard({
       return (
         <ChartEmpty
           title="Sem parcelamentos"
-          hint="Cadastre parcelamentos na aba Cartoes para ver os valores mensais."
+          hint="Cadastre parcelamentos na aba Cartões para ver os valores mensais."
         />
       );
     }
@@ -197,7 +197,7 @@ export function SummaryDashboard({
       <canvas
         ref={barChartRef}
         role="img"
-        aria-label="Barras com total ja pago e falta pagar por parcelamento"
+        aria-label="Barras com total já pago e falta pagar por parcelamento"
       />
     );
   };
@@ -222,7 +222,7 @@ export function SummaryDashboard({
             <div
               className="chart-switch"
               role="tablist"
-              aria-label="Modo da distribuicao de despesas"
+              aria-label="Modo da distribuição de despesas"
             >
               <button
                 type="button"
@@ -240,7 +240,7 @@ export function SummaryDashboard({
                 className={`chart-switch-btn ${pieMode === 'cards' ? 'active' : ''}`}
                 onClick={() => setPieMode('cards')}
               >
-                Cartoes
+                Cartões
               </button>
               <button
                 type="button"
@@ -249,7 +249,7 @@ export function SummaryDashboard({
                 className={`chart-switch-btn ${pieMode === 'cardsStatus' ? 'active' : ''}`}
                 onClick={() => setPieMode('cardsStatus')}
               >
-                Pago x pendente
+                {'pago x pendente'.toCapitalized()}
               </button>
             </div>
           </div>
@@ -265,7 +265,7 @@ export function SummaryDashboard({
             {onOpenCards ? (
               <button type="button" className="chart-card-action" onClick={onOpenCards}>
                 <CreditCard size={13} strokeWidth={2} aria-hidden />
-                Ver cartoes
+                Ver cartões
               </button>
             ) : null}
           </div>

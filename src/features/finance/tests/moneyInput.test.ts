@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { formatMoneyInput, applyMoneyMask, parseMoneyInput } from '../lib/moneyInput';
+import { describe, it, expect, vi } from 'vitest';
+import {
+  formatMoneyInput,
+  applyMoneyMask,
+  parseMoneyInput,
+  applyMoneyMaskPreservingCaret,
+} from '../lib/moneyInput';
 
 describe('moneyInput.ts', () => {
   describe('formatMoneyInput', () => {
@@ -45,6 +50,24 @@ describe('moneyInput.ts', () => {
 
     it('ignores non-digit characters', () => {
       expect(applyMoneyMask('abc123def')).toBe('1,23');
+    });
+
+    it('keeps caret near the edited digit after masking', () => {
+      const input = document.createElement('input');
+      document.body.appendChild(input);
+      input.value = '3.200,00';
+      input.setSelectionRange(3, 3);
+      input.focus();
+      const animationSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        cb(0);
+        return 0;
+      });
+
+      expect(applyMoneyMaskPreservingCaret(input)).toBe('3.200,00');
+      expect(input.selectionStart).toBe(3);
+
+      animationSpy.mockRestore();
+      input.remove();
     });
   });
 

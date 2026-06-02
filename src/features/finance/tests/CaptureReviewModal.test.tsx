@@ -36,11 +36,11 @@ describe('CaptureReviewModal', () => {
       />
     );
 
-    expect(screen.queryByText('Campos obrigatorios: intent')).not.toBeInTheDocument();
+    expect(screen.queryByText('Campos obrigatórios: intent')).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Destino'), {
       target: { value: 'variableExpense' },
     });
-    fireEvent.change(screen.getByLabelText('Descricao'), {
+    fireEvent.change(screen.getByLabelText('Descrição'), {
       target: { value: 'Mercado' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
@@ -71,7 +71,7 @@ describe('CaptureReviewModal', () => {
       />
     );
 
-    fireEvent.change(screen.getByLabelText('Cartao'), {
+    fireEvent.change(screen.getByLabelText('Cartão'), {
       target: { value: 'nubank' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));

@@ -4,7 +4,12 @@ import type { CardBillItem } from '../domain/types';
 import { useCardList } from '../hooks/useCardList';
 import { detectBankColor } from '../lib/bankColors';
 import { useI18n } from '../lib/i18n';
-import { applyMoneyMask, formatMoneyInput, parseMoneyInput } from '../lib/moneyInput';
+import {
+  applyMoneyMask,
+  applyMoneyMaskPreservingCaret,
+  formatMoneyInput,
+  parseMoneyInput,
+} from '../lib/moneyInput';
 import { EmptyBillsState } from './EmptyBillsState';
 import { ConfirmModal, RuleModal } from './modals';
 
@@ -14,6 +19,15 @@ interface CardBillsSectionProps {
   cardList?: CardBillItem[];
   onSetCardList?: (list: CardBillItem[]) => void;
   cardDeleteReasons?: Record<string, string>;
+}
+
+function createCardId(name: string) {
+  return name
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, '-');
 }
 
 function BillCard({
@@ -134,8 +148,9 @@ function BillCard({
 
   return (
     <div
-      className={`bill-card ${hasValue ? 'bill-card--has-value' : 'bill-card--empty'} ${deleteReason ? 'bill-card--locked' : ''
-        }`}
+      className={`bill-card ${hasValue ? 'bill-card--has-value' : 'bill-card--empty'} ${
+        deleteReason ? 'bill-card--locked' : ''
+      }`}
       style={getCardStyle()}
     >
       <div className="bill-card-top">
@@ -146,8 +161,8 @@ function BillCard({
             e.stopPropagation();
             onEdit();
           }}
-          aria-label={`Editar cartao ${displayName}`}
-          title={`Editar cartao ${displayName}`}
+          aria-label={`Editar cartão ${displayName}`}
+          title={`Editar cartão ${displayName}`}
         >
           <span className="bill-card-name">{displayName}</span>
           <Pencil size={11} strokeWidth={2.4} aria-hidden />
@@ -163,8 +178,8 @@ function BillCard({
                 e.stopPropagation();
                 onDelete();
               }}
-              aria-label={`Apagar cartao ${displayName}`}
-              title={`Apagar cartao ${displayName}`}
+              aria-label={`Apagar cartão ${displayName}`}
+              title={`Apagar cartão ${displayName}`}
             >
               <Trash2 size={11} strokeWidth={2} aria-hidden />
               Excluir
@@ -177,7 +192,9 @@ function BillCard({
 
       <div className="bill-card-bottom">
         <span className="bill-card-label">FATURA</span>
-        {card.dueDay && !card.closingDay ? <span className="bill-card-due">Vence dia {card.dueDay}</span> : null}
+        {card.dueDay && !card.closingDay ? (
+          <span className="bill-card-due">Vence dia {card.dueDay}</span>
+        ) : null}
         {card.closingDay ? (
           <span className="bill-card-due">Fecha dia {card.closingDay}</span>
         ) : null}
@@ -225,7 +242,7 @@ function BillCard({
             className="bill-card-input"
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(applyMoneyMask(e.target.value))}
+            onChange={(e) => setInputValue(applyMoneyMaskPreservingCaret(e.target))}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             inputMode="decimal"
@@ -306,7 +323,7 @@ export function CardBillsSection({
 
   const handleAddCard = () => {
     if (!onSetCardList) return;
-    const id = newCardName.trim().toLowerCase().replace(/\s+/g, '-');
+    const id = createCardId(newCardName);
     if (!id) return;
 
     const cardColor = detectBankColor(newCardName);
@@ -395,11 +412,11 @@ export function CardBillsSection({
     <div className="month-nav">
       <div className="card-bill-panel">
         <div className="card-bill-panel-head">
-          <p className="card-bill-title">Faturas do mes</p>
+          <p className="card-bill-title">Faturas do mês</p>
           {hasCards && onSetCardList ? (
             <button type="button" className="card-bill-add-btn" onClick={openAddCardModal}>
               <Plus size={13} strokeWidth={2.4} aria-hidden />
-              Novo cartao
+              Novo cartão
             </button>
           ) : null}
         </div>
@@ -427,7 +444,7 @@ export function CardBillsSection({
 
       <RuleModal
         open={isAddModalOpen}
-        title="Adicionar cartao"
+        title="Adicionar cartão"
         submitLabel="Adicionar"
         onClose={closeAddCardModal}
         onSubmit={(event) => {
@@ -437,7 +454,7 @@ export function CardBillsSection({
       >
         <div className="card-bill-add-form">
           <label className="field card-bill-add-field">
-            <span>Nome do cartao</span>
+            <span>Nome do cartão</span>
             <input
               className="card-bill-add-input"
               type="text"
@@ -448,13 +465,13 @@ export function CardBillsSection({
             />
           </label>
           <label className="field card-bill-add-field">
-            <span>Fatura deste mes</span>
+            <span>Fatura deste mês</span>
             <input
               className="card-bill-add-input"
               type="text"
               placeholder="0,00"
               value={newCardBillInput}
-              onChange={(e) => setNewCardBillInput(applyMoneyMask(e.target.value))}
+              onChange={(e) => setNewCardBillInput(applyMoneyMaskPreservingCaret(e.target))}
               inputMode="decimal"
               autoComplete="off"
             />
@@ -486,7 +503,7 @@ export function CardBillsSection({
             />
           </label>
           <p className="card-bill-add-hint">
-            Fatura, vencimento e fechamento sao opcionais. Voce pode preencher depois.
+            Fatura, vencimento e fechamento são opcionais. Você pode preencher depois.
           </p>
           {newCardName && detectBankColor(newCardName) ? (
             <div className="color-detection-info">
@@ -499,7 +516,7 @@ export function CardBillsSection({
                   background: `color-mix(in srgb, ${detectBankColor(newCardName)} 18%, transparent)`,
                   border: `2px solid ${detectBankColor(newCardName)}`,
                 }}
-                title="Cor do cartao"
+                title="Cor do cartão"
               />
             </div>
           ) : null}
@@ -508,8 +525,8 @@ export function CardBillsSection({
 
       <RuleModal
         open={!!editTarget}
-        title="Editar cartao"
-        submitLabel="Salvar alteracoes"
+        title="Editar cartão"
+        submitLabel="Salvar alterações"
         onClose={closeEditCardModal}
         onSubmit={(event) => {
           event.preventDefault();
@@ -518,7 +535,7 @@ export function CardBillsSection({
       >
         <div className="card-bill-add-form">
           <label className="field card-bill-add-field">
-            <span>Nome do cartao</span>
+            <span>Nome do cartão</span>
             <input
               className="card-bill-add-input"
               type="text"
@@ -559,8 +576,8 @@ export function CardBillsSection({
 
       <ConfirmModal
         open={!!deleteTarget}
-        title="Apagar cartao"
-        message={`Tem certeza que deseja apagar o cartao "${deleteTarget?.name || ''}"?`}
+        title="Apagar cartão"
+        message={`Tem certeza que deseja apagar o cartão "${deleteTarget?.name || ''}"?`}
         confirmLabel="Apagar"
         onConfirm={() => {
           if (!deleteTarget || !onSetCardList) return;

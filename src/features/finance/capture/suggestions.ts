@@ -67,15 +67,15 @@ export function buildCaptureSuggestions(
   }
 
   if (!draft.fields.card && lastCard && cardIds.has(lastCard)) {
-    const cardName = context.cards.find((card) => card.id === lastCard)?.name || 'ultimo cartao';
+    const cardName = context.cards.find((card) => card.id === lastCard)?.name || 'último cartão';
     suggestions.push({
       id: 'use-last-card',
       label: `Usar ${cardName}`,
-      detail: 'Mesmo cartao usado recentemente',
+      detail: 'Mesmo cartão usado recentemente',
       draft: withDraftPatch(draft, {
         confidence: draft.confidence === 'high' ? 'medium' : draft.confidence,
         fields: { card: lastCard },
-        warnings: ['Confirme o cartao antes de salvar.'],
+        warnings: ['Confirme o cartão antes de salvar.'],
       }),
     });
   }

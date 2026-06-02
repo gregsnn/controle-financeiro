@@ -1,7 +1,7 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import type { CardBillItem } from '../../../domain/types';
 import { useI18n } from '../../../lib/i18n';
-import { applyMoneyMask } from '../../../lib/moneyInput';
+import { applyMoneyMaskPreservingCaret } from '../../../lib/moneyInput';
 import { Input } from '../../inputs';
 
 export type InstallmentFormState = {
@@ -52,7 +52,10 @@ export function InstallmentForm({ form, setForm, cards }: InstallmentFormProps) 
           type="text"
           value={form.installmentValue}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setForm((prev) => ({ ...prev, installmentValue: applyMoneyMask(e.target.value) }))
+            setForm((prev) => ({
+              ...prev,
+              installmentValue: applyMoneyMaskPreservingCaret(e.target),
+            }))
           }
           inputMode="numeric"
           autoComplete="off"

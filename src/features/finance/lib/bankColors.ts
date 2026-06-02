@@ -187,7 +187,7 @@ export function detectBankColor(cardName: string): string | undefined {
 
   // Partial match (check if the card name contains a known bank name)
   for (const [bankName, color] of Object.entries(BANK_COLORS)) {
-    if (normalizedName.includes(bankName) || bankName.includes(normalizedName.split(' ')[0])) {
+    if (normalizedName.includes(bankName)) {
       return color;
     }
   }

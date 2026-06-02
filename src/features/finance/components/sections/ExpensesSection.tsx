@@ -69,7 +69,7 @@ export function ExpensesSection(props: ExpensesSectionProps) {
           aria-selected={activeMode === 'variable'}
           onClick={() => setActiveMode('variable')}
         >
-          Variaveis
+          Variáveis
         </button>
       </div>
 

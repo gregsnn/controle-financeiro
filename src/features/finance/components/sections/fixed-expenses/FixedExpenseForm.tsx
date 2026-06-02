@@ -1,7 +1,7 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import type { CardBillItem } from '../../../domain/types';
 import { useI18n } from '../../../lib/i18n';
-import { applyMoneyMask } from '../../../lib/moneyInput';
+import { applyMoneyMaskPreservingCaret } from '../../../lib/moneyInput';
 import { CATEGORIES } from '../../../ui/constants';
 import { Input } from '../../inputs';
 
@@ -76,7 +76,7 @@ export function FixedExpenseForm({ form, setForm, cards }: FixedExpenseFormProps
           type="text"
           value={form.amount}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))
+            setForm((prev) => ({ ...prev, amount: applyMoneyMaskPreservingCaret(e.target) }))
           }
           inputMode="numeric"
           autoComplete="off"

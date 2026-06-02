@@ -19,8 +19,8 @@ function getMonthStatus(saldoPrevisto: number, receitas: number) {
   if (saldoPrevisto < 0) {
     return {
       tone: 'negative' as MonthStatusTone,
-      message: 'Este mes precisa de atencao para fechar no positivo.',
-      alert: 'Revise despesas e faturas para entender onde ajustar este mes.',
+      message: 'Este mês precisa de atenção para fechar no positivo.',
+      alert: 'Revise despesas e faturas para entender onde ajustar este mês.',
     };
   }
 
@@ -28,14 +28,14 @@ function getMonthStatus(saldoPrevisto: number, receitas: number) {
   if (saldoPrevisto <= tightThreshold) {
     return {
       tone: 'tight' as MonthStatusTone,
-      message: 'Seu mes esta positivo, mas com pouca folga.',
+      message: 'Seu mês está positivo, mas com pouca folga.',
       alert: null,
     };
   }
 
   return {
     tone: 'comfortable' as MonthStatusTone,
-    message: 'Seu mes ainda tem margem.',
+    message: 'Seu mês ainda tem margem.',
     alert: null,
   };
 }
@@ -44,7 +44,7 @@ function getExpenseRatioCopy(expenses: number, revenues: number) {
   if (revenues <= 0) return 'sem receita cadastrada';
 
   const ratio = Math.round((expenses / revenues) * 100);
-  if (ratio > 100) return 'acima da receita do mes';
+  if (ratio > 100) return 'acima da receita do mês';
   if (ratio >= 90) return 'quase toda a receita';
   return `${ratio}% da receita`;
 }
@@ -170,7 +170,7 @@ export default function Summary({
               ) : (
                 <p className="bill-summary-empty">
                   <ReceiptText size={14} strokeWidth={1.8} aria-hidden />
-                  Sem fatura lancada
+                  Sem fatura lançada
                 </p>
               )}
             </div>

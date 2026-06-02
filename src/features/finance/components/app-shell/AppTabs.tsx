@@ -12,7 +12,7 @@ interface AppTabsProps {
 
 export function AppTabs({ tabs, activeTab, translate, onChange }: AppTabsProps) {
   return (
-    <nav className="app-tabs" role="tablist" aria-label="Secoes do aplicativo">
+    <nav className="app-tabs" role="tablist" aria-label="Seções do aplicativo">
       {tabs.map((tab) => (
         <button
           key={tab.id}

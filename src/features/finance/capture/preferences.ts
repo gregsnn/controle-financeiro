@@ -125,7 +125,7 @@ export function saveCapturePreferences(
   try {
     storage.setItem(CAPTURE_PREFERENCES_KEY, JSON.stringify(preferences));
   } catch {
-    // Preferencias sao best-effort e nao podem bloquear o fluxo de captura.
+    // Preferências são best-effort e não podem bloquear o fluxo de captura.
   }
 }
 

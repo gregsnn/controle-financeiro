@@ -35,7 +35,7 @@ describe('Summary.tsx', () => {
       />
     );
 
-    expect(screen.getByText('Seu mes ainda tem margem.')).toBeInTheDocument();
+    expect(screen.getByText('Seu mês ainda tem margem.')).toBeInTheDocument();
     expect(screen.queryByText(/Revise despesas e faturas/)).not.toBeInTheDocument();
   });
 
@@ -51,7 +51,7 @@ describe('Summary.tsx', () => {
       />
     );
 
-    expect(screen.getByText('Seu mes esta positivo, mas com pouca folga.')).toBeInTheDocument();
+    expect(screen.getByText('Seu mês está positivo, mas com pouca folga.')).toBeInTheDocument();
     expect(screen.queryByText(/Revise despesas e faturas/)).not.toBeInTheDocument();
   });
 
@@ -68,14 +68,14 @@ describe('Summary.tsx', () => {
     );
 
     expect(
-      screen.getByText('Este mes precisa de atencao para fechar no positivo.')
+      screen.getByText('Este mês precisa de atenção para fechar no positivo.')
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Revise despesas e faturas para entender onde ajustar este mes.')
+      screen.getByText('Revise despesas e faturas para entender onde ajustar este mês.')
     ).toBeInTheDocument();
     expect(
       screen
-        .getByText('Revise despesas e faturas para entender onde ajustar este mes.')
+        .getByText('Revise despesas e faturas para entender onde ajustar este mês.')
         .closest('.alert-bar')
     ).toHaveClass('alert-bar--guidance');
     expect(screen.queryByText(/Despesas superam receitas em/)).not.toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('Summary.tsx', () => {
       />
     );
 
-    expect(screen.getByText('acima da receita do mes')).toBeInTheDocument();
+    expect(screen.getByText('acima da receita do mês')).toBeInTheDocument();
     expect(screen.getByText('Priorize faturas')).toBeInTheDocument();
     expect(screen.getByTitle('Priorize faturas e gastos recorrentes.')).toBeInTheDocument();
 
@@ -189,7 +189,7 @@ describe('Summary.tsx', () => {
     expect(pendingBillCard).toHaveTextContent('R$ 98.765,43');
     expect(paidBillCard).toHaveTextContent('Restante: R$ 1.234,56');
     expect(paidBillCard).not.toHaveTextContent('Abatimento: R$ 0,00');
-    expect(emptyBillCard).toHaveTextContent('Sem fatura lancada');
+    expect(emptyBillCard).toHaveTextContent('Sem fatura lançada');
     expect(emptyBillCard).not.toHaveTextContent('R$ 0,00');
     expect(emptyBillCard?.querySelector('.bill-pay-btn')).toBeNull();
 

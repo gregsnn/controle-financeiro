@@ -21,7 +21,7 @@ export function buildInstallmentBarConfig(monthView: MonthView) {
       labels,
       datasets: [
         {
-          label: 'Parcela deste mes',
+          label: 'Parcela deste mês',
           data: monthValues,
           backgroundColor: PAID_COLOR,
           borderRadius: 4,

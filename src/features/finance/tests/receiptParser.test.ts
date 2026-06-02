@@ -23,7 +23,7 @@ describe('receipt parser', () => {
         confidence: 'medium',
       })
     );
-    expect(parsed.drafts[0].warnings.join(' ')).toContain('OCR exige revisao');
+    expect(parsed.drafts[0].warnings.join(' ')).toContain('OCR exige revisão');
   });
 
   it('returns a safe warning when OCR text has no total', () => {
@@ -38,7 +38,7 @@ describe('receipt parser', () => {
     );
 
     expect(parsed.drafts).toHaveLength(0);
-    expect(parsed.warnings).toContain('Nao foi possivel encontrar o total do documento.');
+    expect(parsed.warnings).toContain('Não foi possível encontrar o total do documento.');
   });
 
   it('extracts DANFE/NF-e fields and uses product as expense description', () => {

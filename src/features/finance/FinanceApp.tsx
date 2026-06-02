@@ -1,15 +1,16 @@
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Zap } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import type { CaptureDraft } from './capture/types';
 import { AppTabs } from './components/app-shell/AppTabs';
-import { CardBillsSection } from './components/CardBillsSection';
+import { LoadingScreen } from './components/app-shell/LoadingScreen';
 import { CaptureReviewModal } from './components/capture/CaptureReviewModal';
 import { QuickCaptureBar } from './components/capture/QuickCaptureBar';
-import { LoadingScreen } from './components/app-shell/LoadingScreen';
+import { CardBillsSection } from './components/CardBillsSection';
 import { ExportButton } from './components/ExportButton';
 import { ExpensesSection, InstallmentsSection, RevenuesSection } from './components/sections/index';
 import { SummaryDashboard } from './components/summary/SummaryDashboard';
 import { useFinance } from './context/FinanceContext';
-import { type PieMode, OVERRIDE_TYPES } from './domain/constants';
+import { type PieMode, ALLOWED_PAYMENT_METHODS, OVERRIDE_TYPES } from './domain/constants';
 import { useCardDeleteReasons } from './hooks/useCardDeleteReasons';
 import { useCharts } from './hooks/useCharts';
 import { useFinanceActions } from './hooks/useFinanceActions';
@@ -20,8 +21,6 @@ import { prefetchChartModule } from './lib/chartLoader';
 import { useI18n } from './lib/i18n';
 import { monthLabel } from './lib/utils';
 import { CATEGORIES, TABS } from './ui/constants';
-import { ALLOWED_PAYMENT_METHODS } from './domain/constants';
-import type { CaptureDraft } from './capture/types';
 
 export default function FinanceApp() {
   const { t, normalizeCardName } = useI18n();
@@ -37,6 +36,7 @@ export default function FinanceApp() {
   const [reviewDraft, setReviewDraft] = useState<CaptureDraft | null>(null);
   const [lastSavedCapture, setLastSavedCapture] = useState<CaptureDraft | null>(null);
   const [captureResetSignal, setCaptureResetSignal] = useState(0);
+  const [isQuickCaptureOpen, setIsQuickCaptureOpen] = useState(false);
   const { pieChartRef, barChartRef } = useCharts(monthView, pieMode, activeTab);
   const {
     monthCardBills,
@@ -143,7 +143,7 @@ export default function FinanceApp() {
 
   const captureDestinationLabel = (draft: CaptureDraft) => {
     if (draft.intent === 'revenue') return 'Receitas';
-    if (['installment', 'cardBill', 'markAsPaid'].includes(draft.intent)) return 'Cartoes';
+    if (['installment', 'cardBill', 'markAsPaid'].includes(draft.intent)) return 'Cartões';
     return 'Despesas';
   };
   const shouldShowCaptureDestination =
@@ -151,6 +151,18 @@ export default function FinanceApp() {
 
   useEffect(() => {
     prefetchChartModule();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsQuickCaptureOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useHashImport({ onImport: actions.importFinanceState });
@@ -257,19 +269,17 @@ export default function FinanceApp() {
       <h2 className="sr-only">Painel de controle financeiro</h2>
 
       <header className="app-topbar">
-        <div className="app-brand" aria-label="Ledger">
-          <span className="app-brand-mark" aria-hidden="true">
-            L
-          </span>
-          <span>Ledger</span>
+        <div className="app-brand" aria-label="Controle Financeiro">
+          <span className="app-brand-mark" aria-hidden="true"></span>
+          <span>Controle Financeiro</span>
         </div>
 
-        <div className="app-month-stepper" role="group" aria-label="Navegacao de meses">
+        <div className="app-month-stepper" role="group" aria-label="Navegação de meses">
           <button
             className="month-step-btn month-step-btn--icon"
             type="button"
             onClick={() => actions.changeMonth(-1)}
-            aria-label="Mes anterior"
+            aria-label="Mês anterior"
           >
             &lt;
           </button>
@@ -278,13 +288,24 @@ export default function FinanceApp() {
             className="month-step-btn month-step-btn--icon"
             type="button"
             onClick={() => actions.changeMonth(1)}
-            aria-label="Proximo mes"
+            aria-label="Próximo mês"
           >
             &gt;
           </button>
         </div>
 
         <div className="app-topbar-actions">
+          <button
+            className={`capture-toggle-btn ${isQuickCaptureOpen ? 'active' : ''}`}
+            type="button"
+            aria-expanded={isQuickCaptureOpen}
+            aria-controls="quick-capture-panel"
+            title="Abrir captura rápida (Ctrl/Cmd+K)"
+            onClick={() => setIsQuickCaptureOpen((value) => !value)}
+          >
+            <Zap size={14} strokeWidth={2.3} aria-hidden />
+            <span>Captura</span>
+          </button>
           <ExportButton />
           <button
             className="theme-btn"
@@ -298,13 +319,17 @@ export default function FinanceApp() {
       </header>
 
       <div className="dashboard-shell">
-        <QuickCaptureBar
-          captureContext={captureContext}
-          executorActions={captureExecutorActions}
-          onReview={setReviewDraft}
-          onSaved={setLastSavedCapture}
-          resetSignal={captureResetSignal}
-        />
+        {isQuickCaptureOpen ? (
+          <QuickCaptureBar
+            captureContext={captureContext}
+            executorActions={captureExecutorActions}
+            onReview={setReviewDraft}
+            onSaved={setLastSavedCapture}
+            resetSignal={captureResetSignal}
+            onClose={() => setIsQuickCaptureOpen(false)}
+            autoFocus
+          />
+        ) : null}
         <CaptureReviewModal
           draft={reviewDraft}
           captureContext={captureContext}
@@ -318,6 +343,7 @@ export default function FinanceApp() {
           onSavedAndAddAnother={(draft) => {
             setReviewDraft(null);
             setLastSavedCapture(draft);
+            setIsQuickCaptureOpen(true);
             setCaptureResetSignal((value) => value + 1);
           }}
         />

@@ -39,7 +39,7 @@ describe('ExpensesSection.tsx', () => {
     render(<ExpensesSection {...defaultProps} />);
 
     expect(screen.getByRole('tab', { name: 'Fixas' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: 'Variaveis' })).toBeEnabled();
+    expect(screen.getByRole('tab', { name: 'Variáveis' })).toBeEnabled();
     expect(screen.getByText('DESPESAS FIXAS')).toBeInTheDocument();
   });
 
@@ -47,13 +47,13 @@ describe('ExpensesSection.tsx', () => {
     const onAddVariable = vi.fn();
     render(<ExpensesSection {...defaultProps} onAddVariable={onAddVariable} />);
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Variaveis' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variavel' }));
-    fireEvent.change(screen.getByLabelText('Descricao'), { target: { value: 'Mercado' } });
+    fireEvent.click(screen.getByRole('tab', { name: 'Variáveis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variável' }));
+    fireEvent.change(screen.getByLabelText('Descrição'), { target: { value: 'Mercado' } });
     fireEvent.change(screen.getByLabelText('Valor'), { target: { value: '123,45' } });
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar despesa' }));
 
-    expect(screen.getByRole('tab', { name: 'Variaveis' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Variáveis' })).toHaveAttribute('aria-selected', 'true');
     expect(onAddVariable).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'Mercado',
@@ -70,11 +70,11 @@ describe('ExpensesSection.tsx', () => {
     const onAddVariable = vi.fn();
     render(<ExpensesSection {...defaultProps} onAddVariable={onAddVariable} />);
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Variaveis' }));
-    fireEvent.change(screen.getByLabelText('Descricao rapida'), {
+    fireEvent.click(screen.getByRole('tab', { name: 'Variáveis' }));
+    fireEvent.change(screen.getByLabelText('Descrição rápida'), {
       target: { value: 'Padaria' },
     });
-    fireEvent.change(screen.getByLabelText('Valor rapido'), { target: { value: '32,10' } });
+    fireEvent.change(screen.getByLabelText('Valor rápido'), { target: { value: '32,10' } });
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar' }));
 
     expect(onAddVariable).toHaveBeenCalledWith(
@@ -99,9 +99,9 @@ describe('ExpensesSection.tsx', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Variaveis' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variavel' }));
-    fireEvent.change(screen.getByLabelText('Descricao'), { target: { value: 'Mercado' } });
+    fireEvent.click(screen.getByRole('tab', { name: 'Variáveis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variável' }));
+    fireEvent.change(screen.getByLabelText('Descrição'), { target: { value: 'Mercado' } });
     fireEvent.change(screen.getByLabelText('Valor'), { target: { value: '100,00' } });
     fireEvent.change(screen.getByLabelText('Categoria'), { target: { value: 'telefone' } });
     fireEvent.change(screen.getByLabelText('Pagamento'), { target: { value: 'cartao' } });
@@ -118,11 +118,11 @@ describe('ExpensesSection.tsx', () => {
       )
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variavel' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variável' }));
 
     await waitFor(() => expect(screen.getByLabelText('Categoria')).toHaveValue('telefone'));
     expect(screen.getByLabelText('Pagamento')).toHaveValue('cartao');
-    expect(screen.getByLabelText('Cartao')).toHaveValue('itau');
+    expect(screen.getByLabelText('Cartão')).toHaveValue('itau');
   });
 
   it('uses saved preferences in the inline quick add row', async () => {
@@ -135,9 +135,9 @@ describe('ExpensesSection.tsx', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Variaveis' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variavel' }));
-    fireEvent.change(screen.getByLabelText('Descricao'), { target: { value: 'Mercado' } });
+    fireEvent.click(screen.getByRole('tab', { name: 'Variáveis' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nova despesa variável' }));
+    fireEvent.change(screen.getByLabelText('Descrição'), { target: { value: 'Mercado' } });
     fireEvent.change(screen.getByLabelText('Valor'), { target: { value: '100,00' } });
     fireEvent.change(screen.getByLabelText('Categoria'), { target: { value: 'telefone' } });
     fireEvent.change(screen.getByLabelText('Pagamento'), { target: { value: 'cartao' } });
@@ -145,10 +145,10 @@ describe('ExpensesSection.tsx', () => {
 
     await waitFor(() => expect(onAddVariable).toHaveBeenCalledTimes(1));
 
-    fireEvent.change(screen.getByLabelText('Descricao rapida'), {
+    fireEvent.change(screen.getByLabelText('Descrição rápida'), {
       target: { value: 'Farmacia' },
     });
-    fireEvent.change(screen.getByLabelText('Valor rapido'), { target: { value: '45,00' } });
+    fireEvent.change(screen.getByLabelText('Valor rápido'), { target: { value: '45,00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar' }));
 
     await waitFor(() =>
@@ -187,7 +187,7 @@ describe('ExpensesSection.tsx', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Variaveis' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Variáveis' }));
     fireEvent.click(screen.getByLabelText('Marcar Mercado como pago'));
 
     expect(onToggleVariablePaid).toHaveBeenCalledWith('var-1', true);

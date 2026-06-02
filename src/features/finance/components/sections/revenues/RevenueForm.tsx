@@ -1,5 +1,5 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import { applyMoneyMask } from '../../../lib/moneyInput';
+import { applyMoneyMaskPreservingCaret } from '../../../lib/moneyInput';
 import { Input } from '../../inputs';
 
 export type RevenueFormState = {
@@ -32,7 +32,7 @@ export function RevenueForm({ form, setForm }: RevenueFormProps) {
           type="text"
           value={form.amount}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))
+            setForm((prev) => ({ ...prev, amount: applyMoneyMaskPreservingCaret(e.target) }))
           }
           inputMode="numeric"
           autoComplete="off"
@@ -60,7 +60,7 @@ export function RevenueForm({ form, setForm }: RevenueFormProps) {
             }
           >
             <option value="sim">Sim</option>
-            <option value="nao">Nao, apenas este mes</option>
+            <option value="nao">Não, apenas este mês</option>
           </select>
         </label>
       </div>

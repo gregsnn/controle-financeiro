@@ -17,7 +17,7 @@ export function ExportButton() {
       }
 
       const shouldTest = window.confirm(
-        'Deseja abrir o link em uma nova aba para testar a importacao?'
+        'Deseja abrir o link em uma nova aba para testar a importação?'
       );
       if (shouldTest) {
         window.open(link, '_blank');

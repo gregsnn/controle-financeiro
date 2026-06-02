@@ -4,12 +4,12 @@ export const CAPTURE_EXAMPLES: CaptureExample[] = [
   {
     input: 'mercado 123,45',
     expectedIntent: 'variableExpense',
-    description: 'despesa variavel simples com descricao e valor',
+    description: 'despesa variável simples com descrição e valor',
   },
   {
     input: 'uber 32 pix',
     expectedIntent: 'variableExpense',
-    description: 'despesa variavel com metodo de pagamento explicito',
+    description: 'despesa variável com método de pagamento explícito',
   },
   {
     input: 'internet 120 todo mes dia 10',
@@ -19,7 +19,7 @@ export const CAPTURE_EXAMPLES: CaptureExample[] = [
   {
     input: 'geladeira 2400 10x itau',
     expectedIntent: 'installment',
-    description: 'parcelamento com total, quantidade de parcelas e cartao',
+    description: 'parcelamento com total, quantidade de parcelas e cartão',
   },
   {
     input: 'salario 5000 todo dia 5',
@@ -34,23 +34,23 @@ export const CAPTURE_EXAMPLES: CaptureExample[] = [
   {
     input: 'nubank 2539 vence 12',
     expectedIntent: 'cardBill',
-    description: 'fatura de cartao com vencimento informativo',
+    description: 'fatura de cartão com vencimento informativo',
   },
   {
     input: 'paguei nubank',
     expectedIntent: 'markAsPaid',
-    description: 'baixa de fatura por nome de cartao',
+    description: 'baixa de fatura por nome de cartão',
   },
   {
     input: 'paguei luz',
     expectedIntent: 'markAsPaid',
-    description: 'baixa de despesa por descricao',
+    description: 'baixa de despesa por descrição',
     requiresReview: true,
   },
   {
     input: 'cartao 200',
     expectedIntent: 'unknown',
-    description: 'entrada ambigua que deve exigir revisao',
+    description: 'entrada ambígua que deve exigir revisão',
     requiresReview: true,
   },
 ];

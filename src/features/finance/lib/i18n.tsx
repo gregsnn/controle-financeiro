@@ -4,7 +4,7 @@ const translations = {
   'pt-BR': {
     'tabs.resumo': 'Resumo',
     'tabs.gastos': 'Despesas',
-    'tabs.parcelas': 'Cartoes',
+    'tabs.parcelas': 'Cartões',
     'tabs.receitas': 'Receitas',
     'month.prev': 'Mês anterior',
     'month.next': 'Próximo mês',
@@ -52,7 +52,7 @@ const translations = {
     'metrics.almostDoneSub': 'acima de 75% pagas',
     'section.fixedExpenses': 'DESPESAS',
     'section.revenues': 'RECEITAS',
-    'section.installments': 'CARTOES',
+    'section.installments': 'CARTÕES',
     'empty.noFixedExpenses': 'Nenhuma despesa fixa cadastrada ainda.',
     'empty.noRevenues': 'Nenhuma receita cadastrada ainda.',
     'empty.noInstallments': 'Nenhum parcelamento cadastrado ainda.',

@@ -14,9 +14,9 @@ export function useSummaryMetrics(monthView: MonthView, pieMode: PieMode) {
 
     const pieAriaLabel =
       pieMode === 'cards'
-        ? 'Pizza com distribuicao de despesas por cartao'
+        ? 'Pizza com distribuição de despesas por cartão'
         : pieMode === 'cardsStatus'
-          ? 'Barras com comparativo de pago e a pagar por cartao'
+          ? 'Barras com comparativo de pago e a pagar por cartão'
           : 'Pizza de categorias de despesa';
 
     const totalRestante = monthView.installments.reduce((sum, item) => {

@@ -3,7 +3,7 @@ import { useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
 import type { CardBillItem, VariableExpense } from '../../domain/types';
 import { useCardList } from '../../hooks/useCardList';
 import { useI18n } from '../../lib/i18n';
-import { applyMoneyMask, parseMoneyInput } from '../../lib/moneyInput';
+import { applyMoneyMaskPreservingCaret, parseMoneyInput } from '../../lib/moneyInput';
 import { formatMoney } from '../../lib/utils';
 import { CATEGORIES, CATEGORY_LABELS } from '../../ui/constants';
 import { Input } from '../inputs';
@@ -245,9 +245,9 @@ export function VariableExpensesSection({
 
   const paymentOptions = [
     { value: 'pix', label: 'Pix' },
-    { value: 'debito', label: 'Debito' },
+    { value: 'debito', label: 'Débito' },
     { value: 'boleto', label: 'Boleto' },
-    { value: 'cartao', label: 'Cartao' },
+    { value: 'cartao', label: 'Cartão' },
   ];
 
   return (
@@ -255,16 +255,16 @@ export function VariableExpensesSection({
       <section className="section expense-content-section variable-expenses-section">
         <div className="sec-header section-header--finflow">
           <div>
-            <p className="sec-title">DESPESAS VARIAVEIS</p>
+            <p className="sec-title">DESPESAS VARIÁVEIS</p>
             <p className="sec-description">
-              {sortedItems.length} lancamento{sortedItems.length === 1 ? '' : 's'} -{' '}
+              {sortedItems.length} lançamento{sortedItems.length === 1 ? '' : 's'} -{' '}
               <span>{formatMoney(total)}</span>
             </p>
           </div>
           <div className="sec-actions">
             <button type="button" className="add-btn add-btn--primary" onClick={openCreate}>
               <Plus size={13} strokeWidth={2.4} aria-hidden />
-              Nova despesa variavel
+              Nova despesa variável
             </button>
           </div>
         </div>
@@ -272,23 +272,23 @@ export function VariableExpensesSection({
         <div className="card rule-table-card">
           <form
             className="variable-quick-add"
-            aria-label="Adicionar despesa variavel rapido"
+            aria-label="Adicionar despesa variável rápido"
             onSubmit={handleQuickSubmit}
           >
             <input
               type="text"
               value={quickName}
               onChange={(event) => setQuickName(event.target.value)}
-              placeholder="Descricao rapida"
-              aria-label="Descricao rapida"
+              placeholder="Descrição rápida"
+              aria-label="Descrição rápida"
               autoComplete="off"
             />
             <input
               type="text"
               value={quickAmount}
-              onChange={(event) => setQuickAmount(applyMoneyMask(event.target.value))}
+              onChange={(event) => setQuickAmount(applyMoneyMaskPreservingCaret(event.target))}
               placeholder="0,00"
-              aria-label="Valor rapido"
+              aria-label="Valor rápido"
               inputMode="numeric"
               autoComplete="off"
             />
@@ -300,29 +300,81 @@ export function VariableExpensesSection({
             <table>
               <thead>
                 <tr>
-                  <th>Descricao</th>
+                  <th>Descrição</th>
                   <th>Categoria</th>
                   <th>Pagamento</th>
                   <th>Data</th>
                   <th>Valor</th>
                   <th>Status</th>
-                  <th>Acoes</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedItems.map((item) => {
                   const paymentLabel =
                     item.paymentMethod === 'cartao'
-                      ? cardLabelMap[item.card || ''] || 'Cartao'
+                      ? cardLabelMap[item.card || ''] || 'Cartão'
                       : item.paymentMethod === 'pix'
                         ? 'Pix'
                         : item.paymentMethod === 'debito'
-                          ? 'Debito'
+                          ? 'Débito'
                           : 'Boleto';
 
                   return (
                     <tr key={item.id}>
-                      <td>{item.name}</td>
+                      <td>
+                        <span className="desktop-cell-value">{item.name}</span>
+                        <div className="mobile-finance-item">
+                          <div className="mobile-finance-main">
+                            <div>
+                              <strong>{item.name}</strong>
+                              <span>
+                                {item.date ? item.date.split('-').reverse().join('/') : 'Sem data'}{' '}
+                                · {item.paid ? 'Pago' : 'Pendente'}
+                              </span>
+                            </div>
+                            <p>{formatMoney(item.amount)}</p>
+                          </div>
+                          <details className="mobile-finance-details">
+                            <summary>Detalhes</summary>
+                            <dl>
+                              <div>
+                                <dt>Categoria</dt>
+                                <dd>
+                                  {CATEGORY_LABELS[item.category] || item.category.toUpperCase()}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt>Pagamento</dt>
+                                <dd>{paymentLabel}</dd>
+                              </div>
+                              <div>
+                                <dt>Status</dt>
+                                <dd>
+                                  <label
+                                    className={`table-status-toggle ${item.paid ? 'paid' : 'pending'}`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={item.paid}
+                                      onChange={(event) =>
+                                        onTogglePaid(item.id, event.target.checked)
+                                      }
+                                      aria-label={`Marcar ${item.name} como pago pelo card mobile`}
+                                    />
+                                    <span>{item.paid ? 'Pago' : 'Pendente'}</span>
+                                  </label>
+                                </dd>
+                              </div>
+                            </dl>
+                            <RowActions
+                              onEdit={() => openEdit(item)}
+                              onDelete={() => setConfirm(item)}
+                              ariaContext={`${item.name} pelo card mobile`}
+                            />
+                          </details>
+                        </div>
+                      </td>
                       <td>{CATEGORY_LABELS[item.category] || item.category.toUpperCase()}</td>
                       <td>{paymentLabel}</td>
                       <td>{item.date ? item.date.split('-').reverse().join('/') : '-'}</td>
@@ -351,8 +403,8 @@ export function VariableExpensesSection({
             </table>
           ) : (
             <div className="rule-empty-state variable-expenses-empty">
-              <p>Nenhuma despesa variavel lancada ainda.</p>
-              <span>Use descricao e valor para registrar um gasto pontual rapidamente.</span>
+              <p>Nenhuma despesa variável lançada ainda.</p>
+              <span>Use descrição e valor para registrar um gasto pontual rapidamente.</span>
             </div>
           )}
         </div>
@@ -360,8 +412,8 @@ export function VariableExpensesSection({
 
       <ConfirmModal
         open={Boolean(confirm)}
-        title="Confirmar exclusao"
-        message={`Tem certeza que deseja apagar a despesa variavel "${confirm?.name || ''}"?`}
+        title="Confirmar exclusão"
+        message={`Tem certeza que deseja apagar a despesa variável "${confirm?.name || ''}"?`}
         onConfirm={async () => {
           if (confirm) await onDelete(confirm.id);
           setConfirm(null);
@@ -371,19 +423,19 @@ export function VariableExpensesSection({
 
       <RuleModal
         open={Boolean(modal)}
-        title={modal?.mode === 'edit' ? 'Editar despesa variavel' : 'Nova despesa variavel'}
+        title={modal?.mode === 'edit' ? 'Editar despesa variável' : 'Nova despesa variável'}
         onClose={closeModal}
         onSubmit={handleSubmit}
-        submitLabel={modal?.mode === 'edit' ? 'Salvar alteracoes' : 'Adicionar despesa'}
+        submitLabel={modal?.mode === 'edit' ? 'Salvar alterações' : 'Adicionar despesa'}
       >
         <div className="form-grid">
           <Input
-            label="Descricao"
+            label="Descrição"
             value={form.name}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setForm((prev) => ({ ...prev, name: e.target.value }))
             }
-            placeholder="Mercado, farmacia, restaurante..."
+            placeholder="Mercado, farmácia, restaurante..."
             autoFocus
           />
           <Input
@@ -391,7 +443,7 @@ export function VariableExpensesSection({
             type="text"
             value={form.amount}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setForm((prev) => ({ ...prev, amount: applyMoneyMask(e.target.value) }))
+              setForm((prev) => ({ ...prev, amount: applyMoneyMaskPreservingCaret(e.target) }))
             }
             inputMode="numeric"
             autoComplete="off"
@@ -445,7 +497,7 @@ export function VariableExpensesSection({
         <div className="form-grid">
           {form.paymentMethod === 'cartao' ? (
             <label className="field">
-              <span>Cartao</span>
+              <span>Cartão</span>
               <select
                 value={form.card}
                 onChange={(e: ChangeEvent<HTMLSelectElement>) =>

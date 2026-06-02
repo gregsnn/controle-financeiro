@@ -67,7 +67,7 @@ export function useCardDeleteReasons({
           (item) => item.paymentMethod === 'cartao' && item.card === cardId
         )
       ) {
-        labels.push('despesas variaveis');
+        labels.push('despesas variáveis');
       }
       if (Object.prototype.hasOwnProperty.call(monthCardBills, cardId)) {
         labels.push('fatura do mês');

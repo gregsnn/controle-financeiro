@@ -28,6 +28,6 @@ describe('useCardDeleteReasons', () => {
       })
     );
 
-    expect(result.current.itau).toBe('despesas variaveis');
+    expect(result.current.itau).toBe('despesas variáveis');
   });
 });

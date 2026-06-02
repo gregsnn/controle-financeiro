@@ -70,6 +70,6 @@ export function recordCaptureMetric(
   try {
     storage.setItem(CAPTURE_METRICS_KEY, JSON.stringify(nextMetrics));
   } catch {
-    // Metricas locais nao podem bloquear captura.
+    // Métricas locais não podem bloquear captura.
   }
 }

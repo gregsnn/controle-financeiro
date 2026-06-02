@@ -70,7 +70,7 @@ describe('SummaryDashboard.tsx', () => {
       screen.getByText('TELEFONE', { selector: '.chart-insight-list-row span' })
     ).toBeInTheDocument();
     expect(
-      screen.getByText('Mac concentra a maior parte das parcelas deste mes.')
+      screen.getByText('Mac concentra a maior parte das parcelas deste mês.')
     ).toBeInTheDocument();
     expect(screen.getByText('1 em aberto')).toBeInTheDocument();
 
@@ -128,7 +128,7 @@ describe('SummaryDashboard.tsx', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Ver cartoes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ver cartões' }));
 
     expect(onOpenCards).toHaveBeenCalledTimes(1);
   });
@@ -150,9 +150,9 @@ describe('SummaryDashboard.tsx', () => {
     );
 
     expect(screen.getByRole('tab', { name: 'Categorias' }).closest('.chart-switch')).toBeTruthy();
-    expect(screen.getByRole('tab', { name: 'Cartoes' }).closest('.chart-switch')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Cartões' }).closest('.chart-switch')).toBeTruthy();
     expect(
-      screen.getByRole('tab', { name: 'Pago x pendente' }).closest('.chart-switch')
+      screen.getByRole('tab', { name: 'Pago X Pendente' }).closest('.chart-switch')
     ).toBeTruthy();
   });
 });

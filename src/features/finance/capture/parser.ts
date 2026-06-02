@@ -12,7 +12,7 @@ import { matchPaymentTarget } from './paymentTargetMatcher';
 import { parseRecurrence } from './recurrenceParser';
 import type { CaptureContext, CaptureDraft, CaptureResult } from './types';
 
-const UNKNOWN_DESTINATION_LABEL = 'Revisar lancamento';
+const UNKNOWN_DESTINATION_LABEL = 'Revisar lançamento';
 
 function createCaptureId() {
   const random = Math.random().toString(36).slice(2, 9);
@@ -27,7 +27,7 @@ export function createCaptureDraft(rawText: string): CaptureDraft {
     rawText: normalizedText,
     intent: 'unknown',
     confidence: 'low',
-    warnings: normalizedText ? [] : ['Informe uma descricao para capturar.'],
+    warnings: normalizedText ? [] : ['Informe uma descrição para capturar.'],
     fields: {},
     missingFields: normalizedText ? [] : ['rawText'],
     alternatives: [],

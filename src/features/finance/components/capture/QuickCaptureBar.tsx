@@ -1,4 +1,4 @@
-import { Check, CornerDownLeft } from 'lucide-react';
+import { Check, CornerDownLeft, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type { CaptureContext, CaptureDraft } from '../../capture/types';
 import type { CaptureExecutorActions } from '../../capture/executor';
@@ -16,6 +16,8 @@ interface QuickCaptureBarProps {
   onReview: (draft: CaptureDraft) => void;
   onSaved?: (draft: CaptureDraft) => void;
   resetSignal?: number;
+  onClose?: () => void;
+  autoFocus?: boolean;
 }
 
 export function QuickCaptureBar({
@@ -24,6 +26,8 @@ export function QuickCaptureBar({
   onReview,
   onSaved,
   resetSignal,
+  onClose,
+  autoFocus = false,
 }: QuickCaptureBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const receiptInputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +47,12 @@ export function QuickCaptureBar({
     result?.draft.confidence === 'high' &&
     preview?.canExecute === true &&
     result.draft.warnings.length === 0;
+
+  useEffect(() => {
+    if (!autoFocus) return;
+    const timeoutId = window.setTimeout(() => inputRef.current?.focus(), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [autoFocus]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -116,7 +126,7 @@ export function QuickCaptureBar({
       if (!draft) {
         setStatus('blocked');
         setCaptureError(
-          parsedReceipt.warnings[0] || 'Nao consegui identificar os dados do arquivo.'
+          parsedReceipt.warnings[0] || 'Não consegui identificar os dados do arquivo.'
         );
         return;
       }
@@ -129,7 +139,7 @@ export function QuickCaptureBar({
       setCaptureError(
         error instanceof Error
           ? error.message
-          : 'Nao consegui ler este arquivo. Tente XML da NF-e, PDF com texto, TXT ou imagem nitida.'
+          : 'Não consegui ler este arquivo. Tente XML da NF-e, PDF com texto, TXT ou imagem nítida.'
       );
     } finally {
       if (receiptInputRef.current) {
@@ -139,7 +149,19 @@ export function QuickCaptureBar({
   };
 
   return (
-    <section className="quick-capture" aria-label="Captura rapida">
+    <section id="quick-capture-panel" className="quick-capture" aria-label="Captura rápida">
+      <div className="quick-capture-head">
+        <div>
+          <p>Captura rápida</p>
+          <span>Use quando quiser lançar algo sem abrir um formulário completo.</span>
+        </div>
+        {onClose ? (
+          <button type="button" className="quick-capture-close" onClick={onClose}>
+            <X size={14} strokeWidth={2.4} aria-hidden />
+            Fechar
+          </button>
+        ) : null}
+      </div>
       <form className="quick-capture-form" onSubmit={submit}>
         <label className="quick-capture-field">
           <span className="sr-only">Adicionar rapidamente</span>
@@ -199,7 +221,7 @@ export function QuickCaptureBar({
               {canExecuteDirectly ? 'Enter salva direto.' : 'Precisa revisar antes de salvar.'}
             </small>
             {suggestions.length ? (
-              <div className="quick-capture-suggestions" aria-label="Sugestoes de captura">
+              <div className="quick-capture-suggestions" aria-label="Sugestões de captura">
                 {suggestions.map((suggestion) => (
                   <button
                     key={suggestion.id}
@@ -227,7 +249,7 @@ export function QuickCaptureBar({
       ) : null}
       {status === 'blocked' ? (
         <p className="quick-capture-status quick-capture-status--blocked">
-          {captureError || 'Revisao necessaria'}
+          {captureError || 'Revisão necessária'}
         </p>
       ) : null}
       {status === 'reading' ? (

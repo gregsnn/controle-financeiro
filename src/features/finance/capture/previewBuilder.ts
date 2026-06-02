@@ -2,13 +2,13 @@ import { formatMoney } from '../lib/utils';
 import type { CaptureDraft, CapturePreview, CapturePreviewField } from './types';
 
 const INTENT_TITLES: Record<CaptureDraft['intent'], string> = {
-  variableExpense: 'Despesa variavel',
+  variableExpense: 'Despesa variável',
   fixedExpense: 'Despesa fixa',
   installment: 'Parcelamento',
   revenue: 'Receita',
-  cardBill: 'Fatura de cartao',
+  cardBill: 'Fatura de cartão',
   markAsPaid: 'Marcar como pago',
-  unknown: 'Revisar lancamento',
+  unknown: 'Revisar lançamento',
 };
 
 function field(key: string, label: string, value: unknown, required = false): CapturePreviewField {
@@ -38,7 +38,7 @@ function buildSummary(draft: CaptureDraft) {
 
 export function buildCapturePreview(draft: CaptureDraft): CapturePreview {
   const fields: CapturePreviewField[] = [
-    field('description', 'Descricao', draft.fields.description, draft.intent !== 'cardBill'),
+    field('description', 'Descrição', draft.fields.description, draft.intent !== 'cardBill'),
     field(
       'amount',
       'Valor',
@@ -47,7 +47,7 @@ export function buildCapturePreview(draft: CaptureDraft): CapturePreview {
     ),
     field('category', 'Categoria', draft.fields.category),
     field('paymentMethod', 'Pagamento', draft.fields.paymentMethod),
-    field('card', 'Cartao', draft.fields.card, ['installment', 'cardBill'].includes(draft.intent)),
+    field('card', 'Cartão', draft.fields.card, ['installment', 'cardBill'].includes(draft.intent)),
     field('day', 'Dia', draft.fields.day),
     field('totalInstallments', 'Parcelas', draft.fields.totalInstallments),
     field('recurring', 'Recorrente', draft.fields.recurring),
